@@ -25,12 +25,12 @@ import subaraki.fashion.handler.ClientEventHandler;
 import subaraki.fashion.mod.Fashion;
 
 public class ClientProxy extends ServerProxy implements IResourceManagerReloadListener{
-	
+
 	@Override
 	public void init() {
 		IResourceManager manager = Minecraft.getMinecraft().getResourceManager();
 		if(manager instanceof IReloadableResourceManager) {
-		    ((IReloadableResourceManager)manager).registerReloadListener(this);
+			((IReloadableResourceManager)manager).registerReloadListener(this);
 		}
 	}
 	@Override
@@ -55,10 +55,10 @@ public class ClientProxy extends ServerProxy implements IResourceManagerReloadLi
 
 	public static ResourceLocation getResourceForPart(int slot, int partIndex){
 		switch (slot) {
-		case 0 : return hats.get(partIndex);
-		case 1 : return body.get(partIndex);
-		case 2 : return legs.get(partIndex);
-		case 3 : return boots.get(partIndex);
+		case 0 : return partIndex >= hats.size() ? MISSING_FASHION : hats.get(partIndex);
+		case 1 : return partIndex >= body.size() ? MISSING_FASHION : body.get(partIndex);
+		case 2 : return partIndex >= legs.size() ? MISSING_FASHION : legs.get(partIndex);
+		case 3 : return partIndex >= boots.size() ? MISSING_FASHION : boots.get(partIndex);
 		default: return MISSING_FASHION;
 		}
 	}
