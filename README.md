@@ -29,7 +29,9 @@ in the json file,
     
   
 Your fashionpack.json might look something like this :  
-![](http://i.imgur.com/rIJLrps.png)
+![](http://i.imgur.com/rIJLrps.png)  
+
+### Make sure to put all of this in a zip file !
 
 
 __If any of this wasn't clear enough, you can get a copy of a FashionPack [here](https://minecraft.curseforge.com/projects/justfashion-resource-pack)__
