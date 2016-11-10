@@ -20,6 +20,12 @@ public class GuiWardrobe extends GuiContainer{
 	private float oldMouseY;
 	private FashionData fashion;
 
+	private String onScreenButtonText[] = new String[]{
+			"hats",
+			"body",
+			"pants",
+			"boots"
+	};
 	public GuiWardrobe(FashionContainer inventorySlotsIn) {
 		super(inventorySlotsIn);
 		fashion = FashionData.get(inventorySlotsIn.player);
@@ -40,24 +46,24 @@ public class GuiWardrobe extends GuiContainer{
 	protected void actionPerformed(GuiButton button) throws IOException {
 		super.actionPerformed(button);
 
-		if(button instanceof GuiFancyButton){
+		if(button instanceof GuiFancyButton)
 			fashion.setRenderFashion( ((GuiFancyButton)button).isActive() );
-		}
 
-		else if(fashion.shouldRenderFashion()){
+		else if(fashion.shouldRenderFashion())
+		{
 			int slot = (button.id)/2;
 			int id = fashion.getPartIndex(slot);
-			
+
 			if(button.id%2 == 0)
 				id--;
 			else
 				id++;
-			
+
 			if(id >= ClientProxy.partsSize(slot))
 				id = 0;
 			if(id < 0)
 				id = ClientProxy.partsSize(slot)-1;
-			
+
 			fashion.updatePartIndex(id, slot);
 		}
 	}
@@ -79,7 +85,7 @@ public class GuiWardrobe extends GuiContainer{
 		this.zLevel = 90;
 		GlStateManager.enableBlend();
 		GlStateManager.enableAlpha();
-		GlStateManager.color(1, 1, 1, 1);
+		GlStateManager.color(1, 1, 1, 0.8f);
 		this.mc.renderEngine.bindTexture(BACKGROUND);
 		drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
 		GlStateManager.disableAlpha();
@@ -92,26 +98,12 @@ public class GuiWardrobe extends GuiContainer{
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 		super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
-		mc.fontRendererObj.drawString("hats", 
-				35 - mc.fontRendererObj.getStringWidth("hats")/2,
-				86 + (1* 15),
-				0xffffff, true);
+		for(int i = 0; i < this.onScreenButtonText.length; i++)
+			mc.fontRendererObj.drawString(this.onScreenButtonText[i], 
+					35 - mc.fontRendererObj.getStringWidth("hats")/2,
+					86 + ((i+1)* 15),
+					0xffffff, true);
 
-		mc.fontRendererObj.drawString("body", 
-				35 - mc.fontRendererObj.getStringWidth("body")/2,
-				86 + (2* 15),
-				0xffffff, true);
-
-		mc.fontRendererObj.drawString("legs", 
-				35 - mc.fontRendererObj.getStringWidth("legs")/2,
-				86 + (3* 15),
-				0xffffff, true);
-
-		mc.fontRendererObj.drawString("boots", 
-				35 - mc.fontRendererObj.getStringWidth("boots")/2,
-				86 + (4* 15),
-				0xffffff, true);
-		
 		String toggled = fashion.shouldRenderFashion() ? "Showing Fashion" : "Showing Armor";
 		mc.fontRendererObj.drawString(toggled, 
 				xSize - 14 - mc.fontRendererObj.getStringWidth(toggled),
@@ -126,12 +118,10 @@ public class GuiWardrobe extends GuiContainer{
 		this.oldMouseX = (float)mouseX;
 		this.oldMouseY = Math.min((float)mouseY, guiTop+50);
 	}
-	
+
 	@Override
 	public void onGuiClosed() {
 		super.onGuiClosed();
-		
-		NetworkHandler.NETWORK.sendToServer(new PacketSyncPlayerFashionToServer(
-				fashion.getAllParts(), fashion.shouldRenderFashion()));
+		NetworkHandler.NETWORK.sendToServer(new PacketSyncPlayerFashionToServer(fashion.getAllParts(), fashion.shouldRenderFashion()));
 	}
 }

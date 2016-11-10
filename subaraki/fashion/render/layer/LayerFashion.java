@@ -1,5 +1,6 @@
 package subaraki.fashion.render.layer;
 
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,12 +13,13 @@ import subaraki.fashion.model.ModelFashionHead;
 import subaraki.fashion.model.ModelFashionLegs;
 import subaraki.fashion.proxy.ClientProxy;
 
-public class LayerFashion implements LayerRenderer<EntityPlayer>{
+public class LayerFashion implements LayerRenderer<AbstractClientPlayer>{
 
-	private ModelFashionHead head = new ModelFashionHead(0.55f);
-	private ModelFashionBody body = new ModelFashionBody(0.35f);
-	private ModelFashionLegs legs = new ModelFashionLegs(0.24f);
-	private ModelFashionBoots boots = new ModelFashionBoots(0.35f);
+	private ModelFashionHead head = new ModelFashionHead(0.51f);
+	private ModelFashionBody bodySmall = new ModelFashionBody(0.27f, true);
+	private ModelFashionBody body = new ModelFashionBody(0.27f, false);
+	private ModelFashionLegs legs = new ModelFashionLegs(0.26f);
+	private ModelFashionBoots boots = new ModelFashionBoots(0.27f);
 
 	private RenderPlayer renderer;
 
@@ -26,14 +28,13 @@ public class LayerFashion implements LayerRenderer<EntityPlayer>{
 	}
 
 	@Override
-	public void doRenderLayer(EntityPlayer entitylivingbaseIn, float limbSwing, float limbSwingAmount,
-			float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
-
+	public void doRenderLayer(AbstractClientPlayer entitylivingbaseIn, float limbSwing, float limbSwingAmount,
+			float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale)
+	{
 		renderFashionPart(entitylivingbaseIn, 0, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
 		renderFashionPart(entitylivingbaseIn, 1, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
 		renderFashionPart(entitylivingbaseIn, 2, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
 		renderFashionPart(entitylivingbaseIn, 3, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
-
 	}
 
 	@Override
@@ -41,7 +42,7 @@ public class LayerFashion implements LayerRenderer<EntityPlayer>{
 		return false;
 	}
 
-	private void renderFashionPart(EntityPlayer player, int slot, float limbSwing, float limbSwingAmount,
+	private void renderFashionPart(AbstractClientPlayer player, int slot, float limbSwing, float limbSwingAmount,
 			float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale){
 
 		FashionData fashionData = player.getCapability(FashionCapability.CAPABILITY,null);
@@ -49,7 +50,7 @@ public class LayerFashion implements LayerRenderer<EntityPlayer>{
 		int id = fashionData.getPartIndex(slot);
 		this.renderer.bindTexture(ClientProxy.getResourceForPart(slot, id));
 
-		ModelFashion model = getModelFromSlot(slot);
+		ModelFashion model = getModelFromSlot(slot, ((AbstractClientPlayer)player).getSkinType().equals("slim"));
 
 		model.isSneak = renderer.getMainModel().isSneak;
 		model.isRiding = renderer.getMainModel().isRiding;
@@ -63,11 +64,11 @@ public class LayerFashion implements LayerRenderer<EntityPlayer>{
 		model.render(player, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 	}
 
-	private ModelFashion getModelFromSlot(int slot){
+	private ModelFashion getModelFromSlot(int slot, boolean smallArms){
 		if(slot == 0)
 			return head;
 		else if(slot == 1)
-			return body;
+			return smallArms ? bodySmall : body;
 		else if(slot == 2)
 			return legs;
 		else if(slot == 3)

@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.renderer.entity.RenderLivingBase;
+import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerArrow;
 import net.minecraft.client.renderer.entity.layers.LayerCape;
 import net.minecraft.client.renderer.entity.layers.LayerCustomHead;
@@ -13,6 +14,7 @@ import net.minecraft.client.renderer.entity.layers.LayerDeadmau5Head;
 import net.minecraft.client.renderer.entity.layers.LayerElytra;
 import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -40,33 +42,45 @@ public class ClientEventHandler {
 
 	@SubscribeEvent
 	public void renderPlayerPre(RenderPlayerEvent.Pre event){
+		swapRenders(event.getEntityPlayer(), event.getRenderer());
+	}
 
-		FashionData data = FashionData.get(event.getEntityPlayer());
+	@SubscribeEvent
+	public void renderPlayerPost(RenderPlayerEvent.Post event){
+		resetRenders(event.getEntityPlayer(), event.getRenderer());
+	}
+
+	/*=============================================================================================*/
+	/*=============================================================================================*/
+	/*=============================================================================================*/
+
+	private void swapRenders(EntityPlayer player, RenderPlayer renderer){
+		FashionData data = FashionData.get(player);
 
 		try {
 			if(field == null)
 				field = ReflectionHelper.findField(RenderLivingBase.class, "layerRenderers","field_177097_h");
 			if(object == null)
-				object = field.get(event.getRenderer());
+				object = field.get(renderer);
 
 			if(data.shouldRenderFashion()){
 				if(data.cachedOriginalRenderList == null){
 					data.cachedOriginalRenderList = (List<LayerRenderer>) object;
 					if(this.fashionLayers.isEmpty()){
-						this.fashionLayers.add(new LayerHeldItem(event.getRenderer()));
-						this.fashionLayers.add(new LayerArrow(event.getRenderer()));
-						this.fashionLayers.add(new LayerDeadmau5Head(event.getRenderer()));
-						this.fashionLayers.add(new LayerCape(event.getRenderer()));
-						this.fashionLayers.add(new LayerCustomHead(event.getRenderer().getMainModel().bipedHead));
-						this.fashionLayers.add(new LayerElytra(event.getRenderer()));
-						this.fashionLayers.add(new LayerFashion(event.getRenderer()));
+						this.fashionLayers.add(new LayerHeldItem(renderer));
+						this.fashionLayers.add(new LayerArrow(renderer));
+						this.fashionLayers.add(new LayerDeadmau5Head(renderer));
+						this.fashionLayers.add(new LayerCape(renderer));
+						this.fashionLayers.add(new LayerCustomHead(renderer.getMainModel().bipedHead));
+						this.fashionLayers.add(new LayerElytra(renderer));
+						this.fashionLayers.add(new LayerFashion(renderer));
 					}
-					field.set(event.getRenderer(), fashionLayers);
+					field.set(renderer, fashionLayers);
 				}
 			}
 			else{
 				if(data.cachedOriginalRenderList != null){
-					field.set(event.getRenderer(), data.cachedOriginalRenderList);
+					field.set(renderer, data.cachedOriginalRenderList);
 					data.cachedOriginalRenderList = null;
 				}
 			}
@@ -76,17 +90,16 @@ public class ClientEventHandler {
 		}
 	}
 
-	@SubscribeEvent
-	public void renderPlayerPost(RenderPlayerEvent.Post event){
-		FashionData data = FashionData.get(event.getEntityPlayer());
+	private void resetRenders(EntityPlayer player, RenderPlayer renderer){
+		FashionData data = FashionData.get(player);
 		try {
 			if(field == null)
 				field = ReflectionHelper.findField(RenderLivingBase.class, "layerRenderers","field_177097_h");
 			if(object == null)
-				object = field.get(event.getRenderer());
+				object = field.get(renderer);
 
 			if(data.cachedOriginalRenderList != null){
-				field.set(event.getRenderer(), data.cachedOriginalRenderList);
+				field.set(renderer, data.cachedOriginalRenderList);
 				data.cachedOriginalRenderList = null;
 			}
 		} catch (IllegalArgumentException | IllegalAccessException e) {
