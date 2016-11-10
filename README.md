@@ -7,14 +7,14 @@ Tux'NSuits, Just Fashion for your everyday minecraft avatar !
 
 __Step 1__ : Create a texture.  
 Hat Sample : ![](http://i.imgur.com/bU4zMSC.png)  
-Body Sample : ![](http://i.imgur.com/jH0mbC9.png)  
-Pants Sample : ![](http://i.imgur.com/a1wjSUe.png)  
-Boots Sample : ![](http://i.imgur.com/zorbCNq.png)  
+Body Sample : ![](http://i.imgur.com/TCzXL0i.png)  
+Pants Sample : ![](http://i.imgur.com/Ys38EbL.png)  
+Boots Sample : ![](http://i.imgur.com/9cOEaAo.png)  
 
 __Step 2__ : Put them in the correct location  
 assets/fashion/textures/fashionpack/  "FashionPackName"  /  (hats/body/pants/boots)  /  "myTexture.png"
 
-__Step 3__ : Make an pack.mcmeta  
+__Step 3__ : Make a pack.mcmeta  
 put it in next to the assets folder.  
 your pack.mcmeta will look something like this.  
 ![](http://i.imgur.com/F4sOd3j.png)
