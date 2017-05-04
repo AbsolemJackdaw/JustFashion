@@ -16,4 +16,6 @@ public class ServerProxy{
 	public void loadFashionPacks() {}
 
 	public void registerClientEvents() {};
+	
+	public void registerKey(){};
 }

@@ -6,7 +6,10 @@ import lib.util.DrawEntityOnScreen;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.util.FakePlayer;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.mod.Fashion;
 import subaraki.fashion.network.NetworkHandler;
@@ -77,8 +80,10 @@ public class GuiWardrobe extends GuiContainer{
 		drawTexturedModalRect(guiLeft+14, guiTop+7, xSize, 0, 38, 62);
 
 		GlStateManager.pushMatrix();
-		DrawEntityOnScreen.drawEntityOnScreen(guiLeft+33, guiTop+65, 25, -(guiLeft-70-oldMouseX)/2.5f, guiTop + 40 - oldMouseY, this.mc.thePlayer, 135.0F, 25.0f, true); 
-		DrawEntityOnScreen.drawEntityOnScreen(guiLeft+68, guiTop+82, 30, -(guiLeft+70-oldMouseX)/2.5f, guiTop + 40 - oldMouseY, this.mc.thePlayer, -45.0f , 150.0f, false); 
+		FashionData.get(this.mc.player).setInWardrobe(false); //disable for in gui rendering
+		DrawEntityOnScreen.drawEntityOnScreen(guiLeft+33, guiTop+65, 25, -(guiLeft-70-oldMouseX)/2.5f, guiTop + 40 - oldMouseY, this.mc.player, 135.0F, 25.0f, true); 
+		DrawEntityOnScreen.drawEntityOnScreen(guiLeft+68, guiTop+82, 30, -(guiLeft+70-oldMouseX)/2.5f, guiTop + 40 - oldMouseY, this.mc.player, -45.0f , 150.0f, false); 
+		FashionData.get(this.mc.player).setInWardrobe(true); // set back after drawn for in world rendering
 
 		GlStateManager.popMatrix();
 
@@ -123,5 +128,6 @@ public class GuiWardrobe extends GuiContainer{
 	public void onGuiClosed() {
 		super.onGuiClosed();
 		NetworkHandler.NETWORK.sendToServer(new PacketSyncPlayerFashionToServer(fashion.getAllParts(), fashion.shouldRenderFashion()));
+		FashionData.get(this.mc.player).setInWardrobe(false);
 	}
 }

@@ -35,10 +35,13 @@ public class Fashion {
 	@SidedProxy(clientSide = "subaraki.fashion.proxy.ClientProxy", serverSide = "subaraki.fashion.proxy.ServerProxy")
 	public static ServerProxy proxy;
 
+	public static Fashion INSTANCE;
+	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event){
-		MinecraftForge.EVENT_BUS.register(this);
+		INSTANCE = this;
 		proxy.init();
+		proxy.registerKey();
 		new NetworkHandler();
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
 		new FashionCapability().register();
@@ -48,12 +51,5 @@ public class Fashion {
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event){
 		proxy.registerClientEvents();
-	}
-	
-	@SubscribeEvent
-	public void onclickstuff(PlayerInteractEvent event){
-		if(event.getWorld().getBlockState(event.getPos()).getBlock() instanceof BlockDirt){
-			FMLNetworkHandler.openGui(event.getEntityPlayer(), this, 0, event.getWorld(), 0, 0, 0);
-		}
 	}
 }

@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import org.lwjgl.input.Keyboard;
+
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,18 +16,24 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import subaraki.fashion.handler.ClientEventHandler;
 import subaraki.fashion.mod.Fashion;
+import subaraki.fashion.render.layer.LayerWardrobe;
 
 public class ClientProxy extends ServerProxy implements IResourceManagerReloadListener{
 
+	public static KeyBinding keyWardrobe;
+	
 	@Override
 	public void init() {
 		IResourceManager manager = Minecraft.getMinecraft().getResourceManager();
@@ -36,14 +44,28 @@ public class ClientProxy extends ServerProxy implements IResourceManagerReloadLi
 	@Override
 	public void registerClientEvents() {
 		new ClientEventHandler();
+		
+		String types[] = new String[]{"default","slim"};
+
+		for(String type : types){
+			RenderPlayer renderer = ((RenderPlayer)Minecraft.getMinecraft().getRenderManager().getSkinMap().get(type));
+			renderer.addLayer(new LayerWardrobe(renderer));
+		}
 	}
+	
+	@Override
+	public void registerKey() {
+		keyWardrobe = new KeyBinding("Wardrobe", Keyboard.KEY_W, "Wardrobe");
+		ClientRegistry.registerKeyBinding(keyWardrobe);
+	}
+	
 	@Override
 	public EntityPlayer getClientPlayer(){
-		return Minecraft.getMinecraft().thePlayer;
+		return Minecraft.getMinecraft().player;
 	}
 	@Override
 	public World getClientWorld(){
-		return Minecraft.getMinecraft().theWorld;
+		return Minecraft.getMinecraft().world;
 	}
 
 	private static List<ResourceLocation> hats = Lists.<ResourceLocation>newArrayList();

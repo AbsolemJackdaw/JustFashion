@@ -27,7 +27,7 @@ public class PlayerTracker {
 
 	@SubscribeEvent
 	public void playerLogin(PlayerLoggedInEvent event){
-		if(!event.player.worldObj.isRemote)
+		if(!event.player.world.isRemote)
 		{
 			FashionData fashion = FashionData.get(event.player);
 			NetworkHandler.NETWORK.sendTo(new PacketSyncFashionToClient(fashion.getAllParts(), fashion.shouldRenderFashion()), (EntityPlayerMP) event.player);
@@ -35,7 +35,7 @@ public class PlayerTracker {
 	}
 	@SubscribeEvent
 	public void playerDimensionChange(PlayerChangedDimensionEvent event){
-		if(!event.player.worldObj.isRemote)
+		if(!event.player.world.isRemote)
 		{
 			FashionData fashion = FashionData.get(event.player);
 			NetworkHandler.NETWORK.sendTo(new PacketSyncFashionToClient(fashion.getAllParts(), fashion.shouldRenderFashion()), (EntityPlayerMP) event.player);
@@ -49,8 +49,8 @@ public class PlayerTracker {
 
 	private void sync(EntityPlayer player){
 
-		if(!player.worldObj.isRemote) {
-			EntityTracker tracker = ((WorldServer)player.worldObj).getEntityTracker();
+		if(!player.world.isRemote) {
+			EntityTracker tracker = ((WorldServer)player.world).getEntityTracker();
 			FashionData fashion = FashionData.get(player);
 
 			for (EntityPlayer entityPlayer : tracker.getTrackingPlayers(player)) {

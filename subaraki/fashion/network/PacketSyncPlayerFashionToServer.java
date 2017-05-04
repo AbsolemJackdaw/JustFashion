@@ -44,7 +44,7 @@ public class PacketSyncPlayerFashionToServer implements IMessage{
 
 		@Override
 		public IMessage onMessage(PacketSyncPlayerFashionToServer message, MessageContext ctx) {
-			WorldServer server = ((WorldServer)ctx.getServerHandler().playerEntity.worldObj);
+			WorldServer server = ((WorldServer)ctx.getServerHandler().playerEntity.world);
 			EntityPlayer player = ctx.getServerHandler().playerEntity;
 			FashionData fashion = FashionData.get(player);
 
@@ -54,10 +54,15 @@ public class PacketSyncPlayerFashionToServer implements IMessage{
 					fashion.updatePartIndex(message.ids[i], i);
 				fashion.setRenderFashion(message.isActive);
 
+				FashionData.get(player).setInWardrobe(false);
+				
 				//Send to tracked players
 				EntityTracker tracker = server.getEntityTracker();
 				for (EntityPlayer entityPlayer : tracker.getTrackingPlayers(player)) {
 					IMessage packet = new PacketSyncFashionToTrackedPlayers(message.ids, message.isActive, player.getUniqueID());
+					NetworkHandler.NETWORK.sendTo(packet, (EntityPlayerMP)entityPlayer);
+					
+					packet = new PacketSetInWardrobeToTrackedPlayers(player.getUniqueID(), false);
 					NetworkHandler.NETWORK.sendTo(packet, (EntityPlayerMP)entityPlayer);
 				}
 			});

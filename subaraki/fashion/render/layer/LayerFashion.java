@@ -52,14 +52,14 @@ public class LayerFashion implements LayerRenderer<AbstractClientPlayer>{
 
 		ModelFashion model = getModelFromSlot(slot, ((AbstractClientPlayer)player).getSkinType().equals("slim"));
 
+		model.setModelAttributes(this.renderer.getMainModel());
+		model.setLivingAnimations(player, limbSwing, limbSwingAmount, partialTicks);
+		
 		model.isSneak = renderer.getMainModel().isSneak;
 		model.isRiding = renderer.getMainModel().isRiding;
 		model.isChild = renderer.getMainModel().isChild;
 		model.rightArmPose = renderer.getMainModel().rightArmPose;
 		model.leftArmPose = renderer.getMainModel().leftArmPose;
-
-		model.setModelAttributes(this.renderer.getMainModel());
-		model.setLivingAnimations(player, limbSwing, limbSwingAmount, partialTicks);
 
 		model.render(player, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 	}

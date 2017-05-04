@@ -14,7 +14,8 @@ public class FashionData {
 	private EntityPlayer player;
 
 	private boolean renderFashion;
-
+	private boolean inWardrobe;
+	
 	private int hatIndex;
 	private int bodyIndex;
 	private int legsIndex;
@@ -84,5 +85,13 @@ public class FashionData {
 		case 2 : legsIndex = id; break;
 		case 3 : bootsIndex = id; break;
 		}
+	}
+	
+	public void setInWardrobe(boolean inWardrobe) {
+		this.inWardrobe = inWardrobe;
+	}
+	
+	public boolean isInWardrobe() {
+		return inWardrobe;
 	}
 }
