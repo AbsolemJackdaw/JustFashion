@@ -63,7 +63,7 @@ public class ClientEventHandler {
 	public void renderPlayerPost(RenderPlayerEvent.Post event){
 		resetRenders(event.getEntityPlayer(), event.getRenderer());
 	}
-	
+
 	@SubscribeEvent
 	public void keyPressed(KeyInputEvent event){
 		if(ClientProxy.keyWardrobe.isPressed()){
@@ -71,7 +71,7 @@ public class ClientEventHandler {
 			FashionData.get(Fashion.proxy.getClientPlayer()).setInWardrobe(true);
 		}
 	}
-	
+
 	/*=============================================================================================*/
 	/*=============================================================================================*/
 	/*=============================================================================================*/
@@ -89,12 +89,8 @@ public class ClientEventHandler {
 				if(data.cachedOriginalRenderList == null){
 					data.cachedOriginalRenderList = (List<LayerRenderer>) object;
 					if(this.fashionLayers.isEmpty()){
-						this.fashionLayers.add(new LayerHeldItem(renderer));
-						this.fashionLayers.add(new LayerArrow(renderer));
-						this.fashionLayers.add(new LayerDeadmau5Head(renderer));
-						this.fashionLayers.add(new LayerCape(renderer));
-						this.fashionLayers.add(new LayerCustomHead(renderer.getMainModel().bipedHead));
-						this.fashionLayers.add(new LayerElytra(renderer));
+						this.fashionLayers.clear();
+
 						this.fashionLayers.add(new LayerFashion(renderer));
 						this.fashionLayers.add(new LayerWardrobe(renderer));
 
@@ -107,6 +103,14 @@ public class ClientEventHandler {
 								Fashion.log.debug(layer.getClass().getName() + " got added.");
 							}
 						}
+						
+						this.fashionLayers.add(new LayerHeldItem(renderer));
+						this.fashionLayers.add(new LayerArrow(renderer));
+						this.fashionLayers.add(new LayerDeadmau5Head(renderer));
+						this.fashionLayers.add(new LayerCape(renderer));
+						this.fashionLayers.add(new LayerCustomHead(renderer.getMainModel().bipedHead));
+						this.fashionLayers.add(new LayerElytra(renderer));
+						
 					}
 					field.set(renderer, fashionLayers);
 				}

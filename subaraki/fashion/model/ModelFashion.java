@@ -65,8 +65,8 @@ public class ModelFashion extends ModelBiped{
 	 public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 	 {
 		 super.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+		 
 		 GlStateManager.pushMatrix();
-
 		 if (entityIn.isSneaking())
 		 {
 			 GlStateManager.translate(0.0F, 0.2F, 0.0F);
@@ -81,7 +81,7 @@ public class ModelFashion extends ModelBiped{
 			 this.bipedRightArmwear.render(scale);
 			 this.bipedBodyWear.render(scale);
 		 }
-
+		 
 		 GlStateManager.popMatrix();
 	 }
 

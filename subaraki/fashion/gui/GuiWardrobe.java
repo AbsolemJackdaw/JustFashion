@@ -104,14 +104,14 @@ public class GuiWardrobe extends GuiContainer{
 		super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
 		for(int i = 0; i < this.onScreenButtonText.length; i++)
-			mc.fontRendererObj.drawString(this.onScreenButtonText[i], 
-					35 - mc.fontRendererObj.getStringWidth("hats")/2,
+			mc.fontRenderer.drawString(this.onScreenButtonText[i], 
+					35 - mc.fontRenderer.getStringWidth("hats")/2,
 					86 + ((i+1)* 15),
 					0xffffff, true);
 
 		String toggled = fashion.shouldRenderFashion() ? "Showing Fashion" : "Showing Armor";
-		mc.fontRendererObj.drawString(toggled, 
-				xSize - 14 - mc.fontRendererObj.getStringWidth(toggled),
+		mc.fontRenderer.drawString(toggled, 
+				xSize - 14 - mc.fontRenderer.getStringWidth(toggled),
 				ySize / 2 + 11,
 				0xffffff, true);
 

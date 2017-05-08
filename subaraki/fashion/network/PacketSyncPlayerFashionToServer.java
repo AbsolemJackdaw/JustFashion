@@ -44,8 +44,8 @@ public class PacketSyncPlayerFashionToServer implements IMessage{
 
 		@Override
 		public IMessage onMessage(PacketSyncPlayerFashionToServer message, MessageContext ctx) {
-			WorldServer server = ((WorldServer)ctx.getServerHandler().playerEntity.world);
-			EntityPlayer player = ctx.getServerHandler().playerEntity;
+			WorldServer server = ((WorldServer)ctx.getServerHandler().player.world);
+			EntityPlayer player = ctx.getServerHandler().player;
 			FashionData fashion = FashionData.get(player);
 
 			server.addScheduledTask(()->{

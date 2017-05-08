@@ -29,11 +29,11 @@ public class PacketOpenWardrobe implements IMessage{
 	{
 		@Override
 		public IMessage onMessage(PacketOpenWardrobe message, MessageContext ctx) {
-			EntityPlayer player = ctx.getServerHandler().playerEntity;
+			EntityPlayer player = ctx.getServerHandler().player;
 			WorldServer server = (WorldServer) player.world;
 			server.addScheduledTask( ()->{
 				
-				FMLNetworkHandler.openGui(ctx.getServerHandler().playerEntity, Fashion.INSTANCE, 0, ctx.getServerHandler().playerEntity.world, 0, 0, 0);
+				FMLNetworkHandler.openGui(ctx.getServerHandler().player, Fashion.INSTANCE, 0, ctx.getServerHandler().player.world, 0, 0, 0);
 				
 				FashionData.get(player).setInWardrobe(true);
 				

@@ -1,6 +1,7 @@
 package subaraki.fashion.render.layer;
 
 import net.minecraft.client.entity.AbstractClientPlayer;
+import static net.minecraft.client.renderer.GlStateManager.*;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.player.EntityPlayer;
@@ -44,7 +45,7 @@ public class LayerFashion implements LayerRenderer<AbstractClientPlayer>{
 
 	private void renderFashionPart(AbstractClientPlayer player, int slot, float limbSwing, float limbSwingAmount,
 			float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale){
-
+		
 		FashionData fashionData = player.getCapability(FashionCapability.CAPABILITY,null);
 
 		int id = fashionData.getPartIndex(slot);
@@ -62,6 +63,7 @@ public class LayerFashion implements LayerRenderer<AbstractClientPlayer>{
 		model.leftArmPose = renderer.getMainModel().leftArmPose;
 
 		model.render(player, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+		
 	}
 
 	private ModelFashion getModelFromSlot(int slot, boolean smallArms){
