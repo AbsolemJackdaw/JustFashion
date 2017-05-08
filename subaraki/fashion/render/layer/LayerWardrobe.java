@@ -7,7 +7,6 @@ import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.ResourceLocation;
-import subaraki.fashion.capability.FashionCapability;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.mod.Fashion;
 

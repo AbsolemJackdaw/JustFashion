@@ -1,10 +1,8 @@
 package subaraki.fashion.render.layer;
 
 import net.minecraft.client.entity.AbstractClientPlayer;
-import static net.minecraft.client.renderer.GlStateManager.*;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.entity.player.EntityPlayer;
 import subaraki.fashion.capability.FashionCapability;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.model.ModelFashion;

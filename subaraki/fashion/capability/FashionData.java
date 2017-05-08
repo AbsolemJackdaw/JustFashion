@@ -6,8 +6,6 @@ import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import subaraki.fashion.network.NetworkHandler;
-import subaraki.fashion.network.PacketSyncFashionToTrackedPlayers;
 
 public class FashionData {
 
