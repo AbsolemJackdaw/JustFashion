@@ -8,6 +8,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import subaraki.fashion.capability.FashionData;
+import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.mod.Fashion;
 import subaraki.fashion.network.NetworkHandler;
 import subaraki.fashion.network.PacketSyncPlayerFashionToServer;
@@ -24,7 +25,8 @@ public class GuiWardrobe extends GuiContainer{
 			"hats",
 			"body",
 			"pants",
-			"boots"
+			"boots",
+			"weapon"
 	};
 	public GuiWardrobe(FashionContainer inventorySlotsIn) {
 		super(inventorySlotsIn);
@@ -36,7 +38,7 @@ public class GuiWardrobe extends GuiContainer{
 		buttonList.clear();
 		super.initGui();
 
-		for(int i = 0; i < 8; i++)
+		for(int i = 0; i < 10; i++)
 			buttonList.add(new GuiButton(i, guiLeft + 10 + (i%2 == 0 ? 0 : 40), guiTop + 100 + (i/2* 15), 10, 10, i%2 == 0 ? "<" : ">"));
 
 		buttonList.add(new GuiFancyButton(20, guiLeft + xSize - 12, guiTop + ySize / 2 + 12).setActive(fashion.shouldRenderFashion()));
@@ -52,19 +54,19 @@ public class GuiWardrobe extends GuiContainer{
 		else if(fashion.shouldRenderFashion())
 		{
 			int slot = (button.id)/2;
-			int id = fashion.getPartIndex(slot);
+			int id = fashion.getPartIndex(EnumFashionSlot.fromInt(slot));
 
 			if(button.id%2 == 0)
 				id--;
 			else
 				id++;
 
-			if(id >= ClientProxy.partsSize(slot))
+			if(id >= ClientProxy.partsSize(EnumFashionSlot.fromInt(slot)))
 				id = 0;
 			if(id < 0)
-				id = ClientProxy.partsSize(slot)-1;
+				id = ClientProxy.partsSize(EnumFashionSlot.fromInt(slot))-1;
 
-			fashion.updatePartIndex(id, slot);
+			fashion.updatePartIndex(id, EnumFashionSlot.fromInt(slot));
 		}
 	}
 

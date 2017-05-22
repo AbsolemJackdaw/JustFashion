@@ -27,6 +27,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import subaraki.fashion.handler.ClientEventHandler;
+import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.mod.Fashion;
 import subaraki.fashion.render.layer.LayerWardrobe;
 
@@ -72,15 +73,27 @@ public class ClientProxy extends ServerProxy implements IResourceManagerReloadLi
 	private static List<ResourceLocation> body = Lists.<ResourceLocation>newArrayList();
 	private static List<ResourceLocation> legs = Lists.<ResourceLocation>newArrayList();
 	private static List<ResourceLocation> boots = Lists.<ResourceLocation>newArrayList();
+	private static List<ResourceLocation> weapon = Lists.<ResourceLocation>newArrayList();
+	private static List<ResourceLocation> weaponTextures = Lists.<ResourceLocation>newArrayList();
 
 	private static final ResourceLocation MISSING_FASHION = new ResourceLocation(Fashion.MODID,"fashion/missing_fasion.png");
 
-	public static ResourceLocation getResourceForPart(int slot, int partIndex){
+	public static ResourceLocation getResourceForPart(EnumFashionSlot slot, int partIndex){
 		switch (slot) {
-		case 0 : return partIndex >= hats.size() ? MISSING_FASHION : hats.get(partIndex);
-		case 1 : return partIndex >= body.size() ? MISSING_FASHION : body.get(partIndex);
-		case 2 : return partIndex >= legs.size() ? MISSING_FASHION : legs.get(partIndex);
-		case 3 : return partIndex >= boots.size() ? MISSING_FASHION : boots.get(partIndex);
+		case HEAD : return partIndex >= hats.size() ? MISSING_FASHION : hats.get(partIndex);
+		case CHEST : return partIndex >= body.size() ? MISSING_FASHION : body.get(partIndex);
+		case LEGS : return partIndex >= legs.size() ? MISSING_FASHION : legs.get(partIndex);
+		case BOOTS : return partIndex >= boots.size() ? MISSING_FASHION : boots.get(partIndex);
+		case WEAPON : return partIndex >= weapon.size() ? MISSING_FASHION : weapon.get(partIndex);
+
+		default: return MISSING_FASHION;
+		}
+	}
+	
+	public static ResourceLocation getTextureForStitcher(EnumFashionSlot slot, int partIndex){
+		switch (slot) {
+		case WEAPON : return partIndex >= weaponTextures.size() ? MISSING_FASHION : weaponTextures.get(partIndex);
+
 		default: return MISSING_FASHION;
 		}
 	}
@@ -97,13 +110,18 @@ public class ClientProxy extends ServerProxy implements IResourceManagerReloadLi
 	public static void addBoots(ResourceLocation resLoc){
 		boots.add(resLoc);
 	}
+	public static void addWeapon(ResourceLocation model, ResourceLocation texture){
+		weapon.add(model);
+		weaponTextures.add(texture);
+	}
 
-	public static int partsSize(int slot){
+	public static int partsSize(EnumFashionSlot slot){
 		switch (slot) {
-		case 0 : return hats.size();
-		case 1 : return body.size();
-		case 2 : return legs.size();
-		case 3 : return boots.size();
+		case HEAD : return hats.size();
+		case CHEST : return body.size();
+		case LEGS : return legs.size();
+		case BOOTS : return boots.size();
+		case WEAPON : return weapon.size();
 		default: return 0;
 		}
 	}
@@ -114,11 +132,13 @@ public class ClientProxy extends ServerProxy implements IResourceManagerReloadLi
 		body.clear();
 		legs.clear();
 		boots.clear();
+		weapon.clear();
 
 		ClientProxy.addHats(new ResourceLocation(Fashion.MODID,"textures/fashion/blank_hat.png"));
 		ClientProxy.addBody(new ResourceLocation(Fashion.MODID,"textures/fashion/blank_body.png"));
 		ClientProxy.addLegs(new ResourceLocation(Fashion.MODID,"textures/fashion/blank_pants.png"));
 		ClientProxy.addBoots(new ResourceLocation(Fashion.MODID,"textures/fashion/blank_boots.png"));
+		ClientProxy.addWeapon(new ResourceLocation(Fashion.MODID,"blank_weapon"), null);
 
 		loadFromJson();
 	}
@@ -170,6 +190,16 @@ public class ClientProxy extends ServerProxy implements IResourceManagerReloadLi
 					for(int i = 0; i < array.size(); i++){
 						String path = "textures/fashionpack/"+pack+"/boots/"+array.get(i).getAsString();
 						addBoots(new ResourceLocation(Fashion.MODID, path));
+					}
+				}
+				
+				//prefixes 'models' and 'textures' aren't needed here. the stitch event and modelloader automatically add that
+				if(json.has("weapons")){
+					JsonArray array = json.getAsJsonArray("weapons");
+					for(int i = 0; i < array.size(); i++){
+						String path = "fashionpack/"+pack+"/weapons/"+array.get(i).getAsString();
+						String texturePath = "fashionpack/"+pack+"/weapons/"+array.get(i).getAsString();
+						addWeapon(new ResourceLocation(Fashion.MODID, path), new ResourceLocation(Fashion.MODID, texturePath));
 					}
 				}
 

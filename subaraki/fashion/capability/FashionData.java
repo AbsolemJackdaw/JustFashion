@@ -2,10 +2,13 @@ package subaraki.fashion.capability;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import subaraki.fashion.mod.EnumFashionSlot;
 
 public class FashionData {
 
@@ -18,9 +21,12 @@ public class FashionData {
 	private int bodyIndex;
 	private int legsIndex;
 	private int bootsIndex; 
+	private int weaponIndex;
+	private int shieldIndex;
 
 	public List<LayerRenderer> cachedOriginalRenderList = null;
-	
+	public List<LayerRenderer> fashionLayers = Lists.<LayerRenderer>newArrayList();
+
 	public FashionData(){
 
 	}
@@ -44,6 +50,8 @@ public class FashionData {
 		tag.setInteger("body", bodyIndex);
 		tag.setInteger("legs", legsIndex);
 		tag.setInteger("boots", bootsIndex);
+		tag.setInteger("weapon", weaponIndex);
+		tag.setInteger("shield", shieldIndex);
 		return tag;
 	}
 
@@ -53,6 +61,9 @@ public class FashionData {
 		bodyIndex = ((NBTTagCompound)nbt).getInteger("body");
 		legsIndex = ((NBTTagCompound)nbt).getInteger("legs");
 		bootsIndex = ((NBTTagCompound)nbt).getInteger("boots");
+		weaponIndex = ((NBTTagCompound)nbt).getInteger("weapon");
+		shieldIndex = ((NBTTagCompound)nbt).getInteger("shield");
+
 	}
 
 	public boolean shouldRenderFashion() {
@@ -62,26 +73,34 @@ public class FashionData {
 		this.renderFashion = renderFashion;
 	}
 
-	public int getPartIndex(int slot){
+	public int getPartIndex(EnumFashionSlot slot){
 		switch(slot){
-		case 0 : return hatIndex;
-		case 1 : return bodyIndex;
-		case 2 : return legsIndex;
-		case 3 : return bootsIndex;
+		case HEAD : return hatIndex;
+		case CHEST : return bodyIndex;
+		case LEGS : return legsIndex;
+		case BOOTS : return bootsIndex;
+		case WEAPON : return weaponIndex;
+		case SHIELD : return shieldIndex;
+		
 		default : return 0;
 		}
 	}
 	
 	public int[] getAllParts(){
-		return new int[]{hatIndex, bodyIndex, legsIndex, bootsIndex};
+		return new int[]{hatIndex, bodyIndex, legsIndex, bootsIndex, weaponIndex, shieldIndex};
 	}
 
-	public void updatePartIndex(int id, int slot) {
+	public void updatePartIndex(int id, EnumFashionSlot slot) {
 		switch(slot){
-		case 0 : hatIndex = id; break;
-		case 1 : bodyIndex = id; break;
-		case 2 : legsIndex = id; break;
-		case 3 : bootsIndex = id; break;
+		case HEAD : hatIndex = id; break;
+		case CHEST : bodyIndex = id; break;
+		case LEGS : legsIndex = id; break;
+		case BOOTS : bootsIndex = id; break;
+		case WEAPON : weaponIndex = id; break;
+		case SHIELD : shieldIndex = id; break;
+
+		default:
+			break;
 		}
 	}
 	

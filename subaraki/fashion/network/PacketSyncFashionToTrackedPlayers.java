@@ -10,6 +10,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import subaraki.fashion.capability.FashionData;
+import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.mod.Fashion;
 
 public class PacketSyncFashionToTrackedPlayers implements IMessage{
@@ -28,7 +29,7 @@ public class PacketSyncFashionToTrackedPlayers implements IMessage{
 
 	@Override
 	public void fromBytes(ByteBuf buf) {
-		ids = new int[4];
+		ids = new int[6];
 		for(int slot = 0; slot < ids.length; slot++)
 			ids[slot] = buf.readInt();
 		isActive = buf.readBoolean();
@@ -52,7 +53,7 @@ public class PacketSyncFashionToTrackedPlayers implements IMessage{
 				FashionData fashion = FashionData.get(player);
 
 				for(int i = 0; i < 4; i++)
-					fashion.updatePartIndex(message.ids[i], i);
+					fashion.updatePartIndex(message.ids[i], EnumFashionSlot.fromInt(i));
 				fashion.setRenderFashion(message.isActive);
 			});
 			return null;

@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import subaraki.fashion.capability.FashionData;
+import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.mod.Fashion;
 
 public class PacketSyncFashionToClient implements IMessage{
@@ -23,7 +24,7 @@ public class PacketSyncFashionToClient implements IMessage{
 
 	@Override
 	public void fromBytes(ByteBuf buf) {
-		ids = new int[4];
+		ids = new int[6];
 		for(int slot = 0; slot < ids.length; slot++)
 			ids[slot] = buf.readInt();
 		isActive = buf.readBoolean();
@@ -41,8 +42,8 @@ public class PacketSyncFashionToClient implements IMessage{
 		@Override
 		public IMessage onMessage(PacketSyncFashionToClient message, MessageContext ctx) {
 			Minecraft.getMinecraft().addScheduledTask( ()->{
-				for(int slot = 0; slot < 4; slot++)
-					FashionData.get(Fashion.proxy.getClientPlayer()).updatePartIndex(message.ids[slot], slot);
+				for(int slot = 0; slot < 6; slot++)
+					FashionData.get(Fashion.proxy.getClientPlayer()).updatePartIndex(message.ids[slot], EnumFashionSlot.fromInt(slot));
 				FashionData.get(Fashion.proxy.getClientPlayer()).setRenderFashion(message.isActive);
 			});
 			return null;
