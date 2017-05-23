@@ -2,7 +2,6 @@ package subaraki.fashion.render.layer;
 
 import org.lwjgl.opengl.GL11;
 
-import lib.modelloader.ModelHandle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
@@ -17,7 +16,8 @@ import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.init.Items;
+import net.minecraft.item.IItemPropertyGetter;
+import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.EnumHandSide;
@@ -47,31 +47,43 @@ public class LayerAestheticHeldItem implements LayerRenderer<AbstractClientPlaye
 		ItemStack stackHeldItem = player.getHeldItemMainhand();
 		ItemStack stackOffHand = player.getHeldItemOffhand();
 
-		if(fashionData.getPartIndex(EnumFashionSlot.WEAPON) == 0)
+		boolean renderedOffHand = false;
+		boolean renderedHand = false;
+
+		if(fashionData.getPartIndex(EnumFashionSlot.WEAPON) > 0 )
 		{
+			if(stackHeldItem.getItem() instanceof ItemSword)
+			{
+				renderAesthetic(stackHeldItem, player, EnumHandSide.RIGHT, fashionData, cam_right, EnumFashionSlot.WEAPON);
+				renderedHand = true;
+			}
+
+			if(stackOffHand.getItem() instanceof ItemSword)
+			{
+				renderAesthetic(stackOffHand, player, EnumHandSide.LEFT, fashionData, cam_left, EnumFashionSlot.WEAPON);
+				renderedOffHand = true;
+			}
+		}
+
+		if(fashionData.getPartIndex(EnumFashionSlot.SHIELD) > 0 )
+		{
+			if(stackHeldItem.getItem() instanceof ItemShield)
+			{
+				renderAesthetic(stackHeldItem, player, EnumHandSide.RIGHT, fashionData, cam_right, EnumFashionSlot.SHIELD);
+				renderedHand = true;
+			}
+			
+			if(stackOffHand.getItem() instanceof ItemShield)
+			{
+				renderAesthetic(stackOffHand, player, EnumHandSide.LEFT, fashionData, cam_left, EnumFashionSlot.SHIELD);
+				renderedOffHand = true;
+			}
+		}
+
+		if(!renderedHand)
 			renderHeldItem(player, stackHeldItem, cam_right, EnumHandSide.RIGHT);
+		if(!renderedOffHand)
 			renderHeldItem(player, stackOffHand, cam_left, EnumHandSide.LEFT);
-			return;
-		}
-
-		if(stackHeldItem.getItem() instanceof ItemSword)
-		{
-			renderAesthetic(player, EnumHandSide.RIGHT, fashionData, cam_right);
-		}
-		else
-		{
-			renderHeldItem(player, stackHeldItem, cam_right, EnumHandSide.RIGHT);
-		}
-
-		if(stackOffHand.getItem() instanceof ItemSword)
-		{
-			renderAesthetic(player, EnumHandSide.LEFT, fashionData, cam_left);
-		}
-		else
-		{
-			renderHeldItem(player, stackOffHand, cam_left, EnumHandSide.LEFT);
-		}
-
 	}
 
 	private void render(IBakedModel model){
@@ -85,9 +97,9 @@ public class LayerAestheticHeldItem implements LayerRenderer<AbstractClientPlaye
 		tessellator.draw();
 	}
 
-	private void renderAesthetic(AbstractClientPlayer player, EnumHandSide handSide, FashionData data, TransformType cam){
+	private void renderAesthetic(ItemStack stack, AbstractClientPlayer player, EnumHandSide handSide, FashionData data, TransformType cam, EnumFashionSlot slot){
 		GlStateManager.pushMatrix();
-		
+
 		if(player.isSneaking())
 		{
 			GlStateManager.translate(0.0F, 0.2F, 0.0F);
@@ -99,14 +111,27 @@ public class LayerAestheticHeldItem implements LayerRenderer<AbstractClientPlaye
 		GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
 		boolean flag = handSide == EnumHandSide.LEFT;
 		GlStateManager.translate((float)(flag ? -1 : 1) / 16.0F, 0.125F, -0.625F);
-		
+
 		this.renderer.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 
-		IBakedModel handleModel = ClientProxy.getAestheticWeapon(data.getPartIndex(EnumFashionSlot.WEAPON)).get();
-		IBakedModel model = ForgeHooksClient.handleCameraTransforms(handleModel, cam, flag);
-		GlStateManager.translate((float)((flag ? -1 : 1) / 16.0F)+(flag ? - 0.0625f*7 : - 0.0625f*9) , -0.0625f*8 , -0.0625f*8);
+		IBakedModel handleModel = null;
 
-		render(model);
+		if(slot == EnumFashionSlot.WEAPON)
+			handleModel = ClientProxy.getAestheticWeapon(data.getPartIndex(slot)).get();
+		else if (slot == EnumFashionSlot.SHIELD)
+			if(stack.getItem() instanceof ItemShield)
+			{
+				boolean isBlocking = player.isHandActive() && player.getActiveItemStack() == stack ;
+				handleModel = ClientProxy.getAestheticShield(data.getPartIndex(slot), isBlocking).get();
+			}
+
+		if(handleModel != null)
+		{
+			IBakedModel model = ForgeHooksClient.handleCameraTransforms(handleModel, cam, flag);
+			GlStateManager.translate((float)((flag ? -1 : 1) / 16.0F)+(flag ? - 0.0625f*7 : - 0.0625f*9) , -0.0625f*8 , -0.0625f*8);
+
+			render(model);
+		}
 
 		GlStateManager.popMatrix();
 	}
