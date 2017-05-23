@@ -37,12 +37,6 @@ public class ClientEventHandler {
 	}
 
 	@SubscribeEvent
-	public void reloadTextures(TextureStitchEvent.Post event){
-		//removed this. seems redundant
-		//		Fashion.proxy.loadFashionPacks();
-	}
-
-	@SubscribeEvent
 	public void stitchTextures(TextureStitchEvent event){
 		Fashion.log.info("stitching weapon textures");
 		int size = ClientProxy.partsSize(EnumFashionSlot.WEAPON);
