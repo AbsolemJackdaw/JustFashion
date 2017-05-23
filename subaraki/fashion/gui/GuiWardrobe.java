@@ -2,6 +2,8 @@ package subaraki.fashion.gui;
 
 import java.io.IOException;
 
+import org.lwjgl.input.Keyboard;
+
 import lib.util.DrawEntityOnScreen;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -26,7 +28,8 @@ public class GuiWardrobe extends GuiContainer{
 			"body",
 			"pants",
 			"boots",
-			"weapon"
+			"weapon",
+			"shield"
 	};
 	public GuiWardrobe(FashionContainer inventorySlotsIn) {
 		super(inventorySlotsIn);
@@ -38,8 +41,21 @@ public class GuiWardrobe extends GuiContainer{
 		buttonList.clear();
 		super.initGui();
 
-		for(int i = 0; i < 10; i++)
-			buttonList.add(new GuiButton(i, guiLeft + 10 + (i%2 == 0 ? 0 : 40), guiTop + 100 + (i/2* 15), 10, 10, i%2 == 0 ? "<" : ">"));
+		for(int i = 0; i < 8; i++)
+		{
+			int x = guiLeft + 10 + (i%2 == 0 ? 0 : 45);
+			int y = guiTop + 100 + (i/2* 15);
+			
+			buttonList.add(new GuiButton(i, x, y, 10, 10, i%2 == 0 ? "<" : ">"));
+		}
+		
+		for(int i = 4; i < 8; i++)
+		{
+			int x = guiLeft + 75 + (i%2 == 0 ? 0 : 50);
+			int y = guiTop + 100 + (i/2* 15);
+			
+			buttonList.add(new GuiButton(i+4, x, y, 10, 10, i%2 == 0 ? "<" : ">"));
+		}
 
 		buttonList.add(new GuiFancyButton(20, guiLeft + xSize - 12, guiTop + ySize / 2 + 12).setActive(fashion.shouldRenderFashion()));
 	}
@@ -60,11 +76,12 @@ public class GuiWardrobe extends GuiContainer{
 				id--;
 			else
 				id++;
-
+			Fashion.log.info(id);
 			if(id >= ClientProxy.partsSize(EnumFashionSlot.fromInt(slot)))
 				id = 0;
 			if(id < 0)
 				id = ClientProxy.partsSize(EnumFashionSlot.fromInt(slot))-1;
+			Fashion.log.info(id);
 
 			fashion.updatePartIndex(id, EnumFashionSlot.fromInt(slot));
 		}
@@ -102,12 +119,18 @@ public class GuiWardrobe extends GuiContainer{
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 		super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
-		for(int i = 0; i < this.onScreenButtonText.length; i++)
+		for(int i = 0; i < this.onScreenButtonText.length-2; i++)
 			mc.fontRenderer.drawString(this.onScreenButtonText[i], 
 					35 - mc.fontRenderer.getStringWidth("hats")/2,
 					86 + ((i+1)* 15),
 					0xffffff, true);
 
+		for(int i = 2; i < 4; i++)
+			mc.fontRenderer.drawString(this.onScreenButtonText[i+2], 
+					99 - mc.fontRenderer.getStringWidth("hats")/2,
+					86 + ((i+1)* 15),
+					0xffffff, true);
+		
 		String toggled = fashion.shouldRenderFashion() ? "Showing Fashion" : "Showing Armor";
 		mc.fontRenderer.drawString(toggled, 
 				xSize - 14 - mc.fontRenderer.getStringWidth(toggled),
@@ -128,5 +151,15 @@ public class GuiWardrobe extends GuiContainer{
 		super.onGuiClosed();
 		NetworkHandler.NETWORK.sendToServer(new PacketSyncPlayerFashionToServer(fashion.getAllParts(), fashion.shouldRenderFashion()));
 		FashionData.get(this.mc.player).setInWardrobe(false);
+	}
+
+	@Override
+	protected void keyTyped(char typedChar, int keyCode) throws IOException {
+		super.keyTyped(typedChar, keyCode);
+
+		if(keyCode == ClientProxy.keyWardrobe.getKeyCode())
+		{
+			this.mc.player.closeScreen();
+		}
 	}
 }
