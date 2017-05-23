@@ -31,6 +31,36 @@ in the json file,
 Your fashionpack.json might look something like this :  
 ![](http://i.imgur.com/rIJLrps.png)  
 
+
+# 0.1.1.0 additions : Shields and Weapons
+You will need to add an extra directory to your assets/fashion folder.
+it can now contain the 'textures' folder and a 'model' folder.
+
+![](http://i.imgur.com/d9NBesm.png)  
+
+the structure for the model folder is the same as the texture folder.
+
+the model folder will be scanned for json files. these can be any personal rendered item, or a simple imitation of a minecraft item.
+
+here's a sample of a simple json file that will look a carrot :
+Make sure the parent is an instance of item/handheld if you're looking to use regular items. this way it will be rendered like a sword, or tool.
+
+`{  
+    "parent": "item/handheld",  
+    "textures": {  
+        "layer0": "items/carrot"   
+    }    
+}  `
+
+
+if you wish to make a custom texture for your item, ""layer0": "items/carrot"" can be substituted by the path of your texture (that you will have to add to the texture folder in your zip)
+here's a sample of the texture path from the base pack's shield model :
+``""layer0": "fashion:fashionpack/fashionbase/shields/shield_texture""``
+
+to make sure your model and textures get added to the game, list them in the fashionpack.json !!
+![](http://i.imgur.com/IS2C4D9.png)
+
+
 ### Make sure to put all of this in a zip file !
 
 
