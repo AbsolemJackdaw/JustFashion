@@ -57,7 +57,7 @@ if you wish to make a custom texture for your item, ""layer0": "items/carrot"" c
 here's a sample of the texture path from the base pack's shield model :
 ``""layer0": "fashion:fashionpack/fashionbase/shields/shield_texture""``
 
-to make sure your model and textures get added to the game, list them in the fashionpack.json !!
+to make sure your model and textures get added to the game, list them in the fashionpack.json !!  
 ![](http://i.imgur.com/IS2C4D9.png)
 
 
