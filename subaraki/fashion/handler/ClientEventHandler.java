@@ -37,30 +37,34 @@ public class ClientEventHandler {
 	}
 
 	@SubscribeEvent
-	public void stitchTextures(TextureStitchEvent event){
+	public void stitchTextures(TextureStitchEvent.Pre event){
 		Fashion.log.info("stitching weapon textures");
-		int size = ClientProxy.partsSize(EnumFashionSlot.WEAPON);
+		
+		stitch(ClientProxy.partsSize(EnumFashionSlot.WEAPON), EnumFashionSlot.WEAPON, event);
+		stitch(ClientProxy.partsSize(EnumFashionSlot.SHIELD), EnumFashionSlot.SHIELD, event);
 
+	}
+
+	private void stitch(int size, EnumFashionSlot slot, TextureStitchEvent event){
 		if(size > 1)
 		{
 			for(int partIndex = 1 ; partIndex < size; partIndex++)
-				if(ClientProxy.getResourceForPart(EnumFashionSlot.WEAPON, partIndex) != null)
+				if(ClientProxy.getResourceForPart(slot, partIndex) != null)
 				{
-					ResourceLocation resLoc = ClientProxy.getTextureForStitcher(EnumFashionSlot.WEAPON, partIndex);
+					ResourceLocation resLoc = ClientProxy.getTextureForStitcher(slot, partIndex);
 					if(resLoc != null)
 					{
 						event.getMap().registerSprite(resLoc);
-						ClientProxy.addWeaponHandle(resLoc);
 					}
 					else
 					{
 						Fashion.log.warn("tried loading a null resourcelocation for weapons.");
-						Fashion.log.warn(ClientProxy.getResourceForPart(EnumFashionSlot.WEAPON, partIndex));
+						Fashion.log.warn(ClientProxy.getResourceForPart(slot, partIndex));
 					}
 				}
 		}
 	}
-
+	
 	private Field swap_field_layerrenders;
 	private Object swap_list_layerrenders;
 
