@@ -102,7 +102,7 @@ public class LayerAestheticHeldItem implements LayerRenderer<AbstractClientPlaye
 		
 		this.renderer.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 
-		IBakedModel handleModel = ModelHandle.of(ClientProxy.getResourceForPart(EnumFashionSlot.WEAPON, data.getPartIndex(EnumFashionSlot.WEAPON))).get();
+		IBakedModel handleModel = ClientProxy.getAestheticWeapon(data.getPartIndex(EnumFashionSlot.WEAPON)).get();
 		IBakedModel model = ForgeHooksClient.handleCameraTransforms(handleModel, cam, flag);
 		GlStateManager.translate((float)((flag ? -1 : 1) / 16.0F)+(flag ? - 0.0625f*7 : - 0.0625f*9) , -0.0625f*8 , -0.0625f*8);
 

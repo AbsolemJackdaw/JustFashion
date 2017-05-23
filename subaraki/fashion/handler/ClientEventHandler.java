@@ -45,14 +45,24 @@ public class ClientEventHandler {
 	@SubscribeEvent
 	public void stitchTextures(TextureStitchEvent event){
 		Fashion.log.info("stitching weapon textures");
-		if(ClientProxy.partsSize(EnumFashionSlot.WEAPON) > 1)
+		int size = ClientProxy.partsSize(EnumFashionSlot.WEAPON);
+
+		if(size > 1)
 		{
-			for(int partIndex = 1 ; partIndex <ClientProxy.partsSize(EnumFashionSlot.WEAPON) ; partIndex++)
+			for(int partIndex = 1 ; partIndex < size; partIndex++)
 				if(ClientProxy.getResourceForPart(EnumFashionSlot.WEAPON, partIndex) != null)
 				{
 					ResourceLocation resLoc = ClientProxy.getTextureForStitcher(EnumFashionSlot.WEAPON, partIndex);
-					event.getMap().registerSprite(resLoc);
-					ClientProxy.addWeaponHandle(resLoc);
+					if(resLoc != null)
+					{
+						event.getMap().registerSprite(resLoc);
+						ClientProxy.addWeaponHandle(resLoc);
+					}
+					else
+					{
+						Fashion.log.warn("tried loading a null resourcelocation for weapons.");
+						Fashion.log.warn(ClientProxy.getResourceForPart(EnumFashionSlot.WEAPON, partIndex));
+					}
 				}
 		}
 	}

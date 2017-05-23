@@ -118,15 +118,17 @@ public class ClientProxy extends ServerProxy implements IResourceManagerReloadLi
 		weapon.add(model);
 		weaponTextures.add(texture);
 	}
-	
+
 	public static void addWeaponHandle(ResourceLocation resLoc)
 	{
 		aestheticWeapons.add(ModelHandle.of(resLoc));
 	}
-	
+
 	public static ModelHandle getAestheticWeapon(int index)
 	{
-		return aestheticWeapons.get(index);
+		if(index < aestheticWeapons.size())
+			return aestheticWeapons.get(index);
+		return ModelHandle.of("item/blaze_rod");
 	}
 
 	public static int partsSize(EnumFashionSlot slot){
@@ -147,6 +149,8 @@ public class ClientProxy extends ServerProxy implements IResourceManagerReloadLi
 		legs.clear();
 		boots.clear();
 		weapon.clear();
+		weaponTextures.clear();
+		aestheticWeapons.clear();
 
 		ClientProxy.addHats(new ResourceLocation(Fashion.MODID,"textures/fashion/blank_hat.png"));
 		ClientProxy.addBody(new ResourceLocation(Fashion.MODID,"textures/fashion/blank_body.png"));
@@ -212,11 +216,9 @@ public class ClientProxy extends ServerProxy implements IResourceManagerReloadLi
 					JsonArray array = json.getAsJsonArray("weapons");
 					for(int i = 0; i < array.size(); i++){
 						String path = "fashionpack/"+pack+"/weapons/"+array.get(i).getAsString();
-						String texturePath = "fashionpack/"+pack+"/weapons/"+array.get(i).getAsString();
-						addWeapon(new ResourceLocation(Fashion.MODID, path), new ResourceLocation(Fashion.MODID, texturePath));
+						addWeapon(new ResourceLocation(Fashion.MODID, path), new ResourceLocation(Fashion.MODID, path));
 					}
 				}
-
 			}
 		} catch (IOException e) {
 			Fashion.log.warn("************************************");
