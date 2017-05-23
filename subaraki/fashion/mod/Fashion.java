@@ -20,7 +20,7 @@ public class Fashion {
 
 	public static final String MODID = "fashion";
 	public static final String NAME = "fashion mod";
-	public static final String VERSION = "1.11 0.0.1.1";
+	public static final String VERSION = "1.11 0.1.0.0";
 	public static final String DEPENDENCY = "required-after:subcommonlib";
 
 	public static final String FASHIONPACK = "fashion packs";

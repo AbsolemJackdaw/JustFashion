@@ -15,7 +15,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import lib.modelloader.ModelHandle;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.ModelHumanoidHead;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResource;
@@ -34,7 +36,7 @@ import subaraki.fashion.render.layer.LayerWardrobe;
 public class ClientProxy extends ServerProxy implements IResourceManagerReloadListener{
 
 	public static KeyBinding keyWardrobe;
-	
+
 	@Override
 	public void init() {
 		IResourceManager manager = Minecraft.getMinecraft().getResourceManager();
@@ -45,7 +47,7 @@ public class ClientProxy extends ServerProxy implements IResourceManagerReloadLi
 	@Override
 	public void registerClientEvents() {
 		new ClientEventHandler();
-		
+
 		String types[] = new String[]{"default","slim"};
 
 		for(String type : types){
@@ -53,13 +55,13 @@ public class ClientProxy extends ServerProxy implements IResourceManagerReloadLi
 			renderer.addLayer(new LayerWardrobe(renderer));
 		}
 	}
-	
+
 	@Override
 	public void registerKey() {
 		keyWardrobe = new KeyBinding("Wardrobe", Keyboard.KEY_W, "Wardrobe");
 		ClientRegistry.registerKeyBinding(keyWardrobe);
 	}
-	
+
 	@Override
 	public EntityPlayer getClientPlayer(){
 		return Minecraft.getMinecraft().player;
@@ -76,6 +78,8 @@ public class ClientProxy extends ServerProxy implements IResourceManagerReloadLi
 	private static List<ResourceLocation> weapon = Lists.<ResourceLocation>newArrayList();
 	private static List<ResourceLocation> weaponTextures = Lists.<ResourceLocation>newArrayList();
 
+	private static List<ModelHandle> aestheticWeapons = Lists.<ModelHandle>newArrayList();
+
 	private static final ResourceLocation MISSING_FASHION = new ResourceLocation(Fashion.MODID,"fashion/missing_fasion.png");
 
 	public static ResourceLocation getResourceForPart(EnumFashionSlot slot, int partIndex){
@@ -89,7 +93,7 @@ public class ClientProxy extends ServerProxy implements IResourceManagerReloadLi
 		default: return MISSING_FASHION;
 		}
 	}
-	
+
 	public static ResourceLocation getTextureForStitcher(EnumFashionSlot slot, int partIndex){
 		switch (slot) {
 		case WEAPON : return partIndex >= weaponTextures.size() ? MISSING_FASHION : weaponTextures.get(partIndex);
@@ -113,6 +117,16 @@ public class ClientProxy extends ServerProxy implements IResourceManagerReloadLi
 	public static void addWeapon(ResourceLocation model, ResourceLocation texture){
 		weapon.add(model);
 		weaponTextures.add(texture);
+	}
+	
+	public static void addWeaponHandle(ResourceLocation resLoc)
+	{
+		aestheticWeapons.add(ModelHandle.of(resLoc));
+	}
+	
+	public static ModelHandle getAestheticWeapon(int index)
+	{
+		return aestheticWeapons.get(index);
 	}
 
 	public static int partsSize(EnumFashionSlot slot){
@@ -192,7 +206,7 @@ public class ClientProxy extends ServerProxy implements IResourceManagerReloadLi
 						addBoots(new ResourceLocation(Fashion.MODID, path));
 					}
 				}
-				
+
 				//prefixes 'models' and 'textures' aren't needed here. the stitch event and modelloader automatically add that
 				if(json.has("weapons")){
 					JsonArray array = json.getAsJsonArray("weapons");
@@ -217,6 +231,7 @@ public class ClientProxy extends ServerProxy implements IResourceManagerReloadLi
 	}
 	@Override
 	public void onResourceManagerReload(IResourceManager resourceManager) {
+		Fashion.log.info("(re)loading textures for fashion");
 		loadFashionPacks();
 	}
 }
