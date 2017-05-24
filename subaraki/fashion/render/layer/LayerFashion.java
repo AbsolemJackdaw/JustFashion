@@ -63,7 +63,7 @@ public class LayerFashion implements LayerRenderer<AbstractClientPlayer>{
 		if(slot == EnumFashionSlot.HEAD)
 		{
 			model.bipedHead.isHidden = renderer.getMainModel().bipedHead.isHidden;
-			model.bipedHeadwear.showModel = renderer.getMainModel().bipedHeadwear.showModel;
+			model.bipedHeadwear.isHidden = renderer.getMainModel().bipedHeadwear.isHidden;
 		}
 		
 		if(slot == EnumFashionSlot.LEGS || slot == EnumFashionSlot.BOOTS)

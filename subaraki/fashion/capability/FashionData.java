@@ -17,7 +17,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import subaraki.fashion.mod.EnumFashionSlot;
-import subaraki.fashion.render.layer.LayerAestheticHeldItem;
 import subaraki.fashion.render.layer.LayerWardrobe;
 
 public class FashionData {

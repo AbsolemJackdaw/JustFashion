@@ -3,7 +3,6 @@ package subaraki.fashion.handler;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import lib.fashion.LayerInjector;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerArrow;
