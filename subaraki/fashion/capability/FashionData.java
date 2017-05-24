@@ -1,14 +1,24 @@
 package subaraki.fashion.capability;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import net.minecraft.client.renderer.entity.layers.LayerArrow;
+import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
+import net.minecraft.client.renderer.entity.layers.LayerCape;
+import net.minecraft.client.renderer.entity.layers.LayerCustomHead;
+import net.minecraft.client.renderer.entity.layers.LayerDeadmau5Head;
+import net.minecraft.client.renderer.entity.layers.LayerElytra;
+import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import subaraki.fashion.mod.EnumFashionSlot;
+import subaraki.fashion.render.layer.LayerAestheticHeldItem;
+import subaraki.fashion.render.layer.LayerWardrobe;
 
 public class FashionData {
 
@@ -16,7 +26,7 @@ public class FashionData {
 
 	private boolean renderFashion;
 	private boolean inWardrobe;
-	
+
 	private int hatIndex;
 	private int bodyIndex;
 	private int legsIndex;
@@ -26,6 +36,45 @@ public class FashionData {
 
 	public List<LayerRenderer> cachedOriginalRenderList = null;
 	public List<LayerRenderer> fashionLayers = Lists.<LayerRenderer>newArrayList();
+
+	private List<LayerRenderer> savedOriginalList = Lists.<LayerRenderer>newArrayList();
+	public List<LayerRenderer> keepLayers = Lists.<LayerRenderer>newArrayList();
+
+	public List<LayerRenderer> getSavedOriginalList() {
+		List<LayerRenderer> copy = new ArrayList<>();
+		copy = savedOriginalList;
+		return copy;
+	}
+	
+	public void resetSavedOriginalList(){
+		savedOriginalList.clear();
+	}
+
+	public void saveVanillaList(List<LayerRenderer> original){
+		List<LayerRenderer> copy = Lists.<LayerRenderer>newArrayList();
+
+		//Remove unneeded layers
+		for (LayerRenderer layer: original) 
+		{
+			if((layer instanceof LayerBipedArmor) || 
+					(layer instanceof LayerWardrobe) ||
+					(layer instanceof LayerCustomHead) ||
+					(layer instanceof LayerDeadmau5Head)||
+					(layer instanceof LayerHeldItem)||
+					(layer instanceof LayerArrow)||
+					(layer instanceof LayerCape)||
+					(layer instanceof LayerElytra)||
+					(layer instanceof LayerWardrobe))
+				continue;
+
+			copy.add(layer);
+		}
+
+		savedOriginalList.clear();
+
+		for(LayerRenderer layer : copy)
+			savedOriginalList.add(layer);
+	}
 
 	public FashionData(){
 
@@ -38,7 +87,7 @@ public class FashionData {
 	public void setPlayer(EntityPlayer newPlayer){
 		this.player = newPlayer;
 	}
-	
+
 	public static FashionData get(EntityPlayer player){
 		return player.getCapability(FashionCapability.CAPABILITY, null);
 	}
@@ -81,11 +130,11 @@ public class FashionData {
 		case BOOTS : return bootsIndex;
 		case WEAPON : return weaponIndex;
 		case SHIELD : return shieldIndex;
-		
+
 		default : return 0;
 		}
 	}
-	
+
 	public int[] getAllParts(){
 		return new int[]{hatIndex, bodyIndex, legsIndex, bootsIndex, weaponIndex, shieldIndex};
 	}
@@ -103,11 +152,11 @@ public class FashionData {
 			break;
 		}
 	}
-	
+
 	public void setInWardrobe(boolean inWardrobe) {
 		this.inWardrobe = inWardrobe;
 	}
-	
+
 	public boolean isInWardrobe() {
 		return inWardrobe;
 	}

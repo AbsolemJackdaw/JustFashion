@@ -39,7 +39,7 @@ public class ClientEventHandler {
 	@SubscribeEvent
 	public void stitchTextures(TextureStitchEvent.Pre event){
 		Fashion.log.info("stitching weapon textures");
-		
+
 		stitch(ClientProxy.partsSize(EnumFashionSlot.WEAPON), EnumFashionSlot.WEAPON, event);
 		stitch(ClientProxy.partsSize(EnumFashionSlot.SHIELD), EnumFashionSlot.SHIELD, event);
 
@@ -64,7 +64,7 @@ public class ClientEventHandler {
 				}
 		}
 	}
-	
+
 	private Field swap_field_layerrenders;
 	private Object swap_list_layerrenders;
 
@@ -94,11 +94,22 @@ public class ClientEventHandler {
 		FashionData data = FashionData.get(player);
 
 		try {
+			
+			//reflection 'swap' fields are volatile and will be set to null after rendering is done
 			if(swap_field_layerrenders == null)
+			{
 				swap_field_layerrenders = ReflectionHelper.findField(RenderLivingBase.class, "layerRenderers","field_177097_h");
+			}
+			
 			if(swap_list_layerrenders == null)
+			{
 				swap_list_layerrenders = swap_field_layerrenders.get(renderer);
+			}
 
+			//save original list. not volatile
+			if(data.getSavedOriginalList().isEmpty())
+				data.saveVanillaList((List<LayerRenderer>) swap_list_layerrenders);
+			
 			if(data.shouldRenderFashion()){
 				if(data.cachedOriginalRenderList == null){
 					data.cachedOriginalRenderList = (List<LayerRenderer>) swap_list_layerrenders;
@@ -108,9 +119,9 @@ public class ClientEventHandler {
 						data.fashionLayers.add(new LayerFashion(renderer));
 						data.fashionLayers.add(new LayerWardrobe(renderer));
 
-						if(!LayerInjector.getExtraLayers().isEmpty())
+						if(!data.keepLayers.isEmpty())
 						{
-							for(LayerRenderer layer : LayerInjector.getExtraLayers())
+							for(LayerRenderer layer : data.keepLayers)
 							{
 								data.fashionLayers.add(layer);
 								Fashion.log.debug("Fashion had a render layer Injected.");
@@ -133,28 +144,29 @@ public class ClientEventHandler {
 				if(data.cachedOriginalRenderList != null){
 					swap_field_layerrenders.set(renderer, data.cachedOriginalRenderList);
 					data.cachedOriginalRenderList = null;
+					data.resetSavedOriginalList();
 				}
 			}
 
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void resetRenders(EntityPlayer player, RenderPlayer renderer){
-		FashionData data = FashionData.get(player);
-		try {
-			if(swap_field_layerrenders == null)
-				swap_field_layerrenders = ReflectionHelper.findField(RenderLivingBase.class, "layerRenderers","field_177097_h");
-			if(swap_list_layerrenders == null)
-				swap_list_layerrenders = swap_field_layerrenders.get(renderer);
-
-			if(data.cachedOriginalRenderList != null){
-				swap_field_layerrenders.set(renderer, data.cachedOriginalRenderList);
-				data.cachedOriginalRenderList = null;
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
 			}
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
+		}
+
+		private void resetRenders(EntityPlayer player, RenderPlayer renderer){
+			FashionData data = FashionData.get(player);
+			try {
+				if(swap_field_layerrenders == null)
+					swap_field_layerrenders = ReflectionHelper.findField(RenderLivingBase.class, "layerRenderers","field_177097_h");
+				if(swap_list_layerrenders == null)
+					swap_list_layerrenders = swap_field_layerrenders.get(renderer);
+
+				if(data.cachedOriginalRenderList != null){
+					swap_field_layerrenders.set(renderer, data.cachedOriginalRenderList);
+					data.cachedOriginalRenderList = null;
+				}
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
 		}
 	}
-}

@@ -1,13 +1,16 @@
 package subaraki.fashion.render.layer;
 
+import static subaraki.fashion.mod.EnumFashionSlot.BOOTS;
+import static subaraki.fashion.mod.EnumFashionSlot.CHEST;
+import static subaraki.fashion.mod.EnumFashionSlot.HEAD;
+import static subaraki.fashion.mod.EnumFashionSlot.LEGS;
+
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import subaraki.fashion.capability.FashionCapability;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.mod.EnumFashionSlot;
-
-import static subaraki.fashion.mod.EnumFashionSlot.*;
 import subaraki.fashion.model.ModelFashion;
 import subaraki.fashion.model.ModelFashionBody;
 import subaraki.fashion.model.ModelFashionBoots;
@@ -56,6 +59,32 @@ public class LayerFashion implements LayerRenderer<AbstractClientPlayer>{
 
 		model.setModelAttributes(this.renderer.getMainModel());
 		model.setLivingAnimations(player, limbSwing, limbSwingAmount, partialTicks);
+
+		if(slot == EnumFashionSlot.HEAD)
+		{
+			model.bipedHead.isHidden = renderer.getMainModel().bipedHead.isHidden;
+			model.bipedHeadwear.showModel = renderer.getMainModel().bipedHeadwear.showModel;
+		}
+		
+		if(slot == EnumFashionSlot.LEGS || slot == EnumFashionSlot.BOOTS)
+		{
+			model.bipedLeftLeg.isHidden = renderer.getMainModel().bipedLeftLeg.isHidden;
+			model.bipedLeftLegwear.isHidden = renderer.getMainModel().bipedLeftLegwear.isHidden;
+			model.bipedRightLeg.isHidden = renderer.getMainModel().bipedRightLeg.isHidden;
+			model.bipedRightLegwear.isHidden = renderer.getMainModel().bipedRightLegwear.isHidden;
+		}
+		
+		if(slot == EnumFashionSlot.CHEST)
+		{
+			model.bipedBody.isHidden = renderer.getMainModel().bipedBody.isHidden;
+			model.bipedBodyWear.isHidden = renderer.getMainModel().bipedBodyWear.isHidden;
+			
+			model.bipedLeftArm.isHidden = renderer.getMainModel().bipedLeftArm.isHidden;
+			model.bipedLeftArmwear.isHidden = renderer.getMainModel().bipedLeftArmwear.isHidden;
+
+			model.bipedRightArm.isHidden = renderer.getMainModel().bipedRightArm.isHidden;
+			model.bipedRightArmwear.isHidden = renderer.getMainModel().bipedRightArmwear.isHidden;
+		}
 
 		model.isSneak = renderer.getMainModel().isSneak;
 		model.isRiding = renderer.getMainModel().isRiding;

@@ -1,8 +1,11 @@
 package subaraki.fashion.mod;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -20,7 +23,7 @@ public class Fashion {
 
 	public static final String MODID = "fashion";
 	public static final String NAME = "fashion mod";
-	public static final String VERSION = "1.11.2 0.1.1.0";
+	public static final String VERSION = "1.11.2 0.1.2.0";
 	public static final String DEPENDENCY = "required-after:subcommonlib";
 
 	public static final String FASHIONPACK = "fashion packs";
@@ -31,9 +34,10 @@ public class Fashion {
 	public static ServerProxy proxy;
 
 	public static Fashion INSTANCE;
-	
+
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event){
+
 		INSTANCE = this;
 		proxy.init();
 		proxy.registerKey();
@@ -42,7 +46,7 @@ public class Fashion {
 		new FashionCapability().register();
 		new PlayerTracker();
 	}
-	
+
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event){
 		proxy.registerClientEvents();

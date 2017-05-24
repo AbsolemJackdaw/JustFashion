@@ -2,12 +2,12 @@ package subaraki.fashion.gui;
 
 import java.io.IOException;
 
-import org.lwjgl.input.Keyboard;
-
 import lib.util.DrawEntityOnScreen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.util.ResourceLocation;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.mod.EnumFashionSlot;
@@ -34,40 +34,74 @@ public class GuiWardrobe extends GuiContainer{
 	public GuiWardrobe(FashionContainer inventorySlotsIn) {
 		super(inventorySlotsIn);
 		fashion = FashionData.get(inventorySlotsIn.player);
+
 	}
 
 	@Override
 	public void initGui() {
 		buttonList.clear();
+
 		super.initGui();
 
+		//ids 0-8
 		for(int i = 0; i < 8; i++)
 		{
 			int x = guiLeft + 10 + (i%2 == 0 ? 0 : 45);
 			int y = guiTop + 100 + (i/2* 15);
-			
+
 			buttonList.add(new GuiButton(i, x, y, 10, 10, i%2 == 0 ? "<" : ">"));
 		}
-		
+
+		//ids 8-12
 		for(int i = 4; i < 8; i++)
 		{
 			int x = guiLeft + 75 + (i%2 == 0 ? 0 : 50);
 			int y = guiTop + 100 + (i/2* 15);
-			
+
 			buttonList.add(new GuiButton(i+4, x, y, 10, 10, i%2 == 0 ? "<" : ">"));
 		}
 
-		buttonList.add(new GuiFancyButton(20, guiLeft + xSize - 12, guiTop + ySize / 2 + 12).setActive(fashion.shouldRenderFashion()));
+		buttonList.add(new GuiFancyButton(12, guiLeft + xSize - 12, guiTop + ySize / 2 + 12).setActive(fashion.shouldRenderFashion()));
+
+		if(!fashion.getSavedOriginalList().isEmpty())
+			for(int i = 0; i < fashion.getSavedOriginalList().size(); i++)
+			{
+				final int index = i;
+				LayerRenderer layer = fashion.getSavedOriginalList().get(index);
+				
+				buttonList.add(new GuiFancyButton(13+i, (guiLeft - 12) - (i%5)*10, (guiTop ) + (i/5)*10, layer.getClass().getSimpleName()){
+					@Override
+					public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
+						boolean clicked = this.enabled && this.visible && mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width/2 && mouseY < this.yPosition + this.height/2;
+						if(clicked)
+						{
+							setActive(!isActive()); //set opposite of current state
+							
+							if(isActive())//if set to active
+								fashion.keepLayers.add(layer);
+							else
+								fashion.keepLayers.remove(layer);
+							
+							fashion.fashionLayers.clear();
+						}
+						return clicked;
+					};
+
+				}.setActive(fashion.keepLayers.contains(layer)));
+			}
 	}
 
 	@Override
 	protected void actionPerformed(GuiButton button) throws IOException {
 		super.actionPerformed(button);
 
-		if(button instanceof GuiFancyButton)
+		if(button instanceof GuiFancyButton && button.id == 12)
+		{
 			fashion.setRenderFashion( ((GuiFancyButton)button).isActive() );
+			initGui();
+		}
 
-		else if(fashion.shouldRenderFashion())
+		else if(fashion.shouldRenderFashion() && button.id < 12)
 		{
 			int slot = (button.id)/2;
 			int id = fashion.getPartIndex(EnumFashionSlot.fromInt(slot));
@@ -76,12 +110,10 @@ public class GuiWardrobe extends GuiContainer{
 				id--;
 			else
 				id++;
-			Fashion.log.info(id);
 			if(id >= ClientProxy.partsSize(EnumFashionSlot.fromInt(slot)))
 				id = 0;
 			if(id < 0)
 				id = ClientProxy.partsSize(EnumFashionSlot.fromInt(slot))-1;
-			Fashion.log.info(id);
 
 			fashion.updatePartIndex(id, EnumFashionSlot.fromInt(slot));
 		}
@@ -117,6 +149,7 @@ public class GuiWardrobe extends GuiContainer{
 
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+		
 		super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
 		for(int i = 0; i < this.onScreenButtonText.length-2; i++)
@@ -130,13 +163,12 @@ public class GuiWardrobe extends GuiContainer{
 					99 - mc.fontRenderer.getStringWidth("hats")/2,
 					86 + ((i+1)* 15),
 					0xffffff, true);
-		
+
 		String toggled = fashion.shouldRenderFashion() ? "Showing Fashion" : "Showing Armor";
 		mc.fontRenderer.drawString(toggled, 
 				xSize - 14 - mc.fontRenderer.getStringWidth(toggled),
 				ySize / 2 + 11,
 				0xffffff, true);
-
 	}
 
 	@Override
@@ -144,6 +176,15 @@ public class GuiWardrobe extends GuiContainer{
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		this.oldMouseX = (float)mouseX;
 		this.oldMouseY = Math.min((float)mouseY, guiTop+50);
+		
+		for (GuiButton guiButton : buttonList) {
+			if(guiButton instanceof GuiFancyButton)
+			{
+				GuiFancyButton gfb = (GuiFancyButton)guiButton;
+				if(gfb.isMouseOver() && gfb.id != 12)
+					this.drawHoveringText(gfb.name, mouseX, mouseY);
+			}
+		}
 	}
 
 	@Override
