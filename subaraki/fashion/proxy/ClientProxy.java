@@ -17,7 +17,6 @@ import com.google.gson.JsonObject;
 
 import lib.modelloader.ModelHandle;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.ModelHumanoidHead;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResource;

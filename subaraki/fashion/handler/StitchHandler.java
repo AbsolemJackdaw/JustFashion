@@ -1,12 +1,9 @@
 package subaraki.fashion.handler;
 
-import java.util.logging.Logger;
-
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import subaraki.fashion.mod.EnumFashionSlot;
-import subaraki.fashion.mod.Fashion;
 import subaraki.fashion.proxy.ClientProxy;
 
 public class StitchHandler {
