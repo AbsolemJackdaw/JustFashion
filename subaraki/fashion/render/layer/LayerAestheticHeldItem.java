@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
@@ -65,13 +66,13 @@ public class LayerAestheticHeldItem implements LayerRenderer<AbstractClientPlaye
 
 		if(fashionData.getPartIndex(EnumFashionSlot.SHIELD) > 0 )
 		{
-			if(stackHeldItem.getItem() instanceof ItemShield)
+			if(stackHeldItem.getItem() instanceof ItemShield || stackHeldItem.getItem().getItemUseAction(stackHeldItem) == EnumAction.BLOCK)
 			{
 				renderAesthetic(stackHeldItem, player, EnumHandSide.RIGHT, fashionData, cam_right, EnumFashionSlot.SHIELD);
 				renderedHand = true;
 			}
 			
-			if(stackOffHand.getItem() instanceof ItemShield)
+			if(stackOffHand.getItem() instanceof ItemShield || stackOffHand.getItem().getItemUseAction(stackOffHand) == EnumAction.BLOCK)
 			{
 				renderAesthetic(stackOffHand, player, EnumHandSide.LEFT, fashionData, cam_left, EnumFashionSlot.SHIELD);
 				renderedOffHand = true;
@@ -117,7 +118,7 @@ public class LayerAestheticHeldItem implements LayerRenderer<AbstractClientPlaye
 		if(slot == EnumFashionSlot.WEAPON)
 			handleModel = ClientProxy.getAestheticWeapon(data.getPartIndex(slot)).get();
 		else if (slot == EnumFashionSlot.SHIELD)
-			if(stack.getItem() instanceof ItemShield)
+			if(stack.getItem() instanceof ItemShield || stack.getItem().getItemUseAction(stack) == EnumAction.BLOCK)
 			{
 				boolean isBlocking = player.isHandActive() && player.getActiveItemStack() == stack ;
 				handleModel = ClientProxy.getAestheticShield(data.getPartIndex(slot), isBlocking).get();
