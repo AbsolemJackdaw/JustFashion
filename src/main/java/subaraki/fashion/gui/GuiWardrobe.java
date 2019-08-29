@@ -132,13 +132,11 @@ public class GuiWardrobe extends GuiContainer{
 		DrawEntityOnScreen.drawEntityOnScreen(guiLeft+33, guiTop+65, 25, -(guiLeft-70-oldMouseX)/2.5f, guiTop + 40 - oldMouseY, this.mc.player, 135.0F, 25.0f, true); 
 		DrawEntityOnScreen.drawEntityOnScreen(guiLeft+68, guiTop+82, 30, -(guiLeft+70-oldMouseX)/2.5f, guiTop + 40 - oldMouseY, this.mc.player, -45.0f , 150.0f, false); 
 		FashionData.get(this.mc.player).setInWardrobe(true); // set back after drawn for in world rendering
-
 		GlStateManager.popMatrix();
 
 		this.zLevel = 90;
 		GlStateManager.enableBlend();
 		GlStateManager.enableAlpha();
-		GlStateManager.color(1, 1, 1, 0.8f);
 		this.mc.renderEngine.bindTexture(BACKGROUND);
 		drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
 		GlStateManager.disableAlpha();
