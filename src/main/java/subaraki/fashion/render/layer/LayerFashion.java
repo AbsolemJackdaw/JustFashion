@@ -5,110 +5,107 @@ import static subaraki.fashion.mod.EnumFashionSlot.CHEST;
 import static subaraki.fashion.mod.EnumFashionSlot.HEAD;
 import static subaraki.fashion.mod.EnumFashionSlot.LEGS;
 
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.renderer.entity.RenderPlayer;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
+import net.minecraft.client.renderer.entity.IEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import subaraki.fashion.capability.FashionCapability;
+import net.minecraft.client.renderer.entity.model.PlayerModel;
 import subaraki.fashion.capability.FashionData;
+import subaraki.fashion.handler.client.ResourcePackReader;
 import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.model.ModelFashion;
 import subaraki.fashion.model.ModelFashionBody;
 import subaraki.fashion.model.ModelFashionBoots;
 import subaraki.fashion.model.ModelFashionHead;
 import subaraki.fashion.model.ModelFashionLegs;
-import subaraki.fashion.proxy.ClientProxy;
 
-public class LayerFashion implements LayerRenderer<AbstractClientPlayer>{
+public class LayerFashion extends LayerRenderer<AbstractClientPlayerEntity, PlayerModel<AbstractClientPlayerEntity>> {
 
-	private ModelFashionHead head = new ModelFashionHead(0.51f);
-	private ModelFashionBody bodySmall = new ModelFashionBody(0.27f, true);
-	private ModelFashionBody body = new ModelFashionBody(0.27f, false);
-	private ModelFashionLegs legs = new ModelFashionLegs(0.26f);
-	private ModelFashionBoots boots = new ModelFashionBoots(0.27f);
+    private ModelFashionHead head = new ModelFashionHead(0.51f);
+    private ModelFashionBody bodySmall = new ModelFashionBody(0.27f, true);
+    private ModelFashionBody body = new ModelFashionBody(0.27f, false);
+    private ModelFashionLegs legs = new ModelFashionLegs(0.26f);
+    private ModelFashionBoots boots = new ModelFashionBoots(0.27f);
 
-	private RenderPlayer renderer;
+    public LayerFashion(IEntityRenderer<AbstractClientPlayerEntity, PlayerModel<AbstractClientPlayerEntity>> entityrenderer) {
 
-	public LayerFashion(RenderPlayer renderer) {
-		this.renderer = renderer;
-	}
+        super(entityrenderer);
+    }
 
-	@Override
-	public void doRenderLayer(AbstractClientPlayer entitylivingbaseIn, float limbSwing, float limbSwingAmount,
-			float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale)
-	{
-		renderFashionPart(entitylivingbaseIn, HEAD, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
-		renderFashionPart(entitylivingbaseIn, CHEST, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
-		renderFashionPart(entitylivingbaseIn, LEGS, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
-		renderFashionPart(entitylivingbaseIn, BOOTS, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
-	}
+    @Override
+    public void render(AbstractClientPlayerEntity entityIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 
-	@Override
-	public boolean shouldCombineTextures() {
-		return false;
-	}
+        renderFashionPart(entityIn, HEAD, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
+        renderFashionPart(entityIn, CHEST, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
+        renderFashionPart(entityIn, LEGS, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
+        renderFashionPart(entityIn, BOOTS, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
+    }
 
-	private void renderFashionPart(AbstractClientPlayer player, EnumFashionSlot slot, float limbSwing, float limbSwingAmount,
-			float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale){
+    @Override
+    public boolean shouldCombineTextures() {
 
-		FashionData fashionData = player.getCapability(FashionCapability.CAPABILITY,null);
+        return true;
+    }
 
-		int id = fashionData.getPartIndex(slot);
-		this.renderer.bindTexture(ClientProxy.getResourceForPart(slot, id));
+    private void renderFashionPart(AbstractClientPlayerEntity player, EnumFashionSlot slot, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 
-		ModelFashion model = getModelFromSlot(slot, ((AbstractClientPlayer)player).getSkinType().equals("slim"));
+        FashionData fashionData = FashionData.get(player);
 
-		model.setModelAttributes(this.renderer.getMainModel());
-		model.setLivingAnimations(player, limbSwing, limbSwingAmount, partialTicks);
+        int id = fashionData.getPartIndex(slot);
 
-		if(slot == EnumFashionSlot.HEAD)
-		{
-			model.bipedHead.isHidden = renderer.getMainModel().bipedHead.isHidden;
-			model.bipedHeadwear.isHidden = renderer.getMainModel().bipedHeadwear.isHidden;
-		}
-		
-		if(slot == EnumFashionSlot.LEGS || slot == EnumFashionSlot.BOOTS)
-		{
-			model.bipedLeftLeg.isHidden = renderer.getMainModel().bipedLeftLeg.isHidden;
-			model.bipedLeftLegwear.isHidden = renderer.getMainModel().bipedLeftLegwear.isHidden;
-			model.bipedRightLeg.isHidden = renderer.getMainModel().bipedRightLeg.isHidden;
-			model.bipedRightLegwear.isHidden = renderer.getMainModel().bipedRightLegwear.isHidden;
-		}
-		
-		if(slot == EnumFashionSlot.CHEST)
-		{
-			model.bipedBody.isHidden = renderer.getMainModel().bipedBody.isHidden;
-			model.bipedBodyWear.isHidden = renderer.getMainModel().bipedBodyWear.isHidden;
-			
-			model.bipedLeftArm.isHidden = renderer.getMainModel().bipedLeftArm.isHidden;
-			model.bipedLeftArmwear.isHidden = renderer.getMainModel().bipedLeftArmwear.isHidden;
+        this.bindTexture(ResourcePackReader.getResourceForPart(slot, id));
 
-			model.bipedRightArm.isHidden = renderer.getMainModel().bipedRightArm.isHidden;
-			model.bipedRightArmwear.isHidden = renderer.getMainModel().bipedRightArmwear.isHidden;
-		}
+        ModelFashion model = getModelFromSlot(slot, ((AbstractClientPlayerEntity) player).getSkinType().equals("slim"));
 
-		model.isSneak = renderer.getMainModel().isSneak;
-		model.isRiding = renderer.getMainModel().isRiding;
-		model.isChild = renderer.getMainModel().isChild;
-		model.rightArmPose = renderer.getMainModel().rightArmPose;
-		model.leftArmPose = renderer.getMainModel().leftArmPose;
+        model.setModelAttributes(this.getEntityModel());
+        model.setLivingAnimations(player, limbSwing, limbSwingAmount, partialTicks);
 
-		model.render(player, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+        if (slot == EnumFashionSlot.HEAD) {
+            model.bipedHead.isHidden = getEntityModel().bipedHead.isHidden;
+            model.bipedHeadwear.isHidden = getEntityModel().bipedHeadwear.isHidden;
+        }
 
-	}
+        if (slot == EnumFashionSlot.LEGS || slot == EnumFashionSlot.BOOTS) {
+            model.bipedLeftLeg.isHidden = getEntityModel().bipedLeftLeg.isHidden;
+            model.bipedLeftLegwear.isHidden = getEntityModel().bipedLeftLegwear.isHidden;
+            model.bipedRightLeg.isHidden = getEntityModel().bipedRightLeg.isHidden;
+            model.bipedRightLegwear.isHidden = getEntityModel().bipedRightLegwear.isHidden;
+        }
 
-	private ModelFashion getModelFromSlot(EnumFashionSlot slot, boolean smallArms){
-		switch (slot) 
-		{
-		case HEAD:
-			return head;
-		case CHEST :
-			return smallArms ? bodySmall : body;
-		case LEGS : 
-			return legs;
-		case BOOTS :
-			return boots;
-		default :
-			return null;
-		}
-	}
+        if (slot == EnumFashionSlot.CHEST) {
+            model.bipedBody.isHidden = getEntityModel().bipedBody.isHidden;
+            model.bipedBodyWear.isHidden = getEntityModel().bipedBodyWear.isHidden;
+
+            model.bipedLeftArm.isHidden = getEntityModel().bipedLeftArm.isHidden;
+            model.bipedLeftArmwear.isHidden = getEntityModel().bipedLeftArmwear.isHidden;
+
+            model.bipedRightArm.isHidden = getEntityModel().bipedRightArm.isHidden;
+            model.bipedRightArmwear.isHidden = getEntityModel().bipedRightArmwear.isHidden;
+        }
+
+        model.isSneak = getEntityModel().isSneak;
+        // model.isRiding = renderer.getEntityModel().isRiding; //no more riding
+        // apparently
+        model.isChild = getEntityModel().isChild;
+        model.rightArmPose = getEntityModel().rightArmPose;
+        model.leftArmPose = getEntityModel().leftArmPose;
+
+        model.render(player, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+    }
+
+    private ModelFashion getModelFromSlot(EnumFashionSlot slot, boolean smallArms) {
+
+        switch (slot) {
+        case HEAD:
+            return head;
+        case CHEST:
+            return smallArms ? bodySmall : body;
+        case LEGS:
+            return legs;
+        case BOOTS:
+            return boots;
+        default:
+            return null;
+        }
+    }
+
 }

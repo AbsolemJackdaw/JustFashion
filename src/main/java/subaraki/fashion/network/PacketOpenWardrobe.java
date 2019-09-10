@@ -1,48 +1,44 @@
 package subaraki.fashion.network;
 
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.EntityTracker;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.fml.common.network.internal.FMLNetworkHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import java.util.function.Supplier;
+
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.fml.network.PacketDistributor;
 import subaraki.fashion.capability.FashionData;
-import subaraki.fashion.mod.Fashion;
+import subaraki.fashion.screen.WardrobeProvider;
 
-public class PacketOpenWardrobe implements IMessage{
-	public PacketOpenWardrobe() {
-	}
+public class PacketOpenWardrobe {
 
-	@Override
-	public void fromBytes(ByteBuf buf) {
-	}
+    public PacketOpenWardrobe() {
 
-	@Override
-	public void toBytes(ByteBuf buf) {
-	}
-	
-	public static class PacketOpenWardrobeHandler implements IMessageHandler<PacketOpenWardrobe, IMessage>
-	{
-		@Override
-		public IMessage onMessage(PacketOpenWardrobe message, MessageContext ctx) {
-			EntityPlayer player = ctx.getServerHandler().player;
-			WorldServer server = (WorldServer) player.world;
-			server.addScheduledTask( ()->{
-				
-				FMLNetworkHandler.openGui(ctx.getServerHandler().player, Fashion.INSTANCE, 0, ctx.getServerHandler().player.world, 0, 0, 0);
-				
-				FashionData.get(player).setInWardrobe(true);
-				
-				EntityTracker tracker = server.getEntityTracker();
-				for (EntityPlayer entityPlayer : tracker.getTrackingPlayers(player)) {
-					IMessage packet = new PacketSetInWardrobeToTrackedPlayers(player.getUniqueID(), true);
-					NetworkHandler.NETWORK.sendTo(packet, (EntityPlayerMP)entityPlayer);
-				}
-			});
-			return null;
-		}
-	}
+    }
+
+    public PacketOpenWardrobe(PacketBuffer buf) {
+
+    }
+
+    public void encode(PacketBuffer buf) {
+
+    }
+
+    public void handle(Supplier<NetworkEvent.Context> context) {
+
+        context.get().enqueueWork(() -> {
+
+            ServerPlayerEntity player = context.get().getSender();
+
+            NetworkHooks.openGui(player, new WardrobeProvider());
+
+            FashionData.get(player).setInWardrobe(true);
+
+            Object packet = new PacketSetInWardrobeToTrackedPlayers(player.getUniqueID(), true);
+
+            NetworkHandler.NETWORK.send(PacketDistributor.TRACKING_ENTITY.with(() -> player), packet);
+
+        });
+        context.get().setPacketHandled(true);
+    }
 }

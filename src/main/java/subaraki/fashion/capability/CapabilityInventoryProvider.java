@@ -1,17 +1,16 @@
 package subaraki.fashion.capability;
 
-import javax.annotation.Nullable;
-
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
+import net.minecraftforge.common.util.LazyOptional;
 import subaraki.fashion.mod.Fashion;
 
-public class CapabilityInventoryProvider implements ICapabilitySerializable<NBTTagCompound>
-{
+public class CapabilityInventoryProvider implements ICapabilitySerializable<CompoundNBT> {
+
     /**
      * Unique key to identify the attached provider from others
      */
@@ -22,33 +21,43 @@ public class CapabilityInventoryProvider implements ICapabilitySerializable<NBTT
      */
     final FashionData slots = new FashionData();
 
-    /**gets called before world is initiated. player.worldObj will return null here !*/
-    public CapabilityInventoryProvider(EntityPlayer player){
+    /**
+     * Gets called before world is initiated. player.worldObj will return null here
+     * !
+     */
+    public CapabilityInventoryProvider(PlayerEntity player) {
+
         slots.setPlayer(player);
     }
 
     @Override
-    public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing)
-    {
-        if (capability == FashionCapability.CAPABILITY)
-            return true;
-        return false;
+    public CompoundNBT serializeNBT() {
+
+        return (CompoundNBT) FashionCapability.CAPABILITY.writeNBT(slots, null);
     }
 
     @Override
-    public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing){
-        if (capability == FashionCapability.CAPABILITY)
-            return (T)slots;
-        return null;
+    public void deserializeNBT(CompoundNBT nbt) {
+
+        FashionCapability.CAPABILITY.readNBT(slots, null, nbt);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public NBTTagCompound serializeNBT(){
-        return (NBTTagCompound) FashionCapability.CAPABILITY.writeNBT(slots, null);
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
+
+        if (cap == FashionCapability.CAPABILITY)
+            return (LazyOptional<T>) LazyOptional.of(this::getImpl);
+
+        return LazyOptional.empty();
     }
 
-    @Override
-    public void deserializeNBT(NBTTagCompound nbt){
-    	FashionCapability.CAPABILITY.readNBT(slots, null, nbt);
+    private FashionData getImpl() {
+
+        if (slots != null) {
+            return slots;
+        }
+        return new FashionData();
     }
+
 }

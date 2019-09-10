@@ -20,9 +20,7 @@ build
 # other
 eclipse
 run
-*.txt
-/config/
-/logs/
-/saves/
-/mods/
-*.json
+
+# Files from Forge MDK
+forge*changelog.txt
+/gradle/

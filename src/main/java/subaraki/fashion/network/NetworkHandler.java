@@ -1,22 +1,32 @@
 package subaraki.fashion.network;
 
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import net.minecraftforge.fml.relauncher.Side;
-import subaraki.fashion.network.PacketOpenWardrobe.PacketOpenWardrobeHandler;
-import subaraki.fashion.network.PacketSetInWardrobeToTrackedPlayers.PacketSetInWardrobeToTrackedPlayersHandler;
-import subaraki.fashion.network.PacketSyncFashionToClient.PacketSyncFashionToClientHandler;
-import subaraki.fashion.network.PacketSyncFashionToTrackedPlayers.PacketSyncFashionToTrackedPlayersHandler;
-import subaraki.fashion.network.PacketSyncPlayerFashionToServer.PacketSyncPlayerFashionToServerHandler;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
+import subaraki.fashion.mod.Fashion;
 
 public class NetworkHandler {
 
-	public static final SimpleNetworkWrapper NETWORK = new SimpleNetworkWrapper("FashionNetwork");
-	
-	public NetworkHandler() {
-		NETWORK.registerMessage(PacketSyncPlayerFashionToServerHandler.class, PacketSyncPlayerFashionToServer.class, 0, Side.SERVER);
-		NETWORK.registerMessage(PacketSyncFashionToTrackedPlayersHandler.class, PacketSyncFashionToTrackedPlayers.class, 1, Side.CLIENT);
-		NETWORK.registerMessage(PacketSyncFashionToClientHandler.class, PacketSyncFashionToClient.class, 2, Side.CLIENT);
-		NETWORK.registerMessage(PacketSetInWardrobeToTrackedPlayersHandler.class, PacketSetInWardrobeToTrackedPlayers.class, 4, Side.CLIENT);
-		NETWORK.registerMessage(PacketOpenWardrobeHandler.class, PacketOpenWardrobe.class, 5, Side.SERVER);
-	}
+    private static final String PROTOCOL_VERSION = "1";
+
+    public static final SimpleChannel NETWORK = NetworkRegistry.newSimpleChannel(new ResourceLocation(Fashion.MODID, "fashion_network"), () -> PROTOCOL_VERSION,
+            PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
+
+    public NetworkHandler() {
+
+        int messageId = 0;
+        NETWORK.registerMessage(messageId++, PacketSyncPlayerFashionToServer.class, PacketSyncPlayerFashionToServer::encode,
+                PacketSyncPlayerFashionToServer::new, PacketSyncPlayerFashionToServer::handle);
+
+        NETWORK.registerMessage(messageId++, PacketSyncFashionToTrackedPlayers.class, PacketSyncFashionToTrackedPlayers::encode,
+                PacketSyncFashionToTrackedPlayers::new, PacketSyncFashionToTrackedPlayers::handle);
+
+        NETWORK.registerMessage(messageId++, PacketSyncFashionToClient.class, PacketSyncFashionToClient::encode, PacketSyncFashionToClient::new,
+                PacketSyncFashionToClient::handle);
+
+        NETWORK.registerMessage(messageId++, PacketSetInWardrobeToTrackedPlayers.class, PacketSetInWardrobeToTrackedPlayers::encode,
+                PacketSetInWardrobeToTrackedPlayers::new, PacketSetInWardrobeToTrackedPlayers::handle);
+
+        NETWORK.registerMessage(messageId++, PacketOpenWardrobe.class, PacketOpenWardrobe::encode, PacketOpenWardrobe::new, PacketOpenWardrobe::handle);
+    }
 }

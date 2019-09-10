@@ -2,28 +2,17 @@ package subaraki.fashion.mod;
 
 public enum EnumFashionSlot {
 
-	HEAD,
-	CHEST,
-	LEGS,
-	BOOTS,
-	WEAPON,
-	SHIELD;
-	
-	public static EnumFashionSlot fromInt(int id){
-		switch (id) {
-		case 0:
-			return EnumFashionSlot.HEAD;
-		case 1:
-			return EnumFashionSlot.CHEST;
-		case 2 : 
-			return EnumFashionSlot.LEGS;
-		case 3 : 
-			return EnumFashionSlot.BOOTS;
-		case 4 : 
-			return EnumFashionSlot.WEAPON;
-		case 5 :
-			return EnumFashionSlot.SHIELD;
-		}
-		return HEAD;
-	}
+    HEAD, CHEST, LEGS, BOOTS, WEAPON, SHIELD;
+
+    public static EnumFashionSlot fromInt(int id) {
+
+        for (EnumFashionSlot SLOT : EnumFashionSlot.values()) {
+            if (SLOT.ordinal() == id)
+                return SLOT;
+        }
+
+        Fashion.log.error("Resorted to Default HEAD for fashion slot lookup. This is an error and should not happen. ");
+
+        return HEAD;
+    }
 }

@@ -3,49 +3,86 @@ package subaraki.fashion.mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraftforge.common.extensions.IForgeContainerType;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.ObjectHolder;
 import subaraki.fashion.capability.FashionCapability;
-import subaraki.fashion.handler.GuiHandler;
-import subaraki.fashion.handler.PlayerTracker;
+import subaraki.fashion.handler.client.ClientEventHandler;
+import subaraki.fashion.handler.client.KeyRegistry;
+import subaraki.fashion.handler.client.ResourcePackReader;
+import subaraki.fashion.handler.common.PlayerTracker;
 import subaraki.fashion.network.NetworkHandler;
-import subaraki.fashion.proxy.ServerProxy;
+import subaraki.fashion.screen.WardrobeContainer;
+import subaraki.fashion.screen.WardrobeScreen;
 
-@Mod(name = Fashion.NAME, modid = Fashion.MODID, version = Fashion.VERSION, dependencies = Fashion.DEPENDENCY)
+@Mod(Fashion.MODID)
+@EventBusSubscriber(modid = Fashion.MODID, bus = Bus.MOD)
 public class Fashion {
 
-	public static final String MODID = "fashion";
-	public static final String NAME = "fashion mod";
-	public static final String VERSION = "1.11.2 0.1.2.0";
-	public static final String DEPENDENCY = "required-after:subcommonlib";
+    public static final String MODID = "fashion";
+    public static final String NAME = "fashion mod";
+    public static final String VERSION = "1.11.2 2.0.0.0";
+    public static final String DEPENDENCY = "required-after:subcommonlib";
 
-	public static final String FASHIONPACK = "fashion packs";
+    public static final String FASHIONPACK = "fashion packs";
 
-	public static Logger log = LogManager.getLogger(MODID);
+    public static Logger log = LogManager.getLogger(MODID);
 
-	@SidedProxy(clientSide = "subaraki.fashion.proxy.ClientProxy", serverSide = "subaraki.fashion.proxy.ServerProxy")
-	public static ServerProxy proxy;
+    private ResourcePackReader rpr = null;
 
-	public static Fashion INSTANCE;
+    public Fashion() {
 
-	@EventHandler
-	public void preInit(FMLPreInitializationEvent event){
+        // Register doClientStuff method for modloading
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+        // Register commonSetup method for modloading
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
 
-		INSTANCE = this;
-		proxy.init();
-		proxy.registerKey();
-		new NetworkHandler();
-		NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
-		new FashionCapability().register();
-		new PlayerTracker();
-	}
+    }
 
-	@EventHandler
-	public void postInit(FMLPostInitializationEvent event){
-		proxy.registerClientEvents();
-	}
+    private void commonSetup(final FMLCommonSetupEvent event) {
+
+        new FashionCapability().register();
+        new PlayerTracker();
+        new NetworkHandler();
+    }
+
+    private void doClientStuff(final FMLClientSetupEvent event) {
+
+        rpr = new ResourcePackReader();
+
+        rpr.registerReloadListener();
+        rpr.loadFashionPacks(); // used to be called in 1.12 upon registry. needs to be triggered manually now
+                                // for the first time
+
+        new KeyRegistry().registerKey();
+
+        ScreenManager.registerFactory(ObjectHolders.WARDROBECONTAINER, WardrobeScreen::new);
+
+        new ClientEventHandler().registerLayers();
+
+    }
+
+    @SubscribeEvent
+    public static void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
+
+        event.getRegistry().register(IForgeContainerType.create((windowId, inv, data) -> new WardrobeContainer(ObjectHolders.WARDROBECONTAINER, windowId))
+                .setRegistryName("wardrobe_container"));
+
+    }
+
+    @ObjectHolder(MODID)
+    public static class ObjectHolders {
+
+        @ObjectHolder("wardrobe_container")
+        public static final ContainerType<WardrobeContainer> WARDROBECONTAINER = null;
+    }
 }

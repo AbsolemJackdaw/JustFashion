@@ -5,158 +5,232 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.client.renderer.entity.layers.LayerArrow;
-import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
-import net.minecraft.client.renderer.entity.layers.LayerCape;
-import net.minecraft.client.renderer.entity.layers.LayerCustomHead;
-import net.minecraft.client.renderer.entity.layers.LayerDeadmau5Head;
-import net.minecraft.client.renderer.entity.layers.LayerElytra;
-import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
+import net.minecraft.client.renderer.entity.layers.ArrowLayer;
+import net.minecraft.client.renderer.entity.layers.BipedArmorLayer;
+import net.minecraft.client.renderer.entity.layers.CapeLayer;
+import net.minecraft.client.renderer.entity.layers.Deadmau5HeadLayer;
+import net.minecraft.client.renderer.entity.layers.ElytraLayer;
+import net.minecraft.client.renderer.entity.layers.HeadLayer;
+import net.minecraft.client.renderer.entity.layers.HeldItemLayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
 import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.render.layer.LayerWardrobe;
 
 public class FashionData {
 
-	private EntityPlayer player;
+    private PlayerEntity player;
 
-	private boolean renderFashion;
-	private boolean inWardrobe;
+    private boolean renderFashion;
+    private boolean inWardrobe;
 
-	private int hatIndex;
-	private int bodyIndex;
-	private int legsIndex;
-	private int bootsIndex; 
-	private int weaponIndex;
-	private int shieldIndex;
+    private int hatIndex;
+    private int bodyIndex;
+    private int legsIndex;
+    private int bootsIndex;
+    private int weaponIndex;
+    private int shieldIndex;
 
-	public List<LayerRenderer> cachedOriginalRenderList = null;
-	public List<LayerRenderer> fashionLayers = Lists.<LayerRenderer>newArrayList();
+    /** Cache of original list with layers attached to the player */
+    public List<LayerRenderer<?, ?>> cachedOriginalRenderList = null;
+    /** List of all fashion layers rendered, independant of original list */
+    public List<LayerRenderer<?, ?>> fashionLayers = Lists.newArrayList();
 
-	private List<LayerRenderer> savedOriginalList = Lists.<LayerRenderer>newArrayList();
-	public List<LayerRenderer> keepLayers = Lists.<LayerRenderer>newArrayList();
+    /** List saved with all layers to be rendered */
+    private List<LayerRenderer<?, ?>> savedOriginalList = Lists.newArrayList();
+    /** Layers that ought to be kept rendered independant from Fashion Layers */
+    public List<LayerRenderer<?, ?>> keepLayers = Lists.newArrayList();
 
-	public List<LayerRenderer> getSavedOriginalList() {
-		List<LayerRenderer> copy = new ArrayList<>();
-		copy = savedOriginalList;
-		return copy;
-	}
-	
-	public void resetSavedOriginalList(){
-		savedOriginalList.clear();
-	}
+    /** Get the list of items that need to be rendered to the player */
+    public List<LayerRenderer<?, ?>> getSavedOriginalList() {
 
-	public void saveVanillaList(List<LayerRenderer> original){
-		List<LayerRenderer> copy = Lists.<LayerRenderer>newArrayList();
+        List<LayerRenderer<?, ?>> copy = new ArrayList<>();
+        copy = savedOriginalList;
+        return copy;
+    }
 
-		//Remove unneeded layers
-		for (LayerRenderer layer: original) 
-		{
-			if((layer instanceof LayerBipedArmor) || 
-					(layer instanceof LayerWardrobe) ||
-					(layer instanceof LayerCustomHead) ||
-					(layer instanceof LayerDeadmau5Head)||
-					(layer instanceof LayerHeldItem)||
-					(layer instanceof LayerArrow)||
-					(layer instanceof LayerCape)||
-					(layer instanceof LayerElytra)||
-					(layer instanceof LayerWardrobe))
-				continue;
+    public void resetSavedOriginalList() {
 
-			copy.add(layer);
-		}
+        savedOriginalList.clear();
+    }
 
-		savedOriginalList.clear();
+    /**
+     * Copy over all layers that aren't vanilla layers to the savedOriginalList,
+     * from the original cached list. This will be used to enable a toggle in the
+     * gui.
+     * 
+     * This is basically the anti fashion layers. armor vs fashion. under armor is
+     * understood any biped body armor, anything that can be put on the player's
+     * head (pumpkins etc), the deadmouse special layer, held item , the arrows
+     * stuck in the player the vanilla cape and the elytra as well as the wardrobe
+     * that can not be toggled
+     */
+    public void saveVanillaList(List<LayerRenderer<?, ?>> original) {
 
-		for(LayerRenderer layer : copy)
-			savedOriginalList.add(layer);
-	}
+        List<LayerRenderer<?, ?>> copy = Lists.newArrayList();
 
-	public FashionData(){
+        // Remove unneeded layers
+        for (LayerRenderer<?, ?> layer : original) {
+            if ((layer instanceof BipedArmorLayer) || (layer instanceof LayerWardrobe) || (layer instanceof HeadLayer) || (layer instanceof Deadmau5HeadLayer)
+                    || (layer instanceof HeldItemLayer) || (layer instanceof ArrowLayer) || (layer instanceof CapeLayer) || (layer instanceof ElytraLayer))
+                continue;
 
-	}
+            copy.add(layer);
+        }
 
-	public EntityPlayer getPlayer() { 
-		return player; 
-	}
+        savedOriginalList.clear();
 
-	public void setPlayer(EntityPlayer newPlayer){
-		this.player = newPlayer;
-	}
+        for (LayerRenderer<?, ?> layer : copy)
+            savedOriginalList.add(layer);
+    }
 
-	public static FashionData get(EntityPlayer player){
-		return player.getCapability(FashionCapability.CAPABILITY, null);
-	}
+    public FashionData() {
 
-	public NBTBase writeData(){
-		NBTTagCompound tag = new NBTTagCompound();
-		tag.setBoolean("renderFashion", renderFashion);
-		tag.setInteger("hat", hatIndex);
-		tag.setInteger("body", bodyIndex);
-		tag.setInteger("legs", legsIndex);
-		tag.setInteger("boots", bootsIndex);
-		tag.setInteger("weapon", weaponIndex);
-		tag.setInteger("shield", shieldIndex);
-		return tag;
-	}
+    }
 
-	public void readData(NBTBase nbt){
-		renderFashion = ((NBTTagCompound)nbt).getBoolean("renderFashion");
-		hatIndex = ((NBTTagCompound)nbt).getInteger("hat");
-		bodyIndex = ((NBTTagCompound)nbt).getInteger("body");
-		legsIndex = ((NBTTagCompound)nbt).getInteger("legs");
-		bootsIndex = ((NBTTagCompound)nbt).getInteger("boots");
-		weaponIndex = ((NBTTagCompound)nbt).getInteger("weapon");
-		shieldIndex = ((NBTTagCompound)nbt).getInteger("shield");
+    public PlayerEntity getPlayer() {
 
-	}
+        return player;
+    }
 
-	public boolean shouldRenderFashion() {
-		return renderFashion;
-	}
-	public void setRenderFashion(boolean renderFashion) {
-		this.renderFashion = renderFashion;
-	}
+    public void setPlayer(PlayerEntity newPlayer) {
 
-	public int getPartIndex(EnumFashionSlot slot){
-		switch(slot){
-		case HEAD : return hatIndex;
-		case CHEST : return bodyIndex;
-		case LEGS : return legsIndex;
-		case BOOTS : return bootsIndex;
-		case WEAPON : return weaponIndex;
-		case SHIELD : return shieldIndex;
+        this.player = newPlayer;
+    }
 
-		default : return 0;
-		}
-	}
+    public static FashionData get(PlayerEntity player) {
 
-	public int[] getAllParts(){
-		return new int[]{hatIndex, bodyIndex, legsIndex, bootsIndex, weaponIndex, shieldIndex};
-	}
+        return player.getCapability(FashionCapability.CAPABILITY).orElse(null);
+    }
 
-	public void updatePartIndex(int id, EnumFashionSlot slot) {
-		switch(slot){
-		case HEAD : hatIndex = id; break;
-		case CHEST : bodyIndex = id; break;
-		case LEGS : legsIndex = id; break;
-		case BOOTS : bootsIndex = id; break;
-		case WEAPON : weaponIndex = id; break;
-		case SHIELD : shieldIndex = id; break;
+    public INBT writeData() {
 
-		default:
-			break;
-		}
-	}
+        CompoundNBT tag = new CompoundNBT();
+        tag.putBoolean("renderFashion", renderFashion);
+        tag.putInt("hat", hatIndex);
+        tag.putInt("body", bodyIndex);
+        tag.putInt("legs", legsIndex);
+        tag.putInt("boots", bootsIndex);
+        tag.putInt("weapon", weaponIndex);
+        tag.putInt("shield", shieldIndex);
+        return tag;
+    }
 
-	public void setInWardrobe(boolean inWardrobe) {
-		this.inWardrobe = inWardrobe;
-	}
+    public void readData(INBT nbt) {
 
-	public boolean isInWardrobe() {
-		return inWardrobe;
-	}
+        renderFashion = ((CompoundNBT) nbt).getBoolean("renderFashion");
+        hatIndex = ((CompoundNBT) nbt).getInt("hat");
+        bodyIndex = ((CompoundNBT) nbt).getInt("body");
+        legsIndex = ((CompoundNBT) nbt).getInt("legs");
+        bootsIndex = ((CompoundNBT) nbt).getInt("boots");
+        weaponIndex = ((CompoundNBT) nbt).getInt("weapon");
+        shieldIndex = ((CompoundNBT) nbt).getInt("shield");
+
+    }
+
+    /** Switch on wether or not to render fashion */
+    public boolean shouldRenderFashion() {
+
+        return renderFashion;
+    }
+
+    public List<String> getSimpleNamesForToggledFashionLayers() {
+
+        if (keepLayers != null && !keepLayers.isEmpty()) {
+            List<String> layers = new ArrayList<String>();
+            for (LayerRenderer<?, ?> layer : keepLayers)
+                layers.add(layer.getClass().getSimpleName());
+            return layers;
+        }
+        return new ArrayList<String>();
+    }
+
+    public void setRenderFashion(boolean renderFashion) {
+
+        this.renderFashion = renderFashion;
+    }
+
+    /** Inverts the shouldRenderFashion boolean */
+    public void toggleRenderFashion() {
+
+        this.renderFashion = !renderFashion;
+    }
+
+    /**
+     * Returns the index at which the player renders fashion at the given moment for
+     * the given fashion slot enum
+     */
+    public int getPartIndex(EnumFashionSlot slot) {
+
+        switch (slot) {
+        case HEAD:
+            return hatIndex;
+        case CHEST:
+            return bodyIndex;
+        case LEGS:
+            return legsIndex;
+        case BOOTS:
+            return bootsIndex;
+        case WEAPON:
+            return weaponIndex;
+        case SHIELD:
+            return shieldIndex;
+
+        default:
+            return 0;
+        }
+    }
+
+    /**
+     * Returns the index for all fashion parts currently rendered on the player.
+     * This is mainly used in saving data and passing data trough packets
+     */
+    public int[] getAllParts() {
+
+        return new int[] { hatIndex, bodyIndex, legsIndex, bootsIndex, weaponIndex, shieldIndex };
+    }
+
+    /** Change the index for the given fashion slot to a new index */
+    public void updatePartIndex(int id, EnumFashionSlot slot) {
+
+        switch (slot) {
+        case HEAD:
+            hatIndex = id;
+            break;
+        case CHEST:
+            bodyIndex = id;
+            break;
+        case LEGS:
+            legsIndex = id;
+            break;
+        case BOOTS:
+            bootsIndex = id;
+            break;
+        case WEAPON:
+            weaponIndex = id;
+            break;
+        case SHIELD:
+            shieldIndex = id;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    /** Set wether or not the player should be rendered in the wardrobe */
+    public void setInWardrobe(boolean inWardrobe) {
+
+        this.inWardrobe = inWardrobe;
+    }
+
+    /**
+     * Wether or not the player should be rendered with the wardrobe layer or not
+     */
+    public boolean isInWardrobe() {
+
+        return inWardrobe;
+    }
 }

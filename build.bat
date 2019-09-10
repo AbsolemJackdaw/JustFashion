@@ -1,3 +1,1 @@
 gradlew build
-echo
-pause

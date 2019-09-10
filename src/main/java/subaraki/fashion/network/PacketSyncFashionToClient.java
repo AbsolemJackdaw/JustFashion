@@ -1,52 +1,48 @@
 package subaraki.fashion.network;
 
-import io.netty.buffer.ByteBuf;
+import java.util.function.Supplier;
+
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.mod.EnumFashionSlot;
-import subaraki.fashion.mod.Fashion;
 
-public class PacketSyncFashionToClient implements IMessage{
+public class PacketSyncFashionToClient {
 
-	public PacketSyncFashionToClient() {
-	}
+    public int[] ids;
+    public boolean isActive;
 
-	public int[] ids;
-	public boolean isActive;
+    public PacketSyncFashionToClient(int[] ids, boolean isActive) {
 
-	public PacketSyncFashionToClient(int[] ids, boolean isActive) {
-		this.ids = ids;
-		this.isActive = isActive;
-	}
+        this.ids = ids;
+        this.isActive = isActive;
+    }
 
-	@Override
-	public void fromBytes(ByteBuf buf) {
-		ids = new int[6];
-		for(int slot = 0; slot < ids.length; slot++)
-			ids[slot] = buf.readInt();
-		isActive = buf.readBoolean();
-	}
+    public PacketSyncFashionToClient(PacketBuffer buf) {
 
-	@Override
-	public void toBytes(ByteBuf buf) {
-		for(int i : ids)
-			buf.writeInt(i);
-		buf.writeBoolean(isActive);
-	}
+        ids = new int[6];
+        for (int slot = 0; slot < ids.length; slot++)
+            ids[slot] = buf.readInt();
+        
+        isActive = buf.readBoolean();
+    }
 
-	public static class PacketSyncFashionToClientHandler implements IMessageHandler<PacketSyncFashionToClient, IMessage>
-	{
-		@Override
-		public IMessage onMessage(PacketSyncFashionToClient message, MessageContext ctx) {
-			Minecraft.getMinecraft().addScheduledTask( ()->{
-				for(int slot = 0; slot < 6; slot++)
-					FashionData.get(Fashion.proxy.getClientPlayer()).updatePartIndex(message.ids[slot], EnumFashionSlot.fromInt(slot));
-				FashionData.get(Fashion.proxy.getClientPlayer()).setRenderFashion(message.isActive);
-			});
-			return null;
-		}
-	}
+    public void encode(PacketBuffer buf) {
+
+        for (int i : ids)
+            buf.writeInt(i);
+        
+        buf.writeBoolean(isActive);
+    }
+
+    public void handle(Supplier<NetworkEvent.Context> context) {
+
+        context.get().enqueueWork(() -> {
+            for (int slot = 0; slot < 6; slot++)
+                FashionData.get(Minecraft.getInstance().player).updatePartIndex(ids[slot], EnumFashionSlot.fromInt(slot));
+            FashionData.get(Minecraft.getInstance().player).setRenderFashion(isActive);
+        });
+        context.get().setPacketHandled(true);
+    }
 }
