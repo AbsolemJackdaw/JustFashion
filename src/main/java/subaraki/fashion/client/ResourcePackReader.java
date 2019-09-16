@@ -1,4 +1,4 @@
-package subaraki.fashion.handler.client;
+package subaraki.fashion.client;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,6 +25,13 @@ import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.mod.Fashion;
 
 public class ResourcePackReader {
+    
+    
+    public ResourcePackReader() {
+
+        registerReloadListener();
+        loadFashionPacks();
+    }
 
     public void registerReloadListener() {
 
