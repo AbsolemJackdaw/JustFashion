@@ -1,4 +1,4 @@
-package subaraki.fashion.network;
+package subaraki.fashion.network.server;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +10,9 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.mod.EnumFashionSlot;
+import subaraki.fashion.network.NetworkHandler;
+import subaraki.fashion.network.client.PacketSetInWardrobeToTrackedPlayers;
+import subaraki.fashion.network.client.PacketSyncFashionToTrackedPlayers;
 
 public class PacketSyncPlayerFashionToServer {
 
@@ -36,7 +39,7 @@ public class PacketSyncPlayerFashionToServer {
 
         if (size > 0) {
             for (int i = 0; i < size; i++)
-                layers.add(buf.readString());
+                layers.add(buf.readString(64));
         }
     }
 

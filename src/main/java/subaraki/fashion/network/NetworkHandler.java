@@ -4,6 +4,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 import subaraki.fashion.mod.Fashion;
+import subaraki.fashion.network.client.PacketSetInWardrobeToTrackedPlayers;
+import subaraki.fashion.network.client.PacketSyncFashionToClient;
+import subaraki.fashion.network.client.PacketSyncFashionToTrackedPlayers;
+import subaraki.fashion.network.server.PacketOpenWardrobe;
+import subaraki.fashion.network.server.PacketSyncPlayerFashionToServer;
 
 public class NetworkHandler {
 

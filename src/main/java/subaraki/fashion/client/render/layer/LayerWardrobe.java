@@ -1,4 +1,4 @@
-package subaraki.fashion.render.layer;
+package subaraki.fashion.client.render.layer;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 

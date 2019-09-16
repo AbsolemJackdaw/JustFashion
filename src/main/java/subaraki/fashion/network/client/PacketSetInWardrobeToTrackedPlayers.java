@@ -1,13 +1,13 @@
-package subaraki.fashion.network;
+package subaraki.fashion.network.client;
 
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 import subaraki.fashion.capability.FashionData;
+import subaraki.fashion.client.ClientReferences;
 
 public class PacketSetInWardrobeToTrackedPlayers {
 
@@ -35,7 +35,7 @@ public class PacketSetInWardrobeToTrackedPlayers {
     public void handle(Supplier<NetworkEvent.Context> context) {
 
         context.get().enqueueWork(() -> {
-            PlayerEntity player = Minecraft.getInstance().world.getPlayerByUuid(sender);
+            PlayerEntity player = ClientReferences.getClientPlayerByUUID(sender);
             FashionData fashion = FashionData.get(player);
             fashion.setInWardrobe(isInWardrobe);
         });

@@ -14,11 +14,11 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.event.HoverEvent;
 import subaraki.fashion.capability.FashionData;
-import subaraki.fashion.handler.client.ResourcePackReader;
+import subaraki.fashion.client.ResourcePackReader;
 import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.mod.Fashion;
 import subaraki.fashion.network.NetworkHandler;
-import subaraki.fashion.network.PacketSyncPlayerFashionToServer;
+import subaraki.fashion.network.server.PacketSyncPlayerFashionToServer;
 
 public class WardrobeScreen extends ContainerScreen<WardrobeContainer> {
 

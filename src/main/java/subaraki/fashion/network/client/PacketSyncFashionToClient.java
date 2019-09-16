@@ -1,11 +1,11 @@
-package subaraki.fashion.network;
+package subaraki.fashion.network.client;
 
 import java.util.function.Supplier;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 import subaraki.fashion.capability.FashionData;
+import subaraki.fashion.client.ClientReferences;
 import subaraki.fashion.mod.EnumFashionSlot;
 
 public class PacketSyncFashionToClient {
@@ -40,8 +40,8 @@ public class PacketSyncFashionToClient {
 
         context.get().enqueueWork(() -> {
             for (int slot = 0; slot < 6; slot++)
-                FashionData.get(Minecraft.getInstance().player).updatePartIndex(ids[slot], EnumFashionSlot.fromInt(slot));
-            FashionData.get(Minecraft.getInstance().player).setRenderFashion(isActive);
+                FashionData.get(ClientReferences.getClientPlayer()).updatePartIndex(ids[slot], EnumFashionSlot.fromInt(slot));
+            FashionData.get(ClientReferences.getClientPlayer()).setRenderFashion(isActive);
         });
         context.get().setPacketHandled(true);
     }

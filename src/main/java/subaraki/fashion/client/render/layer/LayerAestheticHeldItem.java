@@ -1,4 +1,4 @@
-package subaraki.fashion.render.layer;
+package subaraki.fashion.client.render.layer;
 
 import java.util.Random;
 
@@ -27,7 +27,7 @@ import net.minecraft.item.UseAction;
 import net.minecraft.util.HandSide;
 import net.minecraftforge.client.ForgeHooksClient;
 import subaraki.fashion.capability.FashionData;
-import subaraki.fashion.handler.client.ResourcePackReader;
+import subaraki.fashion.client.ResourcePackReader;
 import subaraki.fashion.mod.EnumFashionSlot;
 
 @SuppressWarnings("deprecation")

@@ -1,4 +1,4 @@
-package subaraki.fashion.render.layer;
+package subaraki.fashion.client.render.layer;
 
 import static subaraki.fashion.mod.EnumFashionSlot.BOOTS;
 import static subaraki.fashion.mod.EnumFashionSlot.CHEST;
@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.entity.IEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import subaraki.fashion.capability.FashionData;
-import subaraki.fashion.handler.client.ResourcePackReader;
+import subaraki.fashion.client.ResourcePackReader;
 import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.model.ModelFashion;
 import subaraki.fashion.model.ModelFashionBody;

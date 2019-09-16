@@ -14,7 +14,7 @@ public class CapabilityInventoryProvider implements ICapabilitySerializable<Comp
     /**
      * Unique key to identify the attached provider from others
      */
-    public static final ResourceLocation KEY = new ResourceLocation(Fashion.MODID, "fashion");
+    public static final ResourceLocation KEY = new ResourceLocation(Fashion.MODID, "fashion_cap");
 
     /**
      * The instance that we are providing

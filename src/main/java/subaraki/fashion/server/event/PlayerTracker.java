@@ -1,30 +1,18 @@
-package subaraki.fashion.handler.common;
+package subaraki.fashion.server.event;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
-import subaraki.fashion.capability.CapabilityInventoryProvider;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.network.NetworkHandler;
-import subaraki.fashion.network.PacketSyncFashionToClient;
-import subaraki.fashion.network.PacketSyncFashionToTrackedPlayers;
-import subaraki.fashion.render.layer.LayerWardrobe;
+import subaraki.fashion.network.client.PacketSyncFashionToClient;
+import subaraki.fashion.network.client.PacketSyncFashionToTrackedPlayers;
 
 public class PlayerTracker {
-
-    public PlayerTracker() {
-
-        MinecraftForge.EVENT_BUS.register(this);
-    }
 
     @SubscribeEvent
     public void playerLogin(PlayerLoggedInEvent event) {
@@ -36,13 +24,6 @@ public class PlayerTracker {
                 NetworkHandler.NETWORK.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) event.getPlayer()),
                         new PacketSyncFashionToClient(fashion.getAllParts(), fashion.shouldRenderFashion()));
 
-        } else {
-            String types[] = new String[] { "default", "slim" };
-
-            for (String type : types) {
-                PlayerRenderer renderer = ((PlayerRenderer) Minecraft.getInstance().getRenderManager().getSkinMap().get(type));
-                renderer.addLayer(new LayerWardrobe(renderer));
-            }
         }
     }
 
@@ -73,14 +54,5 @@ public class PlayerTracker {
                     new PacketSyncFashionToTrackedPlayers(fashion.getAllParts(), fashion.shouldRenderFashion(), player.getUniqueID(), fashion.getSimpleNamesForToggledFashionLayers()));
 
         }
-    }
-
-    @SubscribeEvent
-    public void onAttach(AttachCapabilitiesEvent<Entity> event) {
-
-        final Object entity = event.getObject();
-
-        if (entity instanceof PlayerEntity)
-            event.addCapability(CapabilityInventoryProvider.KEY, new CapabilityInventoryProvider((PlayerEntity) entity));
     }
 }

@@ -68,7 +68,6 @@ public class FancyButton extends Button {
      * Wether to set this button toggled on or off. It is adviced to use
      * {@link #toggle() toggle} instead
      */
-    @Deprecated
     public FancyButton setActive(boolean flag) {
 
         isActive = flag;

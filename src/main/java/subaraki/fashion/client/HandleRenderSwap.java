@@ -1,4 +1,4 @@
-package subaraki.fashion.handler.client;
+package subaraki.fashion.client;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -14,10 +14,10 @@ import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import subaraki.fashion.capability.FashionData;
+import subaraki.fashion.client.render.layer.LayerAestheticHeldItem;
+import subaraki.fashion.client.render.layer.LayerFashion;
+import subaraki.fashion.client.render.layer.LayerWardrobe;
 import subaraki.fashion.mod.Fashion;
-import subaraki.fashion.render.layer.LayerAestheticHeldItem;
-import subaraki.fashion.render.layer.LayerFashion;
-import subaraki.fashion.render.layer.LayerWardrobe;
 
 public class HandleRenderSwap {
 
@@ -100,7 +100,7 @@ public class HandleRenderSwap {
         FashionData data = FashionData.get(player);
         try {
                 if (swap_field_layerrenders == null)
-                    swap_field_layerrenders = ObfuscationReflectionHelper.findField(LivingRenderer.class, "layerRenderers");
+                    swap_field_layerrenders = ObfuscationReflectionHelper.findField(LivingRenderer.class, "field_177097_h");
                 if (swap_list_layerrenders == null)
                     swap_list_layerrenders = swap_field_layerrenders.get(renderer);
 

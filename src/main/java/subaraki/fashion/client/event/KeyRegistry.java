@@ -1,4 +1,4 @@
-package subaraki.fashion.handler.client;
+package subaraki.fashion.client.event;
 
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
