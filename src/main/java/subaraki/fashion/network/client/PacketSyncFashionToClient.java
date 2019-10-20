@@ -10,7 +10,7 @@ import subaraki.fashion.mod.EnumFashionSlot;
 
 public class PacketSyncFashionToClient {
 
-    public int[] ids;
+    public int[] ids = new int[6];
     public boolean isActive;
 
     public PacketSyncFashionToClient(int[] ids, boolean isActive) {
@@ -21,19 +21,19 @@ public class PacketSyncFashionToClient {
 
     public PacketSyncFashionToClient(PacketBuffer buf) {
 
+        isActive = buf.readBoolean();
+
         ids = new int[6];
         for (int slot = 0; slot < ids.length; slot++)
             ids[slot] = buf.readInt();
-        
-        isActive = buf.readBoolean();
     }
 
     public void encode(PacketBuffer buf) {
 
+        buf.writeBoolean(isActive);
+
         for (int i : ids)
             buf.writeInt(i);
-        
-        buf.writeBoolean(isActive);
     }
 
     public void handle(Supplier<NetworkEvent.Context> context) {
