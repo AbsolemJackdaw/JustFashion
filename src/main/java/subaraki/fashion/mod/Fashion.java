@@ -70,16 +70,16 @@ public class Fashion {
     }
 
     @SubscribeEvent
-    public void stitchTextures(TextureStitchEvent.Pre event) {
-
-        Fashion.log.info("stitching weapon textures");
+    public static void stitchTextures(TextureStitchEvent.Pre event) {
+        
+        Fashion.log.debug("stitching weapon textures");
 
         stitch(ResourcePackReader.partsSize(EnumFashionSlot.WEAPON), EnumFashionSlot.WEAPON, event);
         stitch(ResourcePackReader.partsSize(EnumFashionSlot.SHIELD), EnumFashionSlot.SHIELD, event);
 
     }
 
-    private void stitch(int size, EnumFashionSlot slot, TextureStitchEvent.Pre event) {
+    private static void stitch(int size, EnumFashionSlot slot, TextureStitchEvent.Pre event) {
 
         if (size > 1) {
             for (int partIndex = 1; partIndex < size; partIndex++)
@@ -87,6 +87,7 @@ public class Fashion {
                     ResourceLocation resLoc = ResourcePackReader.getTextureForStitcher(slot, partIndex);
                     if (resLoc != null) {
                         event.addSprite(resLoc);
+                        Fashion.log.info("stitched " + resLoc.toString());
                     } else {
                         Fashion.log.warn("tried loading a null resourcelocation for weapons.");
                         Fashion.log.warn(ResourcePackReader.getResourceForPart(slot, partIndex));
@@ -94,7 +95,7 @@ public class Fashion {
                 }
         }
     }
-
+    
     @ObjectHolder(MODID)
     public static class ObjectHolders {
 
