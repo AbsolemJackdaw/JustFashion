@@ -59,7 +59,7 @@ public class ClientReferencesPacket {
 
         try {
             if (field == null)
-                field = ObfuscationReflectionHelper.findField(LivingRenderer.class, "layerRenderers");
+                field = ObfuscationReflectionHelper.findField(LivingRenderer.class, "field_177097_h");
             if (ob == null)
                 ob = field.get(distantPlayerRenderer);
         } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -68,7 +68,7 @@ public class ClientReferencesPacket {
 
         try {
             if (field == null)
-                field = ObfuscationReflectionHelper.findField(LivingRenderer.class, "layerRenderers");
+                field = ObfuscationReflectionHelper.findField(LivingRenderer.class, "field_177097_h");
 
             ob = field.get(playerRenderer);
         } catch (IllegalArgumentException | IllegalAccessException e) {

@@ -33,7 +33,7 @@ public class HandleRenderSwap {
             // reflection 'swap' fields are volatile and will be set to null after rendering
             // is done
             if (swap_field_layerrenders == null) {
-                swap_field_layerrenders = ObfuscationReflectionHelper.findField(LivingRenderer.class, "layerRenderers");
+                swap_field_layerrenders = ObfuscationReflectionHelper.findField(LivingRenderer.class, "field_177097_h");
             }
 
             if (swap_list_layerrenders == null) {
