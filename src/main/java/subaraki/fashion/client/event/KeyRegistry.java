@@ -1,7 +1,8 @@
 package subaraki.fashion.client.event;
 
+import org.lwjgl.glfw.GLFW;
+
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 
 public class KeyRegistry {
@@ -10,7 +11,7 @@ public class KeyRegistry {
 
     public void registerKey() {
 
-        keyWardrobe = new KeyBinding("Wardrobe", InputMappings.getInputByName("key.keyboard.w").getKeyCode(), "Wardrobe");
+        keyWardrobe = new KeyBinding("Wardrobe", GLFW.GLFW_KEY_W, "Wardrobe");
         ClientRegistry.registerKeyBinding(keyWardrobe);
     }
 }
