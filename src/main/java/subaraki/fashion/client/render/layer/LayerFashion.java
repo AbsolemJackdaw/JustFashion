@@ -83,11 +83,10 @@ public class LayerFashion extends LayerRenderer<AbstractClientPlayerEntity, Play
         }
 
         model.isSneak = getEntityModel().isSneak;
-        // model.isRiding = renderer.getEntityModel().isRiding; //no more riding
-        // apparently
         model.isChild = getEntityModel().isChild;
         model.rightArmPose = getEntityModel().rightArmPose;
         model.leftArmPose = getEntityModel().leftArmPose;
+        model.isSitting = getEntityModel().isSitting;
 
         model.render(player, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
     }
