@@ -71,7 +71,10 @@ public class Fashion {
 
     @SubscribeEvent
     public static void stitchTextures(TextureStitchEvent.Pre event) {
-        
+
+        if (!event.getMap().getBasePath().equals("textures"))
+            return;
+
         Fashion.log.debug("stitching weapon textures");
 
         stitch(ResourcePackReader.partsSize(EnumFashionSlot.WEAPON), EnumFashionSlot.WEAPON, event);
@@ -95,7 +98,7 @@ public class Fashion {
                 }
         }
     }
-    
+
     @ObjectHolder(MODID)
     public static class ObjectHolders {
 
