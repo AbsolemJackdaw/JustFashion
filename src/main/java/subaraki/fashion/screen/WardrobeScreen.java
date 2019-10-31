@@ -15,6 +15,7 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.event.HoverEvent;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.client.ResourcePackReader;
+import subaraki.fashion.client.event.KeyRegistry;
 import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.mod.Fashion;
 import subaraki.fashion.network.NetworkHandler;
@@ -181,33 +182,35 @@ public class WardrobeScreen extends ContainerScreen<WardrobeContainer> {
     }
 
     @Override
-    public void onClose() {
-
-        super.onClose();
-
-        NetworkHandler.NETWORK.sendToServer(
-                new PacketSyncPlayerFashionToServer(fashion.getAllParts(), fashion.shouldRenderFashion(), fashion.getSimpleNamesForToggledFashionLayers()));
-        FashionData.get(this.minecraft.player).setInWardrobe(false);
-    }
-
-    @Override
     public boolean shouldCloseOnEsc() {
 
         return true; // needed to trigger onClose and packets on pressing escape button
+    }
+   
+    //called whenever a screen is closed, by player or by opening another screen or trough force (to far away)
+    @Override
+    public void removed() {
+       
+        NetworkHandler.NETWORK.sendToServer(
+                new PacketSyncPlayerFashionToServer(fashion.getAllParts(), fashion.shouldRenderFashion(), fashion.getSimpleNamesForToggledFashionLayers()));
+        FashionData.get(this.minecraft.player).setInWardrobe(false);
+        
+        //no need for super. super only calls to throw out item stacks
+        
     }
 
     @Override
     public boolean charTyped(char typedChar, int keyCode) {
 
-        if (typedChar == 'w') {
+        if (KeyRegistry.keyWardrobe.isPressed()) {
             this.minecraft.player.closeScreen();
-            this.onClose();
             return true;
         }
+        
         return super.charTyped(typedChar, keyCode);
 
     }
-
+    
     ////////////////
     ////////////
     ///////////////
