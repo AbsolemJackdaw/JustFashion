@@ -73,7 +73,6 @@ public class FashionData {
      */
     public void saveVanillaList(List<LayerRenderer<?, ?>> original) {
 
-        Fashion.log.debug("saving Vanilla Layer list");
         List<LayerRenderer<?, ?>> copy = Lists.newArrayList();
 
         // Remove unneeded layers
