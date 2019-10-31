@@ -2,6 +2,7 @@ package subaraki.fashion.network.server;
 
 import java.util.function.Supplier;
 
+import lib.util.networking.IPacketBase;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -12,7 +13,7 @@ import subaraki.fashion.network.NetworkHandler;
 import subaraki.fashion.network.client.PacketSetInWardrobeToTrackedPlayers;
 import subaraki.fashion.screen.WardrobeProvider;
 
-public class PacketOpenWardrobe {
+public class PacketOpenWardrobe implements IPacketBase {
 
     public PacketOpenWardrobe() {
 
@@ -22,10 +23,17 @@ public class PacketOpenWardrobe {
 
     }
 
+    @Override
     public void encode(PacketBuffer buf) {
 
     }
 
+    @Override
+    public void decode(PacketBuffer buf) {
+
+    }
+
+    @Override
     public void handle(Supplier<NetworkEvent.Context> context) {
 
         context.get().enqueueWork(() -> {
@@ -42,5 +50,13 @@ public class PacketOpenWardrobe {
 
         });
         context.get().setPacketHandled(true);
+    }
+
+    @Override
+    public void register(int id) {
+
+        NetworkHandler.NETWORK.registerMessage(id, PacketOpenWardrobe.class, PacketOpenWardrobe::encode, PacketOpenWardrobe::new,
+                PacketOpenWardrobe::handle);
+
     }
 }

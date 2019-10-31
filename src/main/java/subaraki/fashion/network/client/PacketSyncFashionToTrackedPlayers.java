@@ -5,18 +5,23 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import lib.util.networking.IPacketBase;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
+import subaraki.fashion.mod.Fashion;
 import subaraki.fashion.network.ClientReferencesPacket;
+import subaraki.fashion.network.NetworkHandler;
 
-public class PacketSyncFashionToTrackedPlayers {
+public class PacketSyncFashionToTrackedPlayers implements IPacketBase {
 
     public int[] ids;
     public boolean isActive;
     public UUID sender;
     public List<String> layers = new ArrayList<String>();
 
-    private static List<String> DEFAULT_LAYERS = new ArrayList<String>();
+    public PacketSyncFashionToTrackedPlayers() {
+
+    }
 
     public PacketSyncFashionToTrackedPlayers(int[] ids, boolean isActive, UUID sender, List<String> layers) {
 
@@ -24,26 +29,21 @@ public class PacketSyncFashionToTrackedPlayers {
         this.sender = sender;
         this.isActive = isActive;
         this.layers = layers;
+        Fashion.log.debug("incoming " + ids);
+        Fashion.log.debug("now stored : "+ this.ids);
 
     }
 
     public PacketSyncFashionToTrackedPlayers(PacketBuffer buf) {
 
-        ids = new int[6];
-        for (int slot = 0; slot < ids.length; slot++)
-            ids[slot] = buf.readInt();
+        decode(buf);
 
-        isActive = buf.readBoolean();
-        sender = buf.readUniqueId();
-
-        int size = buf.readInt();
-        if (size > 0) {
-            for (int i = 0; i < size; i++)
-                layers.add(buf.readString());
-        }
     }
 
+    @Override
     public void encode(PacketBuffer buf) {
+
+        Fashion.log.debug("encoding stored : "+ids);
 
         for (int i : ids)
             buf.writeInt(i);
@@ -59,15 +59,44 @@ public class PacketSyncFashionToTrackedPlayers {
             }
         }
     }
-
+    
+    @Override
     public void handle(Supplier<NetworkEvent.Context> context) {
 
         context.get().enqueueWork(() -> {
 
-           ClientReferencesPacket.handle(ids, isActive, sender, layers);
+            ClientReferencesPacket.handle(ids, isActive, sender, layers);
 
         });
         context.get().setPacketHandled(true);
+    }
+
+    @Override
+    public void decode(PacketBuffer buf) {
+        Fashion.log.debug("decoding stored : "+ids);
+
+        ids = new int[6];
+        for (int slot = 0; slot < ids.length; slot++)
+            ids[slot] = buf.readInt();
+        
+        for(int i = 0 ; i < ids.length ; i ++)
+        Fashion.log.debug("decoding now saved : "+ids[i]);
+
+        isActive = buf.readBoolean();
+        sender = buf.readUniqueId();
+
+        int size = buf.readInt();
+        if (size > 0) {
+            for (int i = 0; i < size; i++)
+                layers.add(buf.readString());
+        }
+    }
+
+    @Override
+    public void register(int id) {
+
+        NetworkHandler.NETWORK.registerMessage(id, PacketSyncFashionToTrackedPlayers.class, PacketSyncFashionToTrackedPlayers::encode,
+                PacketSyncFashionToTrackedPlayers::new, PacketSyncFashionToTrackedPlayers::handle);
     }
 
 }

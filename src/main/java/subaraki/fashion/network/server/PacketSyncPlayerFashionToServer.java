@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import lib.util.networking.IPacketBase;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -14,11 +15,15 @@ import subaraki.fashion.network.NetworkHandler;
 import subaraki.fashion.network.client.PacketSetInWardrobeToTrackedPlayers;
 import subaraki.fashion.network.client.PacketSyncFashionToTrackedPlayers;
 
-public class PacketSyncPlayerFashionToServer {
+public class PacketSyncPlayerFashionToServer implements IPacketBase {
 
     public int[] ids;
     public boolean isActive;
     public List<String> layers = new ArrayList<String>();
+
+    public PacketSyncPlayerFashionToServer() {
+
+    }
 
     public PacketSyncPlayerFashionToServer(int[] ids, boolean isActive, List<String> layers) {
 
@@ -28,6 +33,13 @@ public class PacketSyncPlayerFashionToServer {
     }
 
     public PacketSyncPlayerFashionToServer(PacketBuffer buf) {
+
+        decode(buf);
+
+    }
+
+    @Override
+    public void decode(PacketBuffer buf) {
 
         ids = new int[6];
         for (int slot = 0; slot < ids.length; slot++)
@@ -43,11 +55,12 @@ public class PacketSyncPlayerFashionToServer {
         }
     }
 
+    @Override
     public void encode(PacketBuffer buf) {
 
         for (int i : ids)
             buf.writeInt(i);
-        
+
         buf.writeBoolean(isActive);
 
         buf.writeInt(layers == null ? 0 : layers.isEmpty() ? 0 : layers.size());
@@ -59,6 +72,7 @@ public class PacketSyncPlayerFashionToServer {
         }
     }
 
+    @Override
     public void handle(Supplier<NetworkEvent.Context> ctx) {
 
         ServerPlayerEntity player = ctx.get().getSender();
@@ -81,5 +95,12 @@ public class PacketSyncPlayerFashionToServer {
         });
 
         ctx.get().setPacketHandled(true);
+    }
+
+    @Override
+    public void register(int id) {
+
+        NetworkHandler.NETWORK.registerMessage(id, PacketSyncPlayerFashionToServer.class, PacketSyncPlayerFashionToServer::encode,
+                PacketSyncPlayerFashionToServer::new, PacketSyncPlayerFashionToServer::handle);
     }
 }

@@ -20,18 +20,11 @@ public class NetworkHandler {
     public NetworkHandler() {
 
         int messageId = 0;
-        NETWORK.registerMessage(messageId++, PacketSyncPlayerFashionToServer.class, PacketSyncPlayerFashionToServer::encode,
-                PacketSyncPlayerFashionToServer::new, PacketSyncPlayerFashionToServer::handle);
+        new PacketOpenWardrobe().register(messageId++);
+        new PacketSyncPlayerFashionToServer().register(messageId++);
+        new PacketSetInWardrobeToTrackedPlayers().register(messageId++);
+        new PacketSyncFashionToClient().register(messageId++);
+        new PacketSyncFashionToTrackedPlayers().register(messageId++);
 
-        NETWORK.registerMessage(messageId++, PacketSyncFashionToTrackedPlayers.class, PacketSyncFashionToTrackedPlayers::encode,
-                PacketSyncFashionToTrackedPlayers::new, PacketSyncFashionToTrackedPlayers::handle);
-
-        NETWORK.registerMessage(messageId++, PacketSyncFashionToClient.class, PacketSyncFashionToClient::encode, PacketSyncFashionToClient::new,
-                PacketSyncFashionToClient::handle);
-
-        NETWORK.registerMessage(messageId++, PacketSetInWardrobeToTrackedPlayers.class, PacketSetInWardrobeToTrackedPlayers::encode,
-                PacketSetInWardrobeToTrackedPlayers::new, PacketSetInWardrobeToTrackedPlayers::handle);
-
-        NETWORK.registerMessage(messageId++, PacketOpenWardrobe.class, PacketOpenWardrobe::encode, PacketOpenWardrobe::new, PacketOpenWardrobe::handle);
     }
 }

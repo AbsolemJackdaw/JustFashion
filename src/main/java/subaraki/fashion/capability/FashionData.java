@@ -13,11 +13,13 @@ import net.minecraft.client.renderer.entity.layers.ElytraLayer;
 import net.minecraft.client.renderer.entity.layers.HeadLayer;
 import net.minecraft.client.renderer.entity.layers.HeldItemLayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
+import net.minecraft.client.renderer.entity.layers.SpinAttackEffectLayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import subaraki.fashion.client.render.layer.LayerWardrobe;
 import subaraki.fashion.mod.EnumFashionSlot;
+import subaraki.fashion.mod.Fashion;
 
 public class FashionData {
 
@@ -61,6 +63,8 @@ public class FashionData {
      * from the original cached list. This will be used to enable a toggle in the
      * gui.
      * 
+     * This is called only once
+     * 
      * This is basically the anti fashion layers. armor vs fashion. under armor is
      * understood any biped body armor, anything that can be put on the player's
      * head (pumpkins etc), the deadmouse special layer, held item , the arrows
@@ -69,12 +73,14 @@ public class FashionData {
      */
     public void saveVanillaList(List<LayerRenderer<?, ?>> original) {
 
+        Fashion.log.debug("saving Vanilla Layer list");
         List<LayerRenderer<?, ?>> copy = Lists.newArrayList();
 
         // Remove unneeded layers
         for (LayerRenderer<?, ?> layer : original) {
             if ((layer instanceof BipedArmorLayer) || (layer instanceof LayerWardrobe) || (layer instanceof HeadLayer) || (layer instanceof Deadmau5HeadLayer)
-                    || (layer instanceof HeldItemLayer) || (layer instanceof ArrowLayer) || (layer instanceof CapeLayer) || (layer instanceof ElytraLayer))
+                    || (layer instanceof HeldItemLayer) || (layer instanceof ArrowLayer) || (layer instanceof CapeLayer) || (layer instanceof ElytraLayer)
+                    || (layer instanceof SpinAttackEffectLayer))
                 continue;
 
             copy.add(layer);
@@ -83,7 +89,11 @@ public class FashionData {
         savedOriginalList.clear();
 
         for (LayerRenderer<?, ?> layer : copy)
+        {
             savedOriginalList.add(layer);
+        }
+        
+        
     }
 
     public FashionData() {
@@ -115,19 +125,45 @@ public class FashionData {
         tag.putInt("boots", bootsIndex);
         tag.putInt("weapon", weaponIndex);
         tag.putInt("shield", shieldIndex);
+       
+        Fashion.log.debug(keepLayers.isEmpty());
+        
+        if (!keepLayers.isEmpty()) {
+            tag.putInt("size", keepLayers.size());
+            for (int i = 0; i < keepLayers.size(); i++) {
+                tag.putString("keep_" + i, keepLayers.get(i).getClass().getSimpleName());
+                Fashion.log.debug("added a layer to save : " + keepLayers.get(i).getClass().getSimpleName());
+            }
+        }
+
         return tag;
     }
 
     public void readData(INBT nbt) {
 
-        renderFashion = ((CompoundNBT) nbt).getBoolean("renderFashion");
-        hatIndex = ((CompoundNBT) nbt).getInt("hat");
-        bodyIndex = ((CompoundNBT) nbt).getInt("body");
-        legsIndex = ((CompoundNBT) nbt).getInt("legs");
-        bootsIndex = ((CompoundNBT) nbt).getInt("boots");
-        weaponIndex = ((CompoundNBT) nbt).getInt("weapon");
-        shieldIndex = ((CompoundNBT) nbt).getInt("shield");
+        CompoundNBT tag = ((CompoundNBT) nbt);
 
+        renderFashion = tag.getBoolean("renderFashion");
+        hatIndex = tag.getInt("hat");
+        bodyIndex = tag.getInt("body");
+        legsIndex = tag.getInt("legs");
+        bootsIndex = tag.getInt("boots");
+        weaponIndex = tag.getInt("weapon");
+        shieldIndex = tag.getInt("shield");
+
+        if (tag.contains("size")) {
+            int size = tag.getInt("size");
+            for (int i = 0; i < size; i++) {
+                String name = tag.getString("keep_" + i);
+
+                for (LayerRenderer<?, ?> layer : getSavedOriginalList()) {
+                    if (layer.getClass().getSimpleName().equals(name)) {
+                        keepLayers.add(layer);
+                        Fashion.log.debug(layer.getClass().getSimpleName() + " got loaded as active");
+                    }
+                }
+            }
+        }
     }
 
     /** Switch on wether or not to render fashion */
