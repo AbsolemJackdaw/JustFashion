@@ -202,13 +202,12 @@ public class WardrobeScreen extends ContainerScreen<WardrobeContainer> {
     @Override
     public boolean charTyped(char typedChar, int keyCode) {
 
-        if (KeyRegistry.keyWardrobe.isPressed()) {
+        if (KeyRegistry.keyWardrobe.getKeyBinding().getLocalizedName().equals(Character.toString(typedChar))) {
             this.minecraft.player.closeScreen();
             return true;
         }
         
         return super.charTyped(typedChar, keyCode);
-
     }
     
     ////////////////
