@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import lib.util.ClientReferences;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.layers.ArrowLayer;
@@ -16,7 +17,6 @@ import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import subaraki.fashion.capability.FashionData;
-import subaraki.fashion.client.ClientReferences;
 import subaraki.fashion.client.render.layer.LayerAestheticHeldItem;
 import subaraki.fashion.client.render.layer.LayerFashion;
 import subaraki.fashion.client.render.layer.LayerWardrobe;
@@ -47,7 +47,7 @@ public class ClientReferencesPacket {
 
         FashionData distFashion = FashionData.get(distantPlayer);
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 6; i++)
             distFashion.updatePartIndex(ids[i], EnumFashionSlot.fromInt(i));
         distFashion.setRenderFashion(isActive);
 
