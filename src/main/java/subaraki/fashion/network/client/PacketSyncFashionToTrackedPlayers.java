@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 import lib.util.networking.IPacketBase;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
-import subaraki.fashion.mod.Fashion;
 import subaraki.fashion.network.ClientReferencesPacket;
 import subaraki.fashion.network.NetworkHandler;
 
@@ -29,8 +28,6 @@ public class PacketSyncFashionToTrackedPlayers implements IPacketBase {
         this.sender = sender;
         this.isActive = isActive;
         this.layers = layers;
-        Fashion.log.debug("incoming " + ids);
-        Fashion.log.debug("now stored : "+ this.ids);
 
     }
 
@@ -42,8 +39,6 @@ public class PacketSyncFashionToTrackedPlayers implements IPacketBase {
 
     @Override
     public void encode(PacketBuffer buf) {
-
-        Fashion.log.debug("encoding stored : "+ids);
 
         for (int i : ids)
             buf.writeInt(i);
@@ -59,7 +54,7 @@ public class PacketSyncFashionToTrackedPlayers implements IPacketBase {
             }
         }
     }
-    
+
     @Override
     public void handle(Supplier<NetworkEvent.Context> context) {
 
@@ -73,16 +68,14 @@ public class PacketSyncFashionToTrackedPlayers implements IPacketBase {
 
     @Override
     public void decode(PacketBuffer buf) {
-        Fashion.log.debug("decoding stored : "+ids);
 
         ids = new int[6];
         for (int slot = 0; slot < ids.length; slot++)
             ids[slot] = buf.readInt();
-        
-        for(int i = 0 ; i < ids.length ; i ++)
-        Fashion.log.debug("decoding now saved : "+ids[i]);
 
-        isActive = buf.readBoolean();
+        for (int i = 0; i < ids.length; i++)
+
+            isActive = buf.readBoolean();
         sender = buf.readUniqueId();
 
         int size = buf.readInt();
