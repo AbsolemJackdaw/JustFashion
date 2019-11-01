@@ -26,14 +26,12 @@ public class WardrobeScreen extends ContainerScreen<WardrobeContainer> {
     private static final ResourceLocation BACKGROUND = new ResourceLocation(Fashion.MODID, "textures/gui/wardrobe.png");
     private float oldMouseX;
     private float oldMouseY;
-    private FashionData fashion;
 
     private String onScreenButtonText[] = new String[] { "hats", "body", "pants", "boots", "weapon", "shield" };
 
     public WardrobeScreen(WardrobeContainer container, PlayerInventory inv, ITextComponent comp) {
 
         super(container, inv, comp);
-        fashion = FashionData.get(inv.player);
     }
 
     @Override
@@ -65,20 +63,23 @@ public class WardrobeScreen extends ContainerScreen<WardrobeContainer> {
             this.addButton(new Button(x, y, 10, 10, (i % 2 == 0 ? "<" : ">"), c -> cycle(id)));
         }
 
-        // toggle button, with the explicit press ID of 12 (could be anything at this
-        // point, it's an artifact for pre 1.14
-        this.addButton(new FancyButton(guiLeft + 8, guiTop + ySize / 2 + 14, c -> pressToggle((FancyButton) c)).setActive(fashion.shouldRenderFashion()));
+        FashionData.get(this.playerInventory.player).ifPresent(fashion -> {
 
-        // toggle buttons for each render layer that exists in the game for players,
-        // both from mods and vanilla
-        if (!fashion.getSavedOriginalList().isEmpty())
-            for (int i = 0; i < fashion.getSavedOriginalList().size(); i++) {
-                final int index = i;
-                LayerRenderer<?, ?> layer = fashion.getSavedOriginalList().get(index);
+            // toggle buttons for each render layer that exists in the game for players,
+            // both from mods and vanilla
+            if (!fashion.getSavedOriginalList().isEmpty())
+                for (int i = 0; i < fashion.getSavedOriginalList().size(); i++) {
+                    final int index = i;
+                    LayerRenderer<?, ?> layer = fashion.getSavedOriginalList().get(index);
 
-                this.addButton(new FancyButton(guiLeft - 12 - (i % 5) * 10, guiTop + 6 + (i / 5) * 10, layer.getClass().getSimpleName(),
-                        b -> toggleLayer((FancyButton) b, layer)).setActive(fashion.keepLayers.contains(layer)));
-            }
+                    this.addButton(new FancyButton(guiLeft - 12 - (i % 5) * 10, guiTop + 6 + (i / 5) * 10, layer.getClass().getSimpleName(),
+                            b -> toggleLayer((FancyButton) b, layer)).setActive(fashion.keepLayers.contains(layer)));
+                }
+
+            // toggle button, with the explicit press ID of 12 (could be anything at this
+            // point, it's an artifact for pre 1.14
+            this.addButton(new FancyButton(guiLeft + 8, guiTop + ySize / 2 + 14, c -> pressToggle((FancyButton) c)).setActive(fashion.shouldRenderFashion()));
+        });
 
     }
 
@@ -91,12 +92,16 @@ public class WardrobeScreen extends ContainerScreen<WardrobeContainer> {
         blit(guiLeft + 14, guiTop + 7, xSize, 0, 38, 62);
 
         GlStateManager.pushMatrix();
-        FashionData.get(this.minecraft.player).setInWardrobe(false); // disable for in gui rendering
+        FashionData.get(this.playerInventory.player).ifPresent(fashion -> {
+            fashion.setInWardrobe(false); // disable for in gui rendering
+        });
         DrawEntityOnScreen.drawEntityOnScreen(guiLeft + 33, guiTop + 65, 25, -(guiLeft - 70 - oldMouseX) / 2.5f, guiTop + 40 - oldMouseY, this.minecraft.player,
                 135.0F, 25.0f, true);
         DrawEntityOnScreen.drawEntityOnScreen(guiLeft + 68, guiTop + 82, 30, -(guiLeft + 70 - oldMouseX) / 2.5f, guiTop + 40 - oldMouseY, this.minecraft.player,
                 -45.0f, 150.0f, false);
-        FashionData.get(this.minecraft.player).setInWardrobe(true); // set back after drawn for in world rendering
+        FashionData.get(this.playerInventory.player).ifPresent(fashion -> {
+            fashion.setInWardrobe(true);// set back after drawn for in world rendering
+        });
         GlStateManager.popMatrix();
 
         // this.zLevel = 90;
@@ -114,71 +119,75 @@ public class WardrobeScreen extends ContainerScreen<WardrobeContainer> {
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
+        FashionData.get(this.playerInventory.player).ifPresent(fashion -> {
+            for (int i = 0; i < this.onScreenButtonText.length - 2; i++) {
+                EnumFashionSlot slot = EnumFashionSlot.fromInt(i);
 
-        for (int i = 0; i < this.onScreenButtonText.length - 2; i++) {
-            EnumFashionSlot slot = EnumFashionSlot.fromInt(i);
-            ResourceLocation resLoc = ResourcePackReader.getResourceForPart(slot, fashion.getPartIndex(slot));
-            String[] s = null;
-            String name = null;
+                ResourceLocation resLoc = ResourcePackReader.getResourceForPart(slot, fashion.getPartIndex(slot));
+                String[] s = null;
+                String name = null;
 
-            try {
-                s = resLoc.getPath().split("/");
-                name = s[s.length - 1].split("\\.")[0];
-            } catch (NullPointerException e) {
+                try {
+                    s = resLoc.getPath().split("/");
+                    name = s[s.length - 1].split("\\.")[0];
+                } catch (NullPointerException e) {
 
-            }
+                }
 
-            if (name == null)
-                name = "errored";
+                if (name == null)
+                    name = "errored";
 
-            if (name.contains("blank") || name.contains("missing"))
-                name = "N/A";
+                if (name.contains("blank") || name.contains("missing"))
+                    name = "N/A";
 
-            minecraft.fontRenderer.drawString(name, 138 - minecraft.fontRenderer.getStringWidth(name) / 2, ((i + 1) * 15) - 3, 0xffffff);
-        }
-
-        for (int i = 4; i < 6; i++) {
-            EnumFashionSlot slot = EnumFashionSlot.fromInt(i);
-            ResourceLocation resLoc = ResourcePackReader.getResourceForPart(slot, fashion.getPartIndex(slot));
-            String[] s = null;
-            String name = null;
-
-            try {
-                s = resLoc.getPath().split("/");
-                name = s[s.length - 1].split("\\.")[0];
-            } catch (NullPointerException e) {
+                minecraft.fontRenderer.drawString(name, 138 - minecraft.fontRenderer.getStringWidth(name) / 2, ((i + 1) * 15) - 3, 0xffffff);
 
             }
 
-            if (name == null)
-                name = "no model";
+            for (int i = 4; i < 6; i++) {
+                EnumFashionSlot slot = EnumFashionSlot.fromInt(i);
+                ResourceLocation resLoc = ResourcePackReader.getResourceForPart(slot, fashion.getPartIndex(slot));
+                String[] s = null;
+                String name = null;
 
-            if (name.contains("blank") || name.contains("missing"))
-                name = "N/A";
+                try {
+                    s = resLoc.getPath().split("/");
+                    name = s[s.length - 1].split("\\.")[0];
+                } catch (NullPointerException e) {
 
-            minecraft.fontRenderer.drawString(name, 138 - minecraft.fontRenderer.getStringWidth(name) / 2, 31 + ((i + 1) * 15) - 29, 0xffffff);
-        }
+                }
 
-        String toggled = fashion.shouldRenderFashion() ? "Showing Fashion" : "Showing Armor";
-        minecraft.fontRenderer.drawString(toggled, xSize / 2 - 68, ySize / 2 + 14, 0xffffff); // TODO used to be
-                                                                                                                                              // a
-        // boolean here for
-        // shadow drawing
+                if (name == null)
+                    name = "no model";
 
-        // tracking player view !!
-        this.oldMouseX = (float) mouseX;
-        this.oldMouseY = Math.min((float) mouseY, guiTop + 50);
+                if (name.contains("blank") || name.contains("missing"))
+                    name = "N/A";
 
-        for (Widget guiButton : buttons) {
-            if (guiButton instanceof FancyButton) {
-                FancyButton gfb = (FancyButton) guiButton;
-                if (gfb.isMouseOver(mouseX, mouseY) && !gfb.isSwitch()) {
-                    HoverEvent hover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent(gfb.name));
-                    Style style = new Style().setHoverEvent(hover);
-                    this.renderComponentHoverEffect(hover.getValue().setStyle(style), mouseX - guiLeft, mouseY - guiTop);
+                minecraft.fontRenderer.drawString(name, 138 - minecraft.fontRenderer.getStringWidth(name) / 2, 31 + ((i + 1) * 15) - 29, 0xffffff);
+            }
+
+            String toggled = fashion.shouldRenderFashion() ? "Showing Fashion" : "Showing Armor";
+            minecraft.fontRenderer.drawString(toggled, xSize / 2 - 68, ySize / 2 + 14, 0xffffff); // TODO used to be
+                                                                                                  // a
+            // boolean here for
+            // shadow drawing
+
+            // tracking player view !!
+            this.oldMouseX = (float) mouseX;
+            this.oldMouseY = Math.min((float) mouseY, guiTop + 50);
+
+            for (Widget guiButton : buttons) {
+                if (guiButton instanceof FancyButton) {
+                    FancyButton gfb = (FancyButton) guiButton;
+                    if (gfb.isMouseOver(mouseX, mouseY) && !gfb.isSwitch()) {
+                        HoverEvent hover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent(gfb.name));
+                        Style style = new Style().setHoverEvent(hover);
+                        this.renderComponentHoverEffect(hover.getValue().setStyle(style), mouseX - guiLeft, mouseY - guiTop);
+                    }
                 }
             }
-        }
+
+        });
     }
 
     @Override
@@ -186,17 +195,22 @@ public class WardrobeScreen extends ContainerScreen<WardrobeContainer> {
 
         return true; // needed to trigger onClose and packets on pressing escape button
     }
-   
-    //called whenever a screen is closed, by player or by opening another screen or trough force (to far away)
+
+    // called whenever a screen is closed, by player or by opening another screen or
+    // trough force (to far away)
     @Override
     public void removed() {
-       
-        NetworkHandler.NETWORK.sendToServer(
-                new PacketSyncPlayerFashionToServer(fashion.getAllParts(), fashion.shouldRenderFashion(), fashion.getSimpleNamesForToggledFashionLayers()));
-        FashionData.get(this.minecraft.player).setInWardrobe(false);
-        
-        //no need for super. super only calls to throw out item stacks
-        
+
+        FashionData.get(this.playerInventory.player).ifPresent(fashion -> {
+
+            NetworkHandler.NETWORK.sendToServer(
+                    new PacketSyncPlayerFashionToServer(fashion.getAllParts(), fashion.shouldRenderFashion(), fashion.getSimpleNamesForToggledFashionLayers()));
+
+            fashion.setInWardrobe(false);
+        });
+
+        // no need for super. super only calls to throw out item stacks
+
     }
 
     @Override
@@ -206,10 +220,10 @@ public class WardrobeScreen extends ContainerScreen<WardrobeContainer> {
             this.minecraft.player.closeScreen();
             return true;
         }
-        
+
         return super.charTyped(typedChar, keyCode);
     }
-    
+
     ////////////////
     ////////////
     ///////////////
@@ -217,44 +231,54 @@ public class WardrobeScreen extends ContainerScreen<WardrobeContainer> {
 
     private void cycle(int Id) {
 
-        if (fashion.shouldRenderFashion() && Id < 12) {
-            int slot = (Id) / 2;
-            int id = fashion.getPartIndex(EnumFashionSlot.fromInt(slot));
+        FashionData.get(this.playerInventory.player).ifPresent(fashion -> {
+            if (fashion.shouldRenderFashion() && Id < 12) {
+                int slot = (Id) / 2;
+                int id = fashion.getPartIndex(EnumFashionSlot.fromInt(slot));
 
-            if (Id % 2 == 0)
-                id--;
-            else
-                id++;
-            if (id >= ResourcePackReader.partsSize(EnumFashionSlot.fromInt(slot)))
-                id = 0;
-            if (id < 0)
-                id = ResourcePackReader.partsSize(EnumFashionSlot.fromInt(slot)) - 1;
+                if (Id % 2 == 0)
+                    id--;
+                else
+                    id++;
+                if (id >= ResourcePackReader.partsSize(EnumFashionSlot.fromInt(slot)))
+                    id = 0;
+                if (id < 0)
+                    id = ResourcePackReader.partsSize(EnumFashionSlot.fromInt(slot)) - 1;
 
-            // small fix for when no parts are present or loaded to prevent complaining
-            // about -1
-            if (id < 0)
-                id = 0;
+                // small fix for when no parts are present or loaded to prevent complaining
+                // about -1
+                if (id < 0)
+                    id = 0;
 
-            fashion.updatePartIndex(id, EnumFashionSlot.fromInt(slot));
-        }
+                fashion.updatePartIndex(id, EnumFashionSlot.fromInt(slot));
+            }
+        });
+
     }
 
     private void pressToggle(FancyButton button) {
 
         button.toggle();
-        fashion.setRenderFashion(button.isActive());
+
+        FashionData.get(this.playerInventory.player).ifPresent(fashion -> {
+            fashion.setRenderFashion(button.isActive());
+        });
     }
 
     private void toggleLayer(FancyButton button, LayerRenderer<?, ?> layer) {
 
         button.toggle(); // set opposite of current state
 
-        if (button.isActive())// if set to active
-            fashion.keepLayers.add(layer);
-        else
-            fashion.keepLayers.remove(layer);
+        FashionData.get(this.playerInventory.player).ifPresent(fashion -> {
 
-        fashion.fashionLayers.clear();
+            if (button.isActive())// if set to active
+                fashion.keepLayers.add(layer);
+            else
+                fashion.keepLayers.remove(layer);
+
+            fashion.fashionLayers.clear();
+        });
+
     }
 
     @Override

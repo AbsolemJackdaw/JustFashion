@@ -34,17 +34,18 @@ public class LayerWardrobe extends LayerRenderer<AbstractClientPlayerEntity, Pla
     @Override
     public void render(AbstractClientPlayerEntity entityIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 
-        FashionData fashion = FashionData.get((PlayerEntity) entityIn);
+        FashionData.get((PlayerEntity) entityIn).ifPresent(fashion -> {
 
-        if (fashion.isInWardrobe()) {
-            GlStateManager.pushMatrix();
-            scale = 1.2f;
-            renderer.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
-            GlStateManager.translatef(-0.6f, 1.5f, 0.5f);
-            GlStateManager.rotatef(180, 1, 0, 0);
-            GlStateManager.scalef(scale, scale, scale);
-            modelHandle.render();
-            GlStateManager.popMatrix();
-        }
+            if (fashion.isInWardrobe()) {
+                GlStateManager.pushMatrix();
+                float scaleF = 1.2f;
+                renderer.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+                GlStateManager.translatef(-0.6f, 1.5f, 0.5f);
+                GlStateManager.rotatef(180, 1, 0, 0);
+                GlStateManager.scalef(scaleF, scaleF, scaleF);
+                modelHandle.render();
+                GlStateManager.popMatrix();
+            }
+        });
     }
 }

@@ -15,7 +15,10 @@ public class PressKeyEventHandler {
         if (KeyRegistry.keyWardrobe.isPressed()) {
 
             NetworkHandler.NETWORK.sendToServer(new PacketOpenWardrobe());
-            FashionData.get(Minecraft.getInstance().player).setInWardrobe(true);
+
+            FashionData.get(Minecraft.getInstance().player).ifPresent(data -> {
+                data.setInWardrobe(true);
+            });
         }
     }
 }

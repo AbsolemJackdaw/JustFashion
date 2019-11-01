@@ -45,44 +45,45 @@ public class ClientReferencesPacket {
         PlayerEntity distantPlayer = ClientReferences.getClientPlayerByUUID(sender);
         PlayerEntity player = ClientReferences.getClientPlayer();
 
-        FashionData distFashion = FashionData.get(distantPlayer);
+        FashionData.get(distantPlayer).ifPresent(distFashion -> {
 
-        for (int i = 0; i < 6; i++)
-            distFashion.updatePartIndex(ids[i], EnumFashionSlot.fromInt(i));
-        distFashion.setRenderFashion(isActive);
+            for (int i = 0; i < 6; i++)
+                distFashion.updatePartIndex(ids[i], EnumFashionSlot.fromInt(i));
+            distFashion.setRenderFashion(isActive);
 
-        EntityRenderer<PlayerEntity> distantPlayerRenderer = ClientReferences.getRenderManager().getRenderer(distantPlayer);
-        EntityRenderer<PlayerEntity> playerRenderer = ClientReferences.getRenderManager().getRenderer(player);
+            EntityRenderer<PlayerEntity> distantPlayerRenderer = ClientReferences.getRenderManager().getRenderer(distantPlayer);
+            EntityRenderer<PlayerEntity> playerRenderer = ClientReferences.getRenderManager().getRenderer(player);
 
-        Field field = null;
-        Object ob = null;
+            Field field = null;
+            Object ob = null;
 
-        try {
-            if (field == null)
-                field = ObfuscationReflectionHelper.findField(LivingRenderer.class, "field_177097_h");
-            if (ob == null)
-                ob = field.get(distantPlayerRenderer);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            if (field == null)
-                field = ObfuscationReflectionHelper.findField(LivingRenderer.class, "field_177097_h");
-
-            ob = field.get(playerRenderer);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-
-        distFashion.keepLayers.clear();
-        if (layers != null && !layers.isEmpty()) {
-            for (Object content : (List<?>) ob) {
-                for (String name : layers)
-                    if (content.getClass().getSimpleName().equals(name))
-                        distFashion.keepLayers.add((LayerRenderer<?, ?>) content);
+            try {
+                if (field == null)
+                    field = ObfuscationReflectionHelper.findField(LivingRenderer.class, "field_177097_h");
+                if (ob == null)
+                    ob = field.get(distantPlayerRenderer);
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+                e.printStackTrace();
             }
-        }
-        distFashion.fashionLayers.clear();        
+
+            try {
+                if (field == null)
+                    field = ObfuscationReflectionHelper.findField(LivingRenderer.class, "field_177097_h");
+
+                ob = field.get(playerRenderer);
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+
+            distFashion.keepLayers.clear();
+            if (layers != null && !layers.isEmpty()) {
+                for (Object content : (List<?>) ob) {
+                    for (String name : layers)
+                        if (content.getClass().getSimpleName().equals(name))
+                            distFashion.keepLayers.add((LayerRenderer<?, ?>) content);
+                }
+            }
+            distFashion.fashionLayers.clear();
+        });
     }
 }

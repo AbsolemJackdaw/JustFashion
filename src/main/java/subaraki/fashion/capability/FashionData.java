@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.entity.layers.SpinAttackEffectLayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
+import net.minecraftforge.common.util.LazyOptional;
 import subaraki.fashion.client.render.layer.LayerWardrobe;
 import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.mod.Fashion;
@@ -42,14 +43,28 @@ public class FashionData {
 
     /** List saved with all layers to be rendered */
     private List<LayerRenderer<?, ?>> savedOriginalList = Lists.newArrayList();
+    /**
+     * List saved with all layers' simple class name reference for server synching
+     * purpose
+     */
+    private List<String> savedOriginalListNamesForServer = Lists.newArrayList();
+
     /** Layers that ought to be kept rendered independant from Fashion Layers */
     public List<LayerRenderer<?, ?>> keepLayers = Lists.newArrayList();
+    public List<String> keepLayersNamesForServer = Lists.newArrayList();
 
     /** Get the list of items that need to be rendered to the player */
     public List<LayerRenderer<?, ?>> getSavedOriginalList() {
 
         List<LayerRenderer<?, ?>> copy = new ArrayList<>();
         copy = savedOriginalList;
+        return copy;
+    }
+
+    public List<String> getSavedOriginalListNamesForServerSidePurposes() {
+
+        List<String> copy = new ArrayList<>();
+        copy = savedOriginalListNamesForServer;
         return copy;
     }
 
@@ -87,12 +102,16 @@ public class FashionData {
 
         savedOriginalList.clear();
 
-        for (LayerRenderer<?, ?> layer : copy)
-        {
+        for (LayerRenderer<?, ?> layer : copy) {
             savedOriginalList.add(layer);
         }
-        
-        
+
+    }
+
+    public void saveVanillaListServer(List<String> original) {
+
+        for (String name : original)
+            savedOriginalListNamesForServer.add(name);
     }
 
     public FashionData() {
@@ -109,9 +128,9 @@ public class FashionData {
         this.player = newPlayer;
     }
 
-    public static FashionData get(PlayerEntity player) {
+    public static LazyOptional<FashionData> get(PlayerEntity player) {
 
-        return player.getCapability(FashionCapability.CAPABILITY).orElse(null);
+        return player.getCapability(FashionCapability.CAPABILITY, null);
     }
 
     public INBT writeData() {
@@ -124,14 +143,12 @@ public class FashionData {
         tag.putInt("boots", bootsIndex);
         tag.putInt("weapon", weaponIndex);
         tag.putInt("shield", shieldIndex);
-       
-        Fashion.log.debug(keepLayers.isEmpty());
-        
-        if (!keepLayers.isEmpty()) {
-            tag.putInt("size", keepLayers.size());
-            for (int i = 0; i < keepLayers.size(); i++) {
-                tag.putString("keep_" + i, keepLayers.get(i).getClass().getSimpleName());
-                Fashion.log.debug("added a layer to save : " + keepLayers.get(i).getClass().getSimpleName());
+
+        if (!keepLayersNamesForServer.isEmpty()) {
+            tag.putInt("size", keepLayersNamesForServer.size());
+            for (int i = 0; i < keepLayersNamesForServer.size(); i++) {
+                tag.putString("keep_" + i, keepLayersNamesForServer.get(i));
+                Fashion.log.debug("added a layer to save : " + keepLayersNamesForServer.get(i) + " " + i);
             }
         }
 
@@ -155,12 +172,8 @@ public class FashionData {
             for (int i = 0; i < size; i++) {
                 String name = tag.getString("keep_" + i);
 
-                for (LayerRenderer<?, ?> layer : getSavedOriginalList()) {
-                    if (layer.getClass().getSimpleName().equals(name)) {
-                        keepLayers.add(layer);
-                        Fashion.log.debug(layer.getClass().getSimpleName() + " got loaded as active");
-                    }
-                }
+                keepLayersNamesForServer.add(name);
+                Fashion.log.debug(name + " got loaded as active");
             }
         }
     }

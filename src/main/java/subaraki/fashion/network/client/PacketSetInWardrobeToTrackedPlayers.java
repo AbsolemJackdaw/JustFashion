@@ -53,8 +53,9 @@ public class PacketSetInWardrobeToTrackedPlayers implements IPacketBase {
 
         context.get().enqueueWork(() -> {
             PlayerEntity player = ClientReferences.getClientPlayerByUUID(sender);
-            FashionData fashion = FashionData.get(player);
-            fashion.setInWardrobe(isInWardrobe);
+            FashionData.get(player).ifPresent(data -> {
+                data.setInWardrobe(isInWardrobe);
+            });
         });
         context.get().setPacketHandled(true);
     }

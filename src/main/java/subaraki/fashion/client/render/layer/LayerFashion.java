@@ -48,47 +48,49 @@ public class LayerFashion extends LayerRenderer<AbstractClientPlayerEntity, Play
 
     private void renderFashionPart(AbstractClientPlayerEntity player, EnumFashionSlot slot, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 
-        FashionData fashionData = FashionData.get(player);
+        FashionData.get(player).ifPresent(fashionData -> {
 
-        int id = fashionData.getPartIndex(slot);
+            int id = fashionData.getPartIndex(slot);
 
-        this.bindTexture(ResourcePackReader.getResourceForPart(slot, id));
+            this.bindTexture(ResourcePackReader.getResourceForPart(slot, id));
 
-        ModelFashion model = getModelFromSlot(slot, ((AbstractClientPlayerEntity) player).getSkinType().equals("slim"));
+            ModelFashion model = getModelFromSlot(slot, ((AbstractClientPlayerEntity) player).getSkinType().equals("slim"));
 
-        model.setModelAttributes(this.getEntityModel());
-        model.setLivingAnimations(player, limbSwing, limbSwingAmount, partialTicks);
+            model.setModelAttributes(this.getEntityModel());
+            model.setLivingAnimations(player, limbSwing, limbSwingAmount, partialTicks);
 
-        if (slot == EnumFashionSlot.HEAD) {
-            model.bipedHead.isHidden = getEntityModel().bipedHead.isHidden;
-            model.bipedHeadwear.isHidden = getEntityModel().bipedHeadwear.isHidden;
-        }
+            if (slot == EnumFashionSlot.HEAD) {
+                model.bipedHead.isHidden = getEntityModel().bipedHead.isHidden;
+                model.bipedHeadwear.isHidden = getEntityModel().bipedHeadwear.isHidden;
+            }
 
-        if (slot == EnumFashionSlot.LEGS || slot == EnumFashionSlot.BOOTS) {
-            model.bipedLeftLeg.isHidden = getEntityModel().bipedLeftLeg.isHidden;
-            model.bipedLeftLegwear.isHidden = getEntityModel().bipedLeftLegwear.isHidden;
-            model.bipedRightLeg.isHidden = getEntityModel().bipedRightLeg.isHidden;
-            model.bipedRightLegwear.isHidden = getEntityModel().bipedRightLegwear.isHidden;
-        }
+            if (slot == EnumFashionSlot.LEGS || slot == EnumFashionSlot.BOOTS) {
+                model.bipedLeftLeg.isHidden = getEntityModel().bipedLeftLeg.isHidden;
+                model.bipedLeftLegwear.isHidden = getEntityModel().bipedLeftLegwear.isHidden;
+                model.bipedRightLeg.isHidden = getEntityModel().bipedRightLeg.isHidden;
+                model.bipedRightLegwear.isHidden = getEntityModel().bipedRightLegwear.isHidden;
+            }
 
-        if (slot == EnumFashionSlot.CHEST) {
-            model.bipedBody.isHidden = getEntityModel().bipedBody.isHidden;
-            model.bipedBodyWear.isHidden = getEntityModel().bipedBodyWear.isHidden;
+            if (slot == EnumFashionSlot.CHEST) {
+                model.bipedBody.isHidden = getEntityModel().bipedBody.isHidden;
+                model.bipedBodyWear.isHidden = getEntityModel().bipedBodyWear.isHidden;
 
-            model.bipedLeftArm.isHidden = getEntityModel().bipedLeftArm.isHidden;
-            model.bipedLeftArmwear.isHidden = getEntityModel().bipedLeftArmwear.isHidden;
+                model.bipedLeftArm.isHidden = getEntityModel().bipedLeftArm.isHidden;
+                model.bipedLeftArmwear.isHidden = getEntityModel().bipedLeftArmwear.isHidden;
 
-            model.bipedRightArm.isHidden = getEntityModel().bipedRightArm.isHidden;
-            model.bipedRightArmwear.isHidden = getEntityModel().bipedRightArmwear.isHidden;
-        }
+                model.bipedRightArm.isHidden = getEntityModel().bipedRightArm.isHidden;
+                model.bipedRightArmwear.isHidden = getEntityModel().bipedRightArmwear.isHidden;
+            }
 
-        model.isSneak = getEntityModel().isSneak;
-        model.isChild = getEntityModel().isChild;
-        model.rightArmPose = getEntityModel().rightArmPose;
-        model.leftArmPose = getEntityModel().leftArmPose;
-        model.isSitting = getEntityModel().isSitting;
+            model.isSneak = getEntityModel().isSneak;
+            model.isChild = getEntityModel().isChild;
+            model.rightArmPose = getEntityModel().rightArmPose;
+            model.leftArmPose = getEntityModel().leftArmPose;
+            model.isSitting = getEntityModel().isSitting;
 
-        model.render(player, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+            model.render(player, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+
+        });
     }
 
     private ModelFashion getModelFromSlot(EnumFashionSlot slot, boolean smallArms) {

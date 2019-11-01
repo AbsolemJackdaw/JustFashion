@@ -9,6 +9,7 @@ import subaraki.fashion.network.client.PacketSyncFashionToClient;
 import subaraki.fashion.network.client.PacketSyncFashionToTrackedPlayers;
 import subaraki.fashion.network.server.PacketOpenWardrobe;
 import subaraki.fashion.network.server.PacketSyncPlayerFashionToServer;
+import subaraki.fashion.network.server.PacketSyncSavedListToServer;
 
 public class NetworkHandler {
 
@@ -25,6 +26,7 @@ public class NetworkHandler {
         new PacketSetInWardrobeToTrackedPlayers().register(messageId++);
         new PacketSyncFashionToClient().register(messageId++);
         new PacketSyncFashionToTrackedPlayers().register(messageId++);
+        new PacketSyncSavedListToServer().register(messageId++);
 
     }
 }

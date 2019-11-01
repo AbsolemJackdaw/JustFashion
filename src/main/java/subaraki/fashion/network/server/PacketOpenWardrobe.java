@@ -42,7 +42,9 @@ public class PacketOpenWardrobe implements IPacketBase {
 
             NetworkHooks.openGui(player, new WardrobeProvider());
 
-            FashionData.get(player).setInWardrobe(true);
+            FashionData.get(player).ifPresent(data -> {
+                data.setInWardrobe(true);
+            });
 
             Object packet = new PacketSetInWardrobeToTrackedPlayers(player.getUniqueID(), true);
 
@@ -55,8 +57,7 @@ public class PacketOpenWardrobe implements IPacketBase {
     @Override
     public void register(int id) {
 
-        NetworkHandler.NETWORK.registerMessage(id, PacketOpenWardrobe.class, PacketOpenWardrobe::encode, PacketOpenWardrobe::new,
-                PacketOpenWardrobe::handle);
+        NetworkHandler.NETWORK.registerMessage(id, PacketOpenWardrobe.class, PacketOpenWardrobe::encode, PacketOpenWardrobe::new, PacketOpenWardrobe::handle);
 
     }
 }

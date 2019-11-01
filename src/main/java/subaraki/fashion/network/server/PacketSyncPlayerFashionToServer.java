@@ -76,14 +76,25 @@ public class PacketSyncPlayerFashionToServer implements IPacketBase {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
 
         ServerPlayerEntity player = ctx.get().getSender();
-        FashionData fashion = FashionData.get(player);
+        
 
         ctx.get().enqueueWork(() -> {
-            for (int i = 0; i < 6; i++)
-                fashion.updatePartIndex(ids[i], EnumFashionSlot.fromInt(i));
-            fashion.setRenderFashion(isActive);
+            
+            FashionData.get(player).ifPresent(fashion -> {
+                for (int i = 0; i < 6; i++)
+                    fashion.updatePartIndex(ids[i], EnumFashionSlot.fromInt(i));
+                fashion.setRenderFashion(isActive);
 
-            FashionData.get(player).setInWardrobe(false);
+                fashion.setInWardrobe(false);
+                
+                fashion.keepLayersNamesForServer.clear();
+                
+                for (String layer : fashion.getSavedOriginalListNamesForServerSidePurposes())
+                    for (String classname : layers)
+                        if (layer.equals(classname))
+                            fashion.keepLayersNamesForServer.add(layer);
+            });
+            
 
             // Send to tracked players
 

@@ -44,43 +44,45 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
     @Override
     public void render(AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 
-        FashionData fashionData = FashionData.get(player);
+        FashionData.get(player).ifPresent(fashionData -> {
 
-        ItemStack stackHeldItem = player.getHeldItemMainhand();
-        ItemStack stackOffHand = player.getHeldItemOffhand();
+            ItemStack stackHeldItem = player.getHeldItemMainhand();
+            ItemStack stackOffHand = player.getHeldItemOffhand();
 
-        boolean renderedOffHand = false;
-        boolean renderedHand = false;
+            boolean renderedOffHand = false;
+            boolean renderedHand = false;
 
-        if (fashionData.getPartIndex(EnumFashionSlot.WEAPON) > 0) {
-            if (stackHeldItem.getItem() instanceof SwordItem) {
-                renderAesthetic(stackHeldItem, player, HandSide.RIGHT, fashionData, ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND,
-                        EnumFashionSlot.WEAPON);
-                renderedHand = true;
+            if (fashionData.getPartIndex(EnumFashionSlot.WEAPON) > 0) {
+                if (stackHeldItem.getItem() instanceof SwordItem) {
+                    renderAesthetic(stackHeldItem, player, HandSide.RIGHT, fashionData, ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND,
+                            EnumFashionSlot.WEAPON);
+                    renderedHand = true;
+                }
+
+                if (stackOffHand.getItem() instanceof SwordItem) {
+                    renderAesthetic(stackOffHand, player, HandSide.LEFT, fashionData, cam_left, EnumFashionSlot.WEAPON);
+                    renderedOffHand = true;
+                }
             }
 
-            if (stackOffHand.getItem() instanceof SwordItem) {
-                renderAesthetic(stackOffHand, player, HandSide.LEFT, fashionData, cam_left, EnumFashionSlot.WEAPON);
-                renderedOffHand = true;
-            }
-        }
+            if (fashionData.getPartIndex(EnumFashionSlot.SHIELD) > 0) {
+                if (stackHeldItem.getItem() instanceof ShieldItem || stackHeldItem.getItem().getUseAction(stackHeldItem) == UseAction.BLOCK) {
+                    renderAesthetic(stackHeldItem, player, HandSide.RIGHT, fashionData, cam_right, EnumFashionSlot.SHIELD);
+                    renderedHand = true;
+                }
 
-        if (fashionData.getPartIndex(EnumFashionSlot.SHIELD) > 0) {
-            if (stackHeldItem.getItem() instanceof ShieldItem || stackHeldItem.getItem().getUseAction(stackHeldItem) == UseAction.BLOCK) {
-                renderAesthetic(stackHeldItem, player, HandSide.RIGHT, fashionData, cam_right, EnumFashionSlot.SHIELD);
-                renderedHand = true;
+                if (stackOffHand.getItem() instanceof ShieldItem || stackOffHand.getItem().getUseAction(stackOffHand) == UseAction.BLOCK) {
+                    renderAesthetic(stackOffHand, player, HandSide.LEFT, fashionData, cam_left, EnumFashionSlot.SHIELD);
+                    renderedOffHand = true;
+                }
             }
 
-            if (stackOffHand.getItem() instanceof ShieldItem || stackOffHand.getItem().getUseAction(stackOffHand) == UseAction.BLOCK) {
-                renderAesthetic(stackOffHand, player, HandSide.LEFT, fashionData, cam_left, EnumFashionSlot.SHIELD);
-                renderedOffHand = true;
-            }
-        }
+            if (!renderedHand)
+                renderHeldItem(player, stackHeldItem, cam_right, HandSide.RIGHT);
+            if (!renderedOffHand)
+                renderHeldItem(player, stackOffHand, cam_left, HandSide.LEFT);
 
-        if (!renderedHand)
-            renderHeldItem(player, stackHeldItem, cam_right, HandSide.RIGHT);
-        if (!renderedOffHand)
-            renderHeldItem(player, stackOffHand, cam_left, HandSide.LEFT);
+        });
     }
 
     private void render(IBakedModel model) {
