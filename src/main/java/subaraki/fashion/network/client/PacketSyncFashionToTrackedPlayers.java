@@ -73,9 +73,8 @@ public class PacketSyncFashionToTrackedPlayers implements IPacketBase {
         for (int slot = 0; slot < ids.length; slot++)
             ids[slot] = buf.readInt();
 
-        for (int i = 0; i < ids.length; i++)
+        isActive = buf.readBoolean();
 
-            isActive = buf.readBoolean();
         sender = buf.readUniqueId();
 
         int size = buf.readInt();
