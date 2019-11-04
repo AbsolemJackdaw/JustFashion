@@ -15,7 +15,7 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.event.HoverEvent;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.client.ResourcePackReader;
-import subaraki.fashion.client.event.KeyRegistry;
+import subaraki.fashion.client.eventforge_bus.KeyRegistry;
 import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.mod.Fashion;
 import subaraki.fashion.network.NetworkHandler;
