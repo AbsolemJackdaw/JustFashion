@@ -3,10 +3,14 @@ package subaraki.fashion.mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import lib.modelloader.ModelHandle;
 import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -70,33 +74,45 @@ public class Fashion {
     }
 
     @SubscribeEvent
+    public static void registerItemModel(ModelRegistryEvent event) {
+
+        Fashion.log.info("FIRING MODEL LOADER REGISTRY");
+        int size = ResourcePackReader.partsSize(EnumFashionSlot.WEAPON);
+        Fashion.log.info("MODELS TO LOAD LIST SIZE = " + size);
+        for (int i = 0; i < size; i++) {
+            if (ResourcePackReader.isItem(i)) {
+                ModelHandle handle = ResourcePackReader.getAestheticWeapon(i);
+                ModelResourceLocation modelres = new ModelResourceLocation(handle.getModel(), "inventory");
+                ModelLoader.addSpecialModel(modelres);
+                Fashion.log.info(String.format("ITEM MODEL REGISTRY %s", modelres));
+            }
+        }
+    }
+
+    @SubscribeEvent
     public static void stitchTextures(TextureStitchEvent.Pre event) {
 
-        if (!event.getMap().getBasePath().equals("textures"))
+        if (ClientReferences.isBlockTextureMap(event))
             return;
 
         Fashion.log.debug("stitching weapon textures");
 
-        stitch(ResourcePackReader.partsSize(EnumFashionSlot.WEAPON), EnumFashionSlot.WEAPON, event);
-        stitch(ResourcePackReader.partsSize(EnumFashionSlot.SHIELD), EnumFashionSlot.SHIELD, event);
+        stitch(EnumFashionSlot.WEAPON, event);
+        stitch(EnumFashionSlot.SHIELD, event);
 
     }
 
-    private static void stitch(int size, EnumFashionSlot slot, TextureStitchEvent.Pre event) {
+    private static void stitch(EnumFashionSlot slot, TextureStitchEvent.Pre event) {
 
-        if (size > 1) {
-            for (int partIndex = 1; partIndex < size; partIndex++)
-                if (ResourcePackReader.getResourceForPart(slot, partIndex) != null) {
-                    ResourceLocation resLoc = ResourcePackReader.getTextureForStitcher(slot, partIndex);
-                    if (resLoc != null) {
-                        event.addSprite(resLoc);
-                        Fashion.log.info("stitched " + resLoc.toString());
-                    } else {
-                        Fashion.log.warn("tried loading a null resourcelocation for weapons.");
-                        Fashion.log.warn(ResourcePackReader.getResourceForPart(slot, partIndex));
-                    }
-                }
-        }
+        for (ResourceLocation resLoc : ResourcePackReader.getTexturesForStitcher(slot))
+            if (resLoc != null) {
+                event.addSprite(resLoc);
+                Fashion.log.info("stitched " + resLoc.toString());
+            } else {
+                Fashion.log.warn(String.format(
+                        "%n SKIPPED STITCHING A NULL %s RESOURCE %n This is normal only once, and for shields. %n Check your fashion resourcepack json for any path errors if it happens more then once ! ",
+                        slot.name()));
+            }
     }
 
     @ObjectHolder(MODID)
