@@ -1,4 +1,4 @@
-package subaraki.fashion.server.event;
+package subaraki.fashion.server.event.forge_bus;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
