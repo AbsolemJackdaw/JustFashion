@@ -80,7 +80,7 @@ public class PacketSyncFashionToTrackedPlayers implements IPacketBase {
         int size = buf.readInt();
         if (size > 0) {
             for (int i = 0; i < size; i++)
-                layers.add(buf.readString());
+                layers.add(buf.readString(128));
         }
     }
 

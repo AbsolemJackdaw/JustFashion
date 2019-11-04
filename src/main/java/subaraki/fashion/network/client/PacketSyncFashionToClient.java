@@ -48,7 +48,7 @@ public class PacketSyncFashionToClient implements IPacketBase {
 
         if (size > 0)
             for (int i = 0; i < size; i++)
-                toKeep.add(buf.readString());
+                toKeep.add(buf.readString(128));
     }
 
     @Override

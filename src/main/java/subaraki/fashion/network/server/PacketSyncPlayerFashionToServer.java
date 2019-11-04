@@ -51,7 +51,7 @@ public class PacketSyncPlayerFashionToServer implements IPacketBase {
 
         if (size > 0) {
             for (int i = 0; i < size; i++)
-                layers.add(buf.readString(64));
+                layers.add(buf.readString(128));
         }
     }
 

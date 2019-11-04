@@ -46,7 +46,7 @@ public class PacketSyncSavedListToServer implements IPacketBase {
 
         if (size > 0)
             for (int i = 0; i < size; i++)
-                names.add(buf.readString());
+                names.add(buf.readString(128));
     }
 
     @Override
