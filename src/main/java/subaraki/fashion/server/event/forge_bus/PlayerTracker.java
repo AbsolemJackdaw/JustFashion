@@ -1,7 +1,11 @@
 package subaraki.fashion.server.event.forge_bus;
 
+import java.awt.PageAttributes.OriginType;
+
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
@@ -38,6 +42,36 @@ public class PlayerTracker {
             this.sync((PlayerEntity) event.getTarget());
     }
 
+    @SubscribeEvent
+    public void clone(PlayerEvent.Clone event) {
+
+        if (!event.isWasDeath())
+            return;
+        if (event.getPlayer() == null)
+            return;
+        if (event.getOriginal() == null)
+            return;
+        if (event.getPlayer().world.isRemote || event.getOriginal().world.isRemote)
+            return;
+
+        FashionData.get(event.getOriginal()).ifPresent(dataOriginal -> {
+            FashionData.get(event.getPlayer()).ifPresent(data -> {
+                data.readData(dataOriginal.writeData());
+            });
+        });
+    }
+
+    @SubscribeEvent
+    public void join(PlayerEvent.PlayerRespawnEvent event) {
+
+        if (event.getPlayer() == null)
+            return;
+        if (event.getPlayer().world.isRemote)
+            return;
+
+        toClient(event.getPlayer());
+    }
+
     private void sync(PlayerEntity player) {
 
         if (!player.world.isRemote) {
@@ -46,7 +80,6 @@ public class PlayerTracker {
                         data.shouldRenderFashion(), player.getUniqueID(), data.getSimpleNamesForToggledFashionLayers()));
 
             });
-
         }
     }
 
