@@ -6,12 +6,10 @@ import lib.util.networking.IPacketBase;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
-import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.fml.network.PacketDistributor;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.network.NetworkHandler;
 import subaraki.fashion.network.client.PacketSetInWardrobeToTrackedPlayers;
-import subaraki.fashion.screen.WardrobeProvider;
 
 public class PacketOpenWardrobe implements IPacketBase {
 
@@ -39,8 +37,6 @@ public class PacketOpenWardrobe implements IPacketBase {
         context.get().enqueueWork(() -> {
 
             ServerPlayerEntity player = context.get().getSender();
-
-            NetworkHooks.openGui(player, new WardrobeProvider());
 
             FashionData.get(player).ifPresent(data -> {
                 data.setInWardrobe(true);

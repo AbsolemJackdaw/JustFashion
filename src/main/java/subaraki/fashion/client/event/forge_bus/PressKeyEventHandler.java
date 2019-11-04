@@ -6,6 +6,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.network.NetworkHandler;
 import subaraki.fashion.network.server.PacketOpenWardrobe;
+import subaraki.fashion.screen.WardrobeScreen;
 
 public class PressKeyEventHandler {
 
@@ -18,7 +19,9 @@ public class PressKeyEventHandler {
 
             FashionData.get(Minecraft.getInstance().player).ifPresent(data -> {
                 data.setInWardrobe(true);
+
             });
+            Minecraft.getInstance().displayGuiScreen(new WardrobeScreen());
         }
     }
 }

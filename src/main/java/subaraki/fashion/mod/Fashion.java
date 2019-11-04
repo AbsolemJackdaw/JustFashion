@@ -19,7 +19,7 @@ import subaraki.fashion.capability.FashionCapability;
 import subaraki.fashion.client.ClientReferences;
 import subaraki.fashion.client.ResourcePackReader;
 import subaraki.fashion.client.event.EventRegistryClient;
-import subaraki.fashion.client.eventforge_bus.KeyRegistry;
+import subaraki.fashion.client.event.forge_bus.KeyRegistry;
 import subaraki.fashion.network.NetworkHandler;
 import subaraki.fashion.screen.WardrobeContainer;
 import subaraki.fashion.screen.WardrobeScreen;
@@ -55,22 +55,22 @@ public class Fashion {
         new EventRegistryClient();
         new ResourcePackReader();
         new KeyRegistry().registerKey();
-        ScreenManager.registerFactory(ObjectHolders.WARDROBECONTAINER, WardrobeScreen::new);
+//        ScreenManager.registerFactory(ObjectHolders.WARDROBECONTAINER, WardrobeScreen::new);
         ClientReferences.loadLayers();
     }
     
-    @ObjectHolder(Fashion.MODID)
-    public static class ObjectHolders {
-
-        @ObjectHolder("wardrobe_container")
-        public static final ContainerType<WardrobeContainer> WARDROBECONTAINER = null;
-    }
-    
-    @SubscribeEvent
-    public static void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
-
-        event.getRegistry().register(IForgeContainerType.create((windowId, inv, data) -> new WardrobeContainer(ObjectHolders.WARDROBECONTAINER, windowId))
-                .setRegistryName("wardrobe_container"));
-
-    }
+//    @ObjectHolder(Fashion.MODID)
+//    public static class ObjectHolders {
+//
+//        @ObjectHolder("wardrobe_container")
+//        public static final ContainerType<WardrobeContainer> WARDROBECONTAINER = null;
+//    }
+//    
+//    @SubscribeEvent
+//    public static void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
+//
+//        event.getRegistry().register(IForgeContainerType.create((windowId, inv, data) -> new WardrobeContainer(ObjectHolders.WARDROBECONTAINER, windowId))
+//                .setRegistryName("wardrobe_container"));
+//
+//    }
 }
