@@ -9,13 +9,11 @@ import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
 import subaraki.fashion.capability.FashionData;
-import subaraki.fashion.mod.Fashion;
 
 public class LayerWardrobe extends LayerRenderer<AbstractClientPlayerEntity, PlayerModel<AbstractClientPlayerEntity>> {
 
-    private ModelHandle modelHandle = ModelHandle.of(new ResourceLocation(Fashion.MODID, "wardrobe"));
+    private ModelHandle modelHandle = ModelHandle.of("fashion:wardrobe");
 
     private PlayerRenderer renderer;
 
