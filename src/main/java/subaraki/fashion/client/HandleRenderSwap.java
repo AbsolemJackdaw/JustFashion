@@ -13,16 +13,13 @@ import net.minecraft.client.renderer.entity.layers.ElytraLayer;
 import net.minecraft.client.renderer.entity.layers.HeadLayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.network.PacketDistributor;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.client.render.layer.LayerAestheticHeldItem;
 import subaraki.fashion.client.render.layer.LayerFashion;
 import subaraki.fashion.client.render.layer.LayerWardrobe;
 import subaraki.fashion.mod.Fashion;
 import subaraki.fashion.network.NetworkHandler;
-import subaraki.fashion.network.client.PacketSyncFashionToClient;
 import subaraki.fashion.network.server.PacketSyncSavedListToServer;
 
 public class HandleRenderSwap {
