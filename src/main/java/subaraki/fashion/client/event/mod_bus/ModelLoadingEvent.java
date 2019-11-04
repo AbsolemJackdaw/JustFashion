@@ -2,17 +2,18 @@ package subaraki.fashion.client.event.mod_bus;
 
 import lib.modelloader.ModelHandle;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import subaraki.fashion.client.ResourcePackReader;
 import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.mod.Fashion;
 
-@EventBusSubscriber(modid = Fashion.MODID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = Fashion.MODID, bus = Bus.MOD)
 public class ModelLoadingEvent {
+
     @SubscribeEvent
     public static void registerItemModel(ModelRegistryEvent event) {
 

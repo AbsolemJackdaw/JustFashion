@@ -4,13 +4,14 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import subaraki.fashion.client.ClientReferences;
 import subaraki.fashion.client.ResourcePackReader;
 import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.mod.Fashion;
 
-@EventBusSubscriber(modid = Fashion.MODID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = Fashion.MODID, value = Dist.CLIENT, bus = Bus.MOD)
 public class StitchEvent {
 
     @SubscribeEvent
