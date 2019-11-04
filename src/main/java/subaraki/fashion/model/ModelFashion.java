@@ -6,6 +6,7 @@ import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.entity.model.RendererModel;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.Pose;
 import net.minecraft.util.HandSide;
 
 public class ModelFashion extends BipedModel<LivingEntity> {
@@ -71,7 +72,7 @@ public class ModelFashion extends BipedModel<LivingEntity> {
         super.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 
         GlStateManager.pushMatrix();
-        if (entityIn.isSneaking()) {
+        if (entityIn.getPose().equals(Pose.SNEAKING)) {
             GlStateManager.translatef(0.0F, 0.2F, 0.0F);
         }
 

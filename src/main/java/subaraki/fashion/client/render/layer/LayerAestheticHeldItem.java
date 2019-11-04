@@ -22,6 +22,7 @@ import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.entity.Pose;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShieldItem;
 import net.minecraft.item.SwordItem;
@@ -107,8 +108,7 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
     private void renderAesthetic(ItemStack stack, AbstractClientPlayerEntity player, HandSide handSide, FashionData data, TransformType cam, EnumFashionSlot slot) {
 
         GlStateManager.pushMatrix();
-
-        if (player.isSneaking()) {
+        if (player.getPose().equals(Pose.SNEAKING)) {
             GlStateManager.translatef(0.0F, 0.2F, 0.0F);
         }
 
