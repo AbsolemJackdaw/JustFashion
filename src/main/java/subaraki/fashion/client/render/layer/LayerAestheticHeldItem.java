@@ -6,6 +6,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 
+import lib.modelloader.ModelHandle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -18,12 +19,14 @@ import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShieldItem;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.UseAction;
+import net.minecraft.util.Direction;
 import net.minecraft.util.HandSide;
 import net.minecraftforge.client.ForgeHooksClient;
 import subaraki.fashion.capability.FashionData;
@@ -85,13 +88,18 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
         });
     }
 
-    private void render(IBakedModel model) {
+    private static final Direction[] facings = { null, Direction.EAST, Direction.WEST, Direction.NORTH, Direction.SOUTH, Direction.UP, Direction.DOWN };
+
+    private static void renderModel(IBakedModel model, VertexFormat fmt) {
 
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
-        for (BakedQuad bakedquad : model.getQuads(null, null, new Random())) {
-            bufferbuilder.addVertexData(bakedquad.getVertexData());
+        BufferBuilder worldrenderer = tessellator.getBuffer();
+        worldrenderer.begin(GL11.GL_QUADS, fmt);
+
+        for (Direction facing : facings) {
+            for (BakedQuad bakedquad : model.getQuads(null, facing, new Random())) {
+                worldrenderer.addVertexData(bakedquad.getVertexData());
+            }
         }
         tessellator.draw();
     }
@@ -113,23 +121,33 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
 
         this.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
 
-        IBakedModel handleModel = null;
+        ModelHandle handleModel = null;
 
-        if (slot == EnumFashionSlot.WEAPON)
-            handleModel = ResourcePackReader.getAestheticWeapon(data.getPartIndex(slot)).get();
-        else if (slot == EnumFashionSlot.SHIELD)
+        IBakedModel buffer = null;
+
+        if (slot == EnumFashionSlot.WEAPON) {
+            handleModel = ResourcePackReader.getAestheticWeapon(data.getPartIndex(slot));
+
+            if (ResourcePackReader.isItem(data.getPartIndex(slot)))
+                buffer = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(handleModel.getModel(), "inventory"));
+
+        } else if (slot == EnumFashionSlot.SHIELD) {
+
             if (stack.getItem() instanceof ShieldItem || stack.getItem().getUseAction(stack) == UseAction.BLOCK) {
                 boolean isBlocking = player.isHandActive() && player.getActiveItemStack() == stack;
-                handleModel = ResourcePackReader.getAestheticShield(data.getPartIndex(slot), isBlocking).get();
+                handleModel = ResourcePackReader.getAestheticShield(data.getPartIndex(slot), isBlocking);
+                buffer = handleModel.get();
             }
-
-        if (handleModel != null) {
-            IBakedModel model = ForgeHooksClient.handleCameraTransforms(handleModel, cam, flag);
-            GlStateManager.translatef((float) ((flag ? -1 : 1) / 16.0F) + (flag ? -0.0625f * 7 : -0.0625f * 9), -0.0625f * 8, -0.0625f * 8);
-
-            render(model);
         }
 
+        if (handleModel != null) {
+            if(buffer == null)
+                buffer = handleModel.get();
+            IBakedModel rotatedModel = ForgeHooksClient.handleCameraTransforms(buffer, cam, flag);
+            GlStateManager.translatef((float) ((flag ? -1 : 1) / 16.0F) + (flag ? -0.0625f * 7 : -0.0625f * 9), -0.0625f * 8, -0.0625f * 8);
+
+            renderModel(rotatedModel, handleModel.getVertexFormat());
+        }
         GlStateManager.popMatrix();
     }
 
@@ -163,5 +181,4 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
 
         return false;
     }
-
 }
