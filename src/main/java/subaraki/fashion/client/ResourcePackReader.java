@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -25,8 +26,9 @@ import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.mod.Fashion;
 
 public class ResourcePackReader {
-    
-    
+
+    private static ModelHandle rod = ModelHandle.of("item/blaze_rod");
+
     public ResourcePackReader() {
 
         registerReloadListener();
@@ -51,16 +53,12 @@ public class ResourcePackReader {
     private static List<ResourceLocation> legs = Lists.<ResourceLocation>newArrayList();
     private static List<ResourceLocation> boots = Lists.<ResourceLocation>newArrayList();
 
-    private static List<ResourceLocation> weapon = Lists.<ResourceLocation>newArrayList();
     private static List<ResourceLocation> weaponTextures = Lists.<ResourceLocation>newArrayList();
+    private static List<ResourceLocation> shieldTextures = Lists.<ResourceLocation>newArrayList();
 
-    private static List<ResourceLocation> shield = Lists.<ResourceLocation>newArrayList();
-    private static List<ResourceLocation> shieldBlocking = Lists.<ResourceLocation>newArrayList();
-    private static List<ResourceLocation> shieldTexture = Lists.<ResourceLocation>newArrayList();
-
-    private static List<ModelHandle> aestheticWeapons = Lists.<ModelHandle>newArrayList();
-    private static List<ModelHandle> aestheticShield = Lists.<ModelHandle>newArrayList();
-    private static List<ModelHandle> aestheticShieldBlocking = Lists.<ModelHandle>newArrayList();
+    private static LinkedHashMap<ModelHandle, Boolean> weapons = new LinkedHashMap<ModelHandle, Boolean>();
+    private static List<ModelHandle> shields = Lists.<ModelHandle>newArrayList();
+    private static List<ModelHandle> shieldsBlocking = Lists.<ModelHandle>newArrayList();
 
     private static final ResourceLocation MISSING_FASHION = new ResourceLocation(Fashion.MODID, "/textures/fashion/missing_fasion.png");
 
@@ -71,26 +69,27 @@ public class ResourcePackReader {
         legs.clear();
         boots.clear();
 
-        weapon.clear();
         weaponTextures.clear();
-        aestheticWeapons.clear();
+        weapons.clear();
 
-        shield.clear();
-        shieldBlocking.clear();
-        shieldTexture.clear();
-        aestheticShield.clear();
-        aestheticShieldBlocking.clear();
+        shields.clear();
+        shieldsBlocking.clear();
+
+        shieldTextures.clear();
 
         addHats(new ResourceLocation(Fashion.MODID, "textures/fashion/blank_hat.png"));
         addBody(new ResourceLocation(Fashion.MODID, "textures/fashion/blank_body.png"));
         addLegs(new ResourceLocation(Fashion.MODID, "textures/fashion/blank_pants.png"));
         addBoots(new ResourceLocation(Fashion.MODID, "textures/fashion/blank_boots.png"));
 
-        addWeaponModel(new ResourceLocation(Fashion.MODID, "blank_weapon"));
-        addWeaponTextures(null);
+        // shield placeholders are coded to always pair with a resloc. weapons however
+        // can be items and not have a resloc associated.
+        // the base logic for getting shields and waepons is seperated by the fact that
+        // shields are get by resloc and weapons by model
+        addWeaponModel(null, false); // placeholder for empty spot
 
         addShieldModel(null, null); // placeholder for empty spot
-        addShieldTextures(null);
+        addShieldTextures(null);// placeholder for empty spot. for shields this is requiered.
 
         loadFromJson();
     }
@@ -115,10 +114,16 @@ public class ResourcePackReader {
         boots.add(resLoc);
     }
 
-    public static void addWeaponModel(ResourceLocation model) {
+    public static void addWeaponModel(ResourceLocation model, boolean isItem) {
 
-        weapon.add(model);
-        aestheticWeapons.add(ModelHandle.of(model));
+        if (model == null) {
+            weapons.put((ModelHandle) null, isItem);
+            Fashion.log.warn(String.format(
+                    "%n TRIED REGISTERING A NULL WEAPON MODEL %n This is normal the first time for empty placeholders. %n If this happens more then once, check your Resource Pack json for any errors!"));
+            return;
+        }
+
+        weapons.put(ModelHandle.of(model), isItem);
     }
 
     public static void addWeaponTextures(ResourceLocation resLoc) {
@@ -128,39 +133,53 @@ public class ResourcePackReader {
 
     public static void addShieldModel(ResourceLocation model, ResourceLocation modelBlocking) {
 
-        shield.add(model);
-        shieldBlocking.add(modelBlocking);
-        if (model != null)
-            aestheticShield.add(ModelHandle.of(model));
-        if (modelBlocking != null)
-            aestheticShieldBlocking.add(ModelHandle.of(modelBlocking));
+        if (model == null || modelBlocking == null) {
+            shields.add((ModelHandle) null);
+            shieldsBlocking.add((ModelHandle) null);
+
+            Fashion.log.warn(String.format(
+                    "%n TRIED REGISTERING A NULL SHIELD MODEL %n This is normal the first time for empty placeholders. %n If this happens more then once, check your Resource Pack json for any errors!"));
+            return;
+        }
+        shields.add(ModelHandle.of(model));
+        shieldsBlocking.add(ModelHandle.of(modelBlocking));
+
     }
 
     public static void addShieldTextures(ResourceLocation resLoc) {
 
-        shieldTexture.add(resLoc);
+        shieldTextures.add(resLoc);
     }
 
     public static ModelHandle getAestheticWeapon(int index) {
 
-        if (index < aestheticWeapons.size())
-            return aestheticWeapons.get(index);
+        if (index < weapons.size())
+            return (ModelHandle) weapons.keySet().toArray()[index];
 
-        return ModelHandle.of("item/blaze_rod");
+        return rod;
+    }
+
+    public static boolean isItem(int index) {
+
+        if (index < weapons.size()) {
+            boolean flag = (boolean) weapons.values().toArray()[index];
+            return flag;
+        }
+
+        return false;
     }
 
     public static ModelHandle getAestheticShield(int index, boolean isBlocking) {
 
-        index--; // offset with empty first slot
         if (!isBlocking) {
-            if (index < aestheticShield.size())
-                return aestheticShield.get(index);
+            if (index < shields.size())
+                return shields.get(index);
         } else {
-            if (index < aestheticShieldBlocking.size())
-                return aestheticShieldBlocking.get(index);
+            if (index < shieldsBlocking.size())
+                return shieldsBlocking.get(index);
         }
 
-        return ModelHandle.of("item/blaze_rod");
+        return rod;
     }
 
     private void loadFromJson() {
@@ -185,7 +204,7 @@ public class ResourcePackReader {
                 if (json.has("hats")) {
                     JsonArray array = json.getAsJsonArray("hats");
                     for (int i = 0; i < array.size(); i++) {
-                        String path = "textures/fashionpack/" + pack + "/hats/" + array.get(i).getAsString();
+                        String path = "textures/" + pack + "/hats/" + array.get(i).getAsString();
                         addHats(new ResourceLocation(Fashion.MODID, path));
                     }
                 }
@@ -193,7 +212,7 @@ public class ResourcePackReader {
                 if (json.has("body")) {
                     JsonArray array = json.getAsJsonArray("body");
                     for (int i = 0; i < array.size(); i++) {
-                        String path = "textures/fashionpack/" + pack + "/body/" + array.get(i).getAsString();
+                        String path = "textures/" + pack + "/body/" + array.get(i).getAsString();
                         addBody(new ResourceLocation(Fashion.MODID, path));
                     }
                 }
@@ -201,7 +220,7 @@ public class ResourcePackReader {
                 if (json.has("pants")) {
                     JsonArray array = json.getAsJsonArray("pants");
                     for (int i = 0; i < array.size(); i++) {
-                        String path = "textures/fashionpack/" + pack + "/pants/" + array.get(i).getAsString();
+                        String path = "textures/" + pack + "/pants/" + array.get(i).getAsString();
                         addLegs(new ResourceLocation(Fashion.MODID, path));
                     }
                 }
@@ -209,7 +228,7 @@ public class ResourcePackReader {
                 if (json.has("boots")) {
                     JsonArray array = json.getAsJsonArray("boots");
                     for (int i = 0; i < array.size(); i++) {
-                        String path = "textures/fashionpack/" + pack + "/boots/" + array.get(i).getAsString();
+                        String path = "textures/" + pack + "/boots/" + array.get(i).getAsString();
                         addBoots(new ResourceLocation(Fashion.MODID, path));
                     }
                 }
@@ -217,17 +236,25 @@ public class ResourcePackReader {
                 // prefixes 'models' and 'textures' aren't needed here. the stitch event and
                 // modelloader automatically add that
                 if (json.has("weapon_models")) {
+
                     JsonArray array = json.getAsJsonArray("weapon_models");
-                    for (int i = 0; i < array.size(); i++) {
-                        String path = "fashionpack/" + pack + "/weapons/" + array.get(i).getAsString();
-                        addWeaponModel(new ResourceLocation(Fashion.MODID, path));
+
+                    boolean flag = false;
+                    String path = pack + "/weapons/";
+                    for (JsonElement el : array) {
+                        String name = el.getAsString();
+                        flag = name.contains("item/");
+                        String base = name.replace("item/", "");
+                        String fullpath = path + base;
+                        addWeaponModel(new ResourceLocation(Fashion.MODID, fullpath), flag);
                     }
                 }
 
                 if (json.has("weapon_textures")) {
                     JsonArray array = json.getAsJsonArray("weapon_textures");
                     for (int i = 0; i < array.size(); i++) {
-                        String path = "fashionpack/" + pack + "/weapons/" + array.get(i).getAsString();
+                        String name = array.get(i).getAsString();
+                        String path = pack + "/weapons/" + name.replace("item/", "");
                         addWeaponTextures(new ResourceLocation(Fashion.MODID, path));
                     }
                 }
@@ -235,7 +262,7 @@ public class ResourcePackReader {
                 if (json.has("shield_models")) {
                     JsonArray array = json.getAsJsonArray("shield_models");
                     for (int i = 0; i < array.size(); i++) {
-                        String path = "fashionpack/" + pack + "/shields/" + array.get(i).getAsString();
+                        String path = pack + "/shields/" + array.get(i).getAsString();
                         String pathBlock = path + "_blocking";
                         addShieldModel(new ResourceLocation(Fashion.MODID, path), new ResourceLocation(Fashion.MODID, pathBlock));
                     }
@@ -244,7 +271,7 @@ public class ResourcePackReader {
                 if (json.has("shield_textures")) {
                     JsonArray array = json.getAsJsonArray("shield_textures");
                     for (int i = 0; i < array.size(); i++) {
-                        String path = "fashionpack/" + pack + "/shields/" + array.get(i).getAsString();
+                        String path = pack + "/shields/" + array.get(i).getAsString();
                         addShieldTextures(new ResourceLocation(Fashion.MODID, path));
                     }
                 }
@@ -272,25 +299,28 @@ public class ResourcePackReader {
             return partIndex >= legs.size() ? MISSING_FASHION : legs.get(partIndex);
         case BOOTS:
             return partIndex >= boots.size() ? MISSING_FASHION : boots.get(partIndex);
-        case WEAPON:
-            return partIndex >= weapon.size() ? MISSING_FASHION : weapon.get(partIndex);
+        case WEAPON: {
+            ModelHandle handle = ((ModelHandle) weapons.keySet().toArray()[partIndex]);
+            return partIndex < weapons.keySet().size() && handle != null ? handle.getModel() : MISSING_FASHION;
+        }
         case SHIELD:
-            return partIndex >= shield.size() ? MISSING_FASHION : shield.get(partIndex);
+            return partIndex >= shieldTextures.size() ? MISSING_FASHION : shieldTextures.get(partIndex);
         default:
             return MISSING_FASHION;
         }
     }
 
-    public static ResourceLocation getTextureForStitcher(EnumFashionSlot slot, int partIndex) {
+    public static List<ResourceLocation> getTexturesForStitcher(EnumFashionSlot slot) {
 
         switch (slot) {
         case WEAPON:
-            return partIndex >= weaponTextures.size() ? new ResourceLocation("minecraft:items/blaze_rod") : weaponTextures.get(partIndex);
+            return weaponTextures;
         case SHIELD:
-            return partIndex >= shieldTexture.size() ? new ResourceLocation("minecraft:items/blaze_rod") : shieldTexture.get(partIndex);
-
-        default:
-            return MISSING_FASHION;
+            return shieldTextures;
+        default: {
+            Fashion.log.error("Tried stitching textures for something else then weapons or shields. this is not necesairy ! skipping process...");
+            return Lists.newArrayList();
+        }
         }
     }
 
@@ -306,9 +336,9 @@ public class ResourcePackReader {
         case BOOTS:
             return boots.size();
         case WEAPON:
-            return weapon.size();
+            return weapons.keySet().size();
         case SHIELD:
-            return shield.size();
+            return shields.size();
         default:
             return 0;
         }
