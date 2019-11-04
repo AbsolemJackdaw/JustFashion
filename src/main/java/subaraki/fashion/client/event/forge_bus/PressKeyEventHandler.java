@@ -21,6 +21,7 @@ public class PressKeyEventHandler {
                 data.setInWardrobe(true);
 
             });
+            
             Minecraft.getInstance().displayGuiScreen(new WardrobeScreen());
         }
     }

@@ -263,14 +263,14 @@ public class WardrobeScreen extends Screen {
     }
 
     @Override
-    public boolean charTyped(char typedChar, int keyCode) {
+    public boolean keyPressed(int keysym, int scancode, int p_keyPressed_3_) {
 
-        if (KeyRegistry.keyWardrobe.getKeyBinding().getLocalizedName().equals(Character.toString(typedChar))) {
+        if (KeyRegistry.keyWardrobe.getKeyBinding().matchesKey(keysym, scancode)) {
             this.minecraft.player.closeScreen();
             return true;
         }
 
-        return super.charTyped(typedChar, keyCode);
+        return super.keyPressed(keysym, scancode, p_keyPressed_3_);
     }
 
     ////////////////
