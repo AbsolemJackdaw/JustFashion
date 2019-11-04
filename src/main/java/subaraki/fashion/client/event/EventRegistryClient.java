@@ -1,7 +1,8 @@
 package subaraki.fashion.client.event;
 
 import net.minecraftforge.common.MinecraftForge;
-import subaraki.fashion.client.RenderPlayerEventHandler;
+import subaraki.fashion.client.eventforge_bus.PressKeyEventHandler;
+import subaraki.fashion.client.eventforge_bus.RenderPlayerEventHandler;
 
 public class EventRegistryClient {
 

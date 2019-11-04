@@ -1,4 +1,4 @@
-package subaraki.fashion.client.event;
+package subaraki.fashion.client.eventforge_bus;
 
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.InputEvent.KeyInputEvent;
