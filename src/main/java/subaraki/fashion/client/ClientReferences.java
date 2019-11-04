@@ -4,11 +4,11 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import lib.util.DrawEntityOnScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import subaraki.fashion.client.render.layer.LayerWardrobe;
 
@@ -47,6 +47,10 @@ public class ClientReferences {
         }
 
         return list;
+    }
+    
+    public static boolean isBlockTextureMap(TextureStitchEvent event) {
+        return !event.getMap().equals(Minecraft.getInstance().getTextureMap());
     }
 
 }
