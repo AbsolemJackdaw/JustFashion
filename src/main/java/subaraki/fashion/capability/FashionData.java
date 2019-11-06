@@ -3,6 +3,7 @@ package subaraki.fashion.capability;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.renderer.entity.layers.ArrowLayer;
@@ -36,13 +37,17 @@ public class FashionData {
     private int weaponIndex;
     private int shieldIndex;
 
+    public static final int MOD = 1;
+    public static final int VANILLA = 0;
+
     /** Cache of original list with layers attached to the player */
     public List<LayerRenderer<?, ?>> cachedOriginalRenderList = null;
     /** List of all fashion layers rendered, independant of original list */
     public List<LayerRenderer<?, ?>> fashionLayers = Lists.newArrayList();
 
-    /** List saved with all layers to be rendered */
-    private List<LayerRenderer<?, ?>> savedOriginalList = Lists.newArrayList();
+    /** all layers, both vanilla and mod */
+    private List<List<LayerRenderer<?, ?>>> savedLayers = Lists.newArrayList();
+
     /**
      * List saved with all layers' simple class name reference for server synching
      * purpose
@@ -53,24 +58,32 @@ public class FashionData {
     public List<LayerRenderer<?, ?>> keepLayers = Lists.newArrayList();
     public List<String> keepLayersNamesForServer = Lists.newArrayList();
 
-    /** Get the list of items that need to be rendered to the player */
-    public List<LayerRenderer<?, ?>> getSavedOriginalList() {
+    /** list of all mod layers, cached */
+    public List<LayerRenderer<?, ?>> getModLayersList() {
 
-        List<LayerRenderer<?, ?>> copy = new ArrayList<>();
-        copy = savedOriginalList;
-        return copy;
+        if (!savedLayers.isEmpty())
+            return ImmutableList.copyOf(savedLayers.get(MOD));
+        return Lists.newArrayList();
+    }
+
+    /** list of all vanilla layers, cached */
+    public List<LayerRenderer<?, ?>> getVanillaLayersList() {
+
+        if (!savedLayers.isEmpty())
+            return ImmutableList.copyOf(savedLayers.get(VANILLA));
+        return Lists.newArrayList();
+
+    }
+    
+    
+    public List<List<LayerRenderer<?, ?>>> getSavedLayers() {
+
+        return savedLayers;
     }
 
     public List<String> getSavedOriginalListNamesForServerSidePurposes() {
 
-        List<String> copy = new ArrayList<>();
-        copy = savedOriginalListNamesForServer;
-        return copy;
-    }
-
-    public void resetSavedOriginalList() {
-
-        savedOriginalList.clear();
+        return ImmutableList.copyOf(savedOriginalListNamesForServer);
     }
 
     /**
@@ -86,26 +99,28 @@ public class FashionData {
      * stuck in the player the vanilla cape and the elytra as well as the wardrobe
      * that can not be toggled
      */
-    public void saveVanillaList(List<LayerRenderer<?, ?>> original) {
+    public void saveOriginalList(List<LayerRenderer<?, ?>> fromPlayerRenderer) {
 
-        List<LayerRenderer<?, ?>> copy = Lists.newArrayList();
+        List<LayerRenderer<?, ?>> copyModLayers = Lists.newArrayList();
+        List<LayerRenderer<?, ?>> copyVanillaLayers = Lists.newArrayList();
 
-        // Remove unneeded layers
-        for (LayerRenderer<?, ?> layer : original) {
-            if ((layer instanceof BipedArmorLayer) || (layer instanceof LayerWardrobe) || (layer instanceof HeadLayer) || (layer instanceof Deadmau5HeadLayer)
-                    || (layer instanceof HeldItemLayer) || (layer instanceof ArrowLayer) || (layer instanceof CapeLayer) || (layer instanceof ElytraLayer)
-                    || (layer instanceof SpinAttackEffectLayer))
+        // seperate vanilla layers from mod layers, so mod layers can be toggled
+        for (LayerRenderer<?, ?> layer : fromPlayerRenderer) {
+            if ((layer instanceof BipedArmorLayer) || (layer instanceof HeldItemLayer) || (layer instanceof LayerWardrobe) || (layer instanceof HeadLayer)
+                    || (layer instanceof Deadmau5HeadLayer) || (layer instanceof ArrowLayer) || (layer instanceof CapeLayer) || (layer instanceof ElytraLayer)
+                    || (layer instanceof SpinAttackEffectLayer)) {
+                copyVanillaLayers.add(layer);
                 continue;
+            }
 
-            copy.add(layer);
+            copyModLayers.add(layer);
         }
 
-        savedOriginalList.clear();
-
-        for (LayerRenderer<?, ?> layer : copy) {
-            savedOriginalList.add(layer);
-        }
-
+        savedLayers.clear();
+        for (int i = 0; i < 2; i++)
+            savedLayers.add(Lists.newArrayList());
+        savedLayers.get(VANILLA).addAll(copyVanillaLayers);
+        savedLayers.get(MOD).addAll(copyModLayers);
     }
 
     public void saveVanillaListServer(List<String> original) {
