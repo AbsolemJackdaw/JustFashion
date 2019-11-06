@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
+import net.minecraft.client.renderer.entity.model.IHasArm;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
@@ -22,7 +22,6 @@ import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.entity.Pose;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShieldItem;
 import net.minecraft.item.SwordItem;
@@ -108,7 +107,7 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
     private void renderAesthetic(ItemStack stack, AbstractClientPlayerEntity player, HandSide handSide, FashionData data, TransformType cam, EnumFashionSlot slot) {
 
         GlStateManager.pushMatrix();
-        if (player.getPose().equals(Pose.SNEAKING)) {
+        if (player.shouldRenderSneaking()) {
             GlStateManager.translatef(0.0F, 0.2F, 0.0F);
         }
 
@@ -141,7 +140,7 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
         }
 
         if (handleModel != null) {
-            if(buffer == null)
+            if (buffer == null)
                 buffer = handleModel.get();
             IBakedModel rotatedModel = ForgeHooksClient.handleCameraTransforms(buffer, cam, flag);
             GlStateManager.translatef((float) ((flag ? -1 : 1) / 16.0F) + (flag ? -0.0625f * 7 : -0.0625f * 9), -0.0625f * 8, -0.0625f * 8);
@@ -157,9 +156,10 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
         if (!stack.isEmpty()) {
             GlStateManager.pushMatrix();
 
-            if (player.isSneaking()) {
+            if (player.shouldRenderSneaking()) {
                 GlStateManager.translatef(0.0F, 0.2F, 0.0F);
             }
+
             // Forge: moved this call down, fixes incorrect offset while sneaking.
             this.translateToHand(handSide);
             GlStateManager.rotatef(-90.0F, 1.0F, 0.0F, 0.0F);
@@ -173,7 +173,7 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
 
     protected void translateToHand(HandSide p_191361_1_) {
 
-        ((BipedModel<AbstractClientPlayerEntity>) this.getEntityModel()).postRenderArm(0.0625F, p_191361_1_);
+        ((IHasArm) this.getEntityModel()).postRenderArm(0.0625F, p_191361_1_);
     }
 
     @Override
