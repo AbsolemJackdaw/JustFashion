@@ -85,10 +85,10 @@ public class WardrobeScreen extends Screen {
 
             // toggle buttons for each render layer that exists in the game for players,
             // both from mods and vanilla
-            if (!fashion.getSavedOriginalList().isEmpty())
-                for (int i = 0; i < fashion.getSavedOriginalList().size(); i++) {
+            if (!fashion.getModLayersList().isEmpty())
+                for (int i = 0; i < fashion.getModLayersList().size(); i++) {
                     final int index = i;
-                    LayerRenderer<?, ?> layer = fashion.getSavedOriginalList().get(index);
+                    LayerRenderer<?, ?> layer = fashion.getModLayersList().get(index);
 
                     this.addButton(new FancyButton(guiLeft - 12 - (i % 5) * 10, guiTop + 6 + (i / 5) * 10, layer.getClass().getSimpleName(),
                             b -> toggleLayer((FancyButton) b, layer)).setActive(fashion.keepLayers.contains(layer)));
