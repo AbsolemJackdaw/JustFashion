@@ -6,19 +6,12 @@ import java.util.List;
 
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.entity.layers.ArrowLayer;
-import net.minecraft.client.renderer.entity.layers.CapeLayer;
-import net.minecraft.client.renderer.entity.layers.Deadmau5HeadLayer;
-import net.minecraft.client.renderer.entity.layers.ElytraLayer;
-import net.minecraft.client.renderer.entity.layers.HeadLayer;
+import net.minecraft.client.renderer.entity.layers.BipedArmorLayer;
+import net.minecraft.client.renderer.entity.layers.HeldItemLayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import subaraki.fashion.capability.FashionData;
-import subaraki.fashion.client.render.layer.LayerAestheticHeldItem;
-import subaraki.fashion.client.render.layer.LayerFashion;
-import subaraki.fashion.client.render.layer.LayerWardrobe;
-import subaraki.fashion.mod.Fashion;
 import subaraki.fashion.network.NetworkHandler;
 import subaraki.fashion.network.server.PacketSyncSavedListToServer;
 
@@ -43,13 +36,13 @@ public class HandleRenderSwap {
                     swap_list_layerrenders = swap_field_layerrenders.get(renderer);
                 }
 
-                // save original list. not volatile !
-                if (data.getSavedOriginalList().isEmpty()) {
-                    data.saveVanillaList((List<LayerRenderer<?, ?>>) swap_list_layerrenders);
+                // save mod list. not volatile !
+                if (data.getSavedLayers().isEmpty()) {
+                    data.saveOriginalList((List<LayerRenderer<?, ?>>) swap_list_layerrenders);
 
-                    // save original list to server ,so only the class names will be allowed
+                    // save mod list to server , used for toggling save purposes (only names aare allowed on server)
                     List<String> names = new ArrayList<String>();
-                    for (LayerRenderer<?, ?> layer : data.getSavedOriginalList())
+                    for (LayerRenderer<?, ?> layer : data.getModLayersList())
                         names.add(layer.getClass().getSimpleName());
                     // send list of class names to server
                     NetworkHandler.NETWORK.sendToServer(new PacketSyncSavedListToServer(names));
@@ -61,44 +54,42 @@ public class HandleRenderSwap {
                     if (data.cachedOriginalRenderList == null) {
                         // copy the vanilla list over
                         data.cachedOriginalRenderList = (List<LayerRenderer<?, ?>>) swap_list_layerrenders;
+
                         // if all cached fashion is empty (previously not wearing any
                         if (data.fashionLayers.isEmpty()) {
                             data.fashionLayers.clear();
 
-                            // add fashion layer and add wardrobe layer to be displayed when changing
-                            data.fashionLayers.add(new LayerFashion(renderer));
-                            data.fashionLayers.add(new LayerWardrobe(renderer));
+                            // add cached layers for fashion : items and armor
+                            for (LayerRenderer<?, ?> fashionlayer : ClientReferences.getMappedfashion().keySet()) {
+                                if (ClientReferences.getMappedfashion().get(fashionlayer).equals(renderer))
+                                    data.fashionLayers.add(fashionlayer);
+                            }
 
                             // if the list of layers to keep is not empty (aka layers are selected)
                             if (!data.keepLayers.isEmpty()) {
                                 // add those layers to our fashion list
                                 for (LayerRenderer<?, ?> layer : data.keepLayers) {
                                     data.fashionLayers.add(layer);
-                                    Fashion.log.debug("Fashion had a render layer Injected.");
-                                    Fashion.log.debug(layer.getClass().getName() + " got added.");
                                 }
                             }
 
-                            // also add back all most important layers
-                            data.fashionLayers.add(new LayerAestheticHeldItem(renderer));
-                            data.fashionLayers.add(new ArrowLayer<>(renderer));
-                            data.fashionLayers.add(new Deadmau5HeadLayer(renderer));
-                            data.fashionLayers.add(new CapeLayer(renderer));
-                            data.fashionLayers.add(new HeadLayer<>(renderer));
-                            data.fashionLayers.add(new ElytraLayer<>(renderer));
-
+                            // add all vanilla layers back , except for items and armor
+                            for (LayerRenderer<?, ?> layersFromVanilla : data.getVanillaLayersList()) {
+                                if (layersFromVanilla instanceof BipedArmorLayer || layersFromVanilla instanceof HeldItemLayer)
+                                    continue;
+                                data.fashionLayers.add(layersFromVanilla);
+                            }
                         }
 
-                        // define the list we are going to swap with the vanilla one
+                        // swap renderers
                         swap_field_layerrenders.set(renderer, data.fashionLayers);
-                        // System.out.println(data.fashionLayers.size() + " " +
-                        // player.getDisplayName().getFormattedText());
                     }
                 } else {
+                    // if fashion does not need to be rendered , we restore the field to the
+                    // original list we saved
                     if (data.cachedOriginalRenderList != null) {
                         swap_field_layerrenders.set(renderer, data.cachedOriginalRenderList);
                         data.cachedOriginalRenderList = null;
-                        data.resetSavedOriginalList();
                     }
                 }
 
@@ -118,6 +109,7 @@ public class HandleRenderSwap {
                 if (swap_list_layerrenders == null)
                     swap_list_layerrenders = swap_field_layerrenders.get(renderer);
 
+                // reset rendering to the cached list of all layers when the game started
                 if (data.cachedOriginalRenderList != null) {
                     swap_field_layerrenders.set(renderer, data.cachedOriginalRenderList);
                     data.cachedOriginalRenderList = null;
