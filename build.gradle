@@ -13,7 +13,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.14.4-2.1.0.3'
+version = '1.14.4-2.2.0.1'
 group = 'subaraki.fashion' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'fashion'
 
@@ -87,7 +87,7 @@ minecraft {
 
 dependencies {
 
-    minecraft 'net.minecraftforge:forge:1.14.4-28.0.81'
+    minecraft 'net.minecraftforge:forge:1.14.4-28.1.80'
 	
 	compile files("libs/subcommonlib-1.14.4-2.1.0.0.jar")
 
