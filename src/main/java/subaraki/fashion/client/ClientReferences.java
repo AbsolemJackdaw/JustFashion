@@ -2,6 +2,7 @@ package subaraki.fashion.client;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -10,10 +11,13 @@ import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import subaraki.fashion.client.render.layer.LayerAestheticHeldItem;
+import subaraki.fashion.client.render.layer.LayerFashion;
 import subaraki.fashion.client.render.layer.LayerWardrobe;
 
 public class ClientReferences {
 
+    private static HashMap<LayerRenderer<?, ?>, PlayerRenderer> mappedfashion = new HashMap<>();
     public static void loadLayers() {
 
         String types[] = new String[] { "default", "slim" };
@@ -21,9 +25,18 @@ public class ClientReferences {
         for (String type : types) {
             PlayerRenderer renderer = ((PlayerRenderer) Minecraft.getInstance().getRenderManager().getSkinMap().get(type));
             renderer.addLayer(new LayerWardrobe(renderer));
+            
+            mappedfashion.put(new LayerAestheticHeldItem(renderer), renderer);
+            mappedfashion.put(new LayerFashion(renderer), renderer);
         }
     }
+    
+    
+    public static HashMap<LayerRenderer<?, ?>, PlayerRenderer> getMappedfashion() {
 
+        return mappedfashion;
+    }
+    
     /** Used in the packet when logging in to get the list of all layers before the player is actually rendered */
     public static List<LayerRenderer<?, ?>> tryList() throws IllegalArgumentException, IllegalAccessException {
 
