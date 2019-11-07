@@ -5,7 +5,7 @@ import net.minecraftforge.client.event.InputEvent.KeyInputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.network.NetworkHandler;
-import subaraki.fashion.network.server.PacketOpenWardrobe;
+import subaraki.fashion.network.server.PacketSetInWardrobeToTrackedPlayers;
 import subaraki.fashion.screen.WardrobeScreen;
 
 public class PressKeyEventHandler {
@@ -15,13 +15,13 @@ public class PressKeyEventHandler {
 
         if (KeyRegistry.keyWardrobe.isPressed()) {
 
-            NetworkHandler.NETWORK.sendToServer(new PacketOpenWardrobe());
-
             FashionData.get(Minecraft.getInstance().player).ifPresent(data -> {
                 data.setInWardrobe(true);
 
             });
-            
+
+            NetworkHandler.NETWORK.sendToServer(new PacketSetInWardrobeToTrackedPlayers(true));
+
             Minecraft.getInstance().displayGuiScreen(new WardrobeScreen());
         }
     }
