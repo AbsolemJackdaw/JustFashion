@@ -7,17 +7,18 @@ import java.util.function.Supplier;
 import lib.util.networking.IPacketBase;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.network.NetworkHandler;
-import subaraki.fashion.network.client.PacketSetInWardrobeToTrackedPlayers;
+import subaraki.fashion.network.client.PacketSetWardrobeToTrackedClientPlayers;
 import subaraki.fashion.network.client.PacketSyncFashionToTrackedPlayers;
 
 public class PacketSyncPlayerFashionToServer implements IPacketBase {
 
-    public int[] ids;
+    public ResourceLocation[] ids;
     public boolean isActive;
     public List<String> layers = new ArrayList<String>();
 
@@ -25,7 +26,7 @@ public class PacketSyncPlayerFashionToServer implements IPacketBase {
 
     }
 
-    public PacketSyncPlayerFashionToServer(int[] ids, boolean isActive, List<String> layers) {
+    public PacketSyncPlayerFashionToServer(ResourceLocation[] ids, boolean isActive, List<String> layers) {
 
         this.ids = ids;
         this.isActive = isActive;
@@ -41,9 +42,9 @@ public class PacketSyncPlayerFashionToServer implements IPacketBase {
     @Override
     public void decode(PacketBuffer buf) {
 
-        ids = new int[6];
+        ids = new ResourceLocation[6];
         for (int slot = 0; slot < ids.length; slot++)
-            ids[slot] = buf.readInt();
+            ids[slot] = new ResourceLocation(buf.readString(256));
 
         isActive = buf.readBoolean();
 
@@ -58,8 +59,11 @@ public class PacketSyncPlayerFashionToServer implements IPacketBase {
     @Override
     public void encode(PacketBuffer buf) {
 
-        for (int i : ids)
-            buf.writeInt(i);
+        for (ResourceLocation resLoc : ids)
+            if (resLoc != null)
+                buf.writeString(resLoc.toString());
+            else
+                buf.writeString("missing");
 
         buf.writeBoolean(isActive);
 
@@ -76,32 +80,32 @@ public class PacketSyncPlayerFashionToServer implements IPacketBase {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
 
         ServerPlayerEntity player = ctx.get().getSender();
-        
 
         ctx.get().enqueueWork(() -> {
-            
+
             FashionData.get(player).ifPresent(fashion -> {
-                for (int i = 0; i < 6; i++)
-                    fashion.updatePartIndex(ids[i], EnumFashionSlot.fromInt(i));
+
+                for (EnumFashionSlot slot : EnumFashionSlot.values())
+                    fashion.updateFashionSlot(ids[slot.ordinal()], slot);
+
                 fashion.setRenderFashion(isActive);
 
                 fashion.setInWardrobe(false);
-                
+
                 fashion.keepLayersNamesForServer.clear();
-                
+
                 for (String layer : fashion.getSavedOriginalListNamesForServerSidePurposes())
                     for (String classname : layers)
                         if (layer.equals(classname))
                             fashion.keepLayersNamesForServer.add(layer);
             });
-            
 
             // Send to tracked players
 
             Object packet = new PacketSyncFashionToTrackedPlayers(ids, isActive, player.getUniqueID(), layers);
             NetworkHandler.NETWORK.send(PacketDistributor.TRACKING_ENTITY.with(() -> player), packet);
 
-            packet = new PacketSetInWardrobeToTrackedPlayers(player.getUniqueID(), false);
+            packet = new PacketSetWardrobeToTrackedClientPlayers(player.getUniqueID(), false);
             NetworkHandler.NETWORK.send(PacketDistributor.TRACKING_ENTITY.with(() -> player), packet);
         });
 
