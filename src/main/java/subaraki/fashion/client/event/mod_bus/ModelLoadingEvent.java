@@ -1,7 +1,9 @@
 package subaraki.fashion.client.event.mod_bus;
 
-import lib.modelloader.ModelHandle;
+import java.util.List;
+
 import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -18,12 +20,12 @@ public class ModelLoadingEvent {
     public static void registerItemModel(ModelRegistryEvent event) {
 
         Fashion.log.info("FIRING MODEL LOADER REGISTRY");
-        int size = ResourcePackReader.partsSize(EnumFashionSlot.WEAPON);
+        int size = ResourcePackReader.getWeaponSize();
         Fashion.log.info("MODELS TO LOAD LIST SIZE = " + size);
-        for (int i = 0; i < size; i++) {
-            if (ResourcePackReader.isItem(i)) {
-                ModelHandle handle = ResourcePackReader.getAestheticWeapon(i);
-                ModelResourceLocation modelres = new ModelResourceLocation(handle.getModel(), "inventory");
+        List<ResourceLocation> theList = ResourcePackReader.getListForSlot(EnumFashionSlot.WEAPON);
+        for (ResourceLocation resLoc : theList) {
+            if (ResourcePackReader.isItem(resLoc)) {
+                ModelResourceLocation modelres = new ModelResourceLocation(resLoc, "inventory");
                 ModelLoader.addSpecialModel(modelres);
                 Fashion.log.info(String.format("ITEM MODEL REGISTRY %s", modelres));
             }
