@@ -9,8 +9,8 @@ import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.entity.IEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
+import net.minecraft.util.ResourceLocation;
 import subaraki.fashion.capability.FashionData;
-import subaraki.fashion.client.ResourcePackReader;
 import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.model.ModelFashion;
 import subaraki.fashion.model.ModelFashionBody;
@@ -50,9 +50,12 @@ public class LayerFashion extends LayerRenderer<AbstractClientPlayerEntity, Play
 
         FashionData.get(player).ifPresent(fashionData -> {
 
-            int id = fashionData.getPartIndex(slot);
+            ResourceLocation resLoc = fashionData.getRenderingPart(slot);
 
-            this.bindTexture(ResourcePackReader.getResourceForPart(slot, id));
+            if (resLoc == null || resLoc.toString().contains("missing"))
+                return;
+            
+            this.bindTexture(resLoc);
 
             ModelFashion model = getModelFromSlot(slot, ((AbstractClientPlayerEntity) player).getSkinType().equals("slim"));
 
