@@ -55,7 +55,7 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
             boolean renderedOffHand = false;
             boolean renderedHand = false;
 
-            if (fashionData.getPartIndex(EnumFashionSlot.WEAPON) > 0) {
+            if (!fashionData.getRenderingPart(EnumFashionSlot.WEAPON).toString().contains("missing")) {
                 if (stackHeldItem.getItem() instanceof SwordItem) {
                     renderAesthetic(stackHeldItem, player, HandSide.RIGHT, fashionData, ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND,
                             EnumFashionSlot.WEAPON);
@@ -68,7 +68,7 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
                 }
             }
 
-            if (fashionData.getPartIndex(EnumFashionSlot.SHIELD) > 0) {
+            if (!fashionData.getRenderingPart(EnumFashionSlot.SHIELD).toString().contains("missing")) {
                 if (stackHeldItem.getItem() instanceof ShieldItem || stackHeldItem.getItem().getUseAction(stackHeldItem) == UseAction.BLOCK) {
                     renderAesthetic(stackHeldItem, player, HandSide.RIGHT, fashionData, cam_right, EnumFashionSlot.SHIELD);
                     renderedHand = true;
@@ -125,16 +125,16 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
         IBakedModel buffer = null;
 
         if (slot == EnumFashionSlot.WEAPON) {
-            handleModel = ResourcePackReader.getAestheticWeapon(data.getPartIndex(slot));
+            handleModel = ResourcePackReader.getAestheticWeapon(data.getRenderingPart(slot));
 
-            if (ResourcePackReader.isItem(data.getPartIndex(slot)))
+            if (ResourcePackReader.isItem(data.getRenderingPart(slot)))
                 buffer = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(handleModel.getModel(), "inventory"));
 
         } else if (slot == EnumFashionSlot.SHIELD) {
 
             if (stack.getItem() instanceof ShieldItem || stack.getItem().getUseAction(stack) == UseAction.BLOCK) {
                 boolean isBlocking = player.isHandActive() && player.getActiveItemStack() == stack;
-                handleModel = ResourcePackReader.getAestheticShield(data.getPartIndex(slot), isBlocking);
+                handleModel = ResourcePackReader.getAestheticShield(data.getRenderingPart(slot), isBlocking);
                 buffer = handleModel.get();
             }
         }
