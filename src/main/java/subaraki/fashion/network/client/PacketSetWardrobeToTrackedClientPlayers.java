@@ -11,22 +11,22 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.network.NetworkHandler;
 
-public class PacketSetInWardrobeToTrackedPlayers implements IPacketBase {
+public class PacketSetWardrobeToTrackedClientPlayers implements IPacketBase {
 
     public UUID sender;
     public boolean isInWardrobe;
 
-    public PacketSetInWardrobeToTrackedPlayers() {
+    public PacketSetWardrobeToTrackedClientPlayers() {
 
     }
 
-    public PacketSetInWardrobeToTrackedPlayers(UUID otherPlayer, boolean isInWardrobe) {
+    public PacketSetWardrobeToTrackedClientPlayers(UUID otherPlayer, boolean isInWardrobe) {
 
         this.sender = otherPlayer;
         this.isInWardrobe = isInWardrobe;
     }
 
-    public PacketSetInWardrobeToTrackedPlayers(PacketBuffer buf) {
+    public PacketSetWardrobeToTrackedClientPlayers(PacketBuffer buf) {
 
         decode(buf);
 
@@ -63,8 +63,8 @@ public class PacketSetInWardrobeToTrackedPlayers implements IPacketBase {
     @Override
     public void register(int id) {
 
-        NetworkHandler.NETWORK.registerMessage(id, PacketSetInWardrobeToTrackedPlayers.class, PacketSetInWardrobeToTrackedPlayers::encode,
-                PacketSetInWardrobeToTrackedPlayers::new, PacketSetInWardrobeToTrackedPlayers::handle);
+        NetworkHandler.NETWORK.registerMessage(id, PacketSetWardrobeToTrackedClientPlayers.class, PacketSetWardrobeToTrackedClientPlayers::encode,
+                PacketSetWardrobeToTrackedClientPlayers::new, PacketSetWardrobeToTrackedClientPlayers::handle);
     }
 
 }
