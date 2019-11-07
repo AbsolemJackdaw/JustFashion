@@ -1,11 +1,7 @@
 package subaraki.fashion.server.event.forge_bus;
 
-import java.awt.PageAttributes.OriginType;
-
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
@@ -14,6 +10,7 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.mod.Fashion;
 import subaraki.fashion.network.NetworkHandler;
+import subaraki.fashion.network.client.PacketSetWardrobeToTrackedClientPlayers;
 import subaraki.fashion.network.client.PacketSyncFashionToClient;
 import subaraki.fashion.network.client.PacketSyncFashionToTrackedPlayers;
 
@@ -76,9 +73,12 @@ public class PlayerTracker {
 
         if (!player.world.isRemote) {
             FashionData.get(player).ifPresent(data -> {
-                NetworkHandler.NETWORK.send(PacketDistributor.TRACKING_ENTITY.with(() -> player), new PacketSyncFashionToTrackedPlayers(data.getAllParts(),
+                
+                NetworkHandler.NETWORK.send(PacketDistributor.TRACKING_ENTITY.with(() -> player), new PacketSyncFashionToTrackedPlayers(data.getAllRenderedParts(),
                         data.shouldRenderFashion(), player.getUniqueID(), data.getSimpleNamesForToggledFashionLayers()));
-
+                
+                NetworkHandler.NETWORK.send(PacketDistributor.TRACKING_ENTITY.with(() -> player),
+                        new PacketSetWardrobeToTrackedClientPlayers(player.getUniqueID(), data.isInWardrobe()));
             });
         }
     }
@@ -88,7 +88,7 @@ public class PlayerTracker {
         FashionData.get(player).ifPresent(data -> {
             Fashion.log.debug(data.keepLayersNamesForServer);
             NetworkHandler.NETWORK.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
-                    new PacketSyncFashionToClient(data.getAllParts(), data.keepLayersNamesForServer, data.shouldRenderFashion()));
+                    new PacketSyncFashionToClient(data.getAllRenderedParts(), data.keepLayersNamesForServer, data.shouldRenderFashion()));
         });
     }
 }
