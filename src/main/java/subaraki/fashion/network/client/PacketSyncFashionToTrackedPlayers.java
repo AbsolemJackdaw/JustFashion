@@ -7,13 +7,14 @@ import java.util.function.Supplier;
 
 import lib.util.networking.IPacketBase;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
 import subaraki.fashion.network.ClientReferencesPacket;
 import subaraki.fashion.network.NetworkHandler;
 
 public class PacketSyncFashionToTrackedPlayers implements IPacketBase {
 
-    public int[] ids;
+    public ResourceLocation[] ids;
     public boolean isActive;
     public UUID sender;
     public List<String> layers = new ArrayList<String>();
@@ -22,7 +23,7 @@ public class PacketSyncFashionToTrackedPlayers implements IPacketBase {
 
     }
 
-    public PacketSyncFashionToTrackedPlayers(int[] ids, boolean isActive, UUID sender, List<String> layers) {
+    public PacketSyncFashionToTrackedPlayers(ResourceLocation[] ids, boolean isActive, UUID sender, List<String> layers) {
 
         this.ids = ids;
         this.sender = sender;
@@ -40,8 +41,11 @@ public class PacketSyncFashionToTrackedPlayers implements IPacketBase {
     @Override
     public void encode(PacketBuffer buf) {
 
-        for (int i : ids)
-            buf.writeInt(i);
+        for (ResourceLocation resLoc : ids)
+            if (resLoc != null)
+                buf.writeString(resLoc.toString());
+            else
+                buf.writeString("missing");
 
         buf.writeBoolean(isActive);
         buf.writeUniqueId(sender);
@@ -69,9 +73,9 @@ public class PacketSyncFashionToTrackedPlayers implements IPacketBase {
     @Override
     public void decode(PacketBuffer buf) {
 
-        ids = new int[6];
+        ids = new ResourceLocation[6];
         for (int slot = 0; slot < ids.length; slot++)
-            ids[slot] = buf.readInt();
+            ids[slot] = new ResourceLocation(buf.readString(256));
 
         isActive = buf.readBoolean();
 
