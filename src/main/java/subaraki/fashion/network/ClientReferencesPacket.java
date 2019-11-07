@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.entity.layers.ElytraLayer;
 import net.minecraft.client.renderer.entity.layers.HeadLayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.client.render.layer.LayerAestheticHeldItem;
@@ -40,15 +41,15 @@ public class ClientReferencesPacket {
         return list;
     }
 
-    public static void handle(int ids[], boolean isActive, UUID sender, List<String> layers) {
+    public static void handle(ResourceLocation ids[], boolean isActive, UUID sender, List<String> layers) {
 
         PlayerEntity distantPlayer = ClientReferences.getClientPlayerByUUID(sender);
         PlayerEntity player = ClientReferences.getClientPlayer();
 
         FashionData.get(distantPlayer).ifPresent(distFashion -> {
 
-            for (int i = 0; i < 6; i++)
-                distFashion.updatePartIndex(ids[i], EnumFashionSlot.fromInt(i));
+            for (EnumFashionSlot slot : EnumFashionSlot.values())
+                distFashion.updateFashionSlot(ids[slot.ordinal()], slot);
             distFashion.setRenderFashion(isActive);
 
             EntityRenderer<PlayerEntity> distantPlayerRenderer = ClientReferences.getRenderManager().getRenderer(distantPlayer);
