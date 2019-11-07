@@ -18,7 +18,9 @@ import net.minecraft.client.renderer.entity.layers.SpinAttackEffectLayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.LazyOptional;
+import subaraki.fashion.client.ResourcePackReader;
 import subaraki.fashion.client.render.layer.LayerWardrobe;
 import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.mod.Fashion;
@@ -30,31 +32,28 @@ public class FashionData {
     private boolean renderFashion;
     private boolean inWardrobe;
 
-    private int hatIndex;
-    private int bodyIndex;
-    private int legsIndex;
-    private int bootsIndex;
-    private int weaponIndex;
-    private int shieldIndex;
+    private ResourceLocation hatIndex, bodyIndex, legsIndex, bootsIndex, weaponIndex, shieldIndex;
 
     public static final int MOD = 1;
     public static final int VANILLA = 0;
 
+    private static final ResourceLocation MISSING_FASHION = new ResourceLocation(Fashion.MODID, "/textures/fashion/missing_fasion.png");
+
     /** Cache of original list with layers attached to the player */
     public List<LayerRenderer<?, ?>> cachedOriginalRenderList = null;
-    /** List of all fashion layers rendered, independant of original list */
+    /** List of all fashion layers rendered, independent of original list */
     public List<LayerRenderer<?, ?>> fashionLayers = Lists.newArrayList();
 
     /** all layers, both vanilla and mod */
     private List<List<LayerRenderer<?, ?>>> savedLayers = Lists.newArrayList();
 
     /**
-     * List saved with all layers' simple class name reference for server synching
+     * List saved with all layers' simple class name reference for server syncing
      * purpose
      */
     private List<String> savedOriginalListNamesForServer = Lists.newArrayList();
 
-    /** Layers that ought to be kept rendered independant from Fashion Layers */
+    /** Layers that ought to be kept rendered independent from Fashion Layers */
     public List<LayerRenderer<?, ?>> keepLayers = Lists.newArrayList();
     public List<String> keepLayersNamesForServer = Lists.newArrayList();
 
@@ -74,8 +73,7 @@ public class FashionData {
         return Lists.newArrayList();
 
     }
-    
-    
+
     public List<List<LayerRenderer<?, ?>>> getSavedLayers() {
 
         return savedLayers;
@@ -125,6 +123,7 @@ public class FashionData {
 
     public void saveVanillaListServer(List<String> original) {
 
+        savedOriginalListNamesForServer.clear();
         for (String name : original)
             savedOriginalListNamesForServer.add(name);
     }
@@ -152,12 +151,30 @@ public class FashionData {
 
         CompoundNBT tag = new CompoundNBT();
         tag.putBoolean("renderFashion", renderFashion);
-        tag.putInt("hat", hatIndex);
-        tag.putInt("body", bodyIndex);
-        tag.putInt("legs", legsIndex);
-        tag.putInt("boots", bootsIndex);
-        tag.putInt("weapon", weaponIndex);
-        tag.putInt("shield", shieldIndex);
+
+        if (hatIndex == null)
+            hatIndex = getRenderingPart(EnumFashionSlot.HEAD);
+        tag.putString("hat", hatIndex.toString());
+
+        if (bodyIndex == null)
+            bodyIndex = getRenderingPart(EnumFashionSlot.CHEST);
+        tag.putString("body", bodyIndex.toString());
+
+        if (legsIndex == null)
+            legsIndex = getRenderingPart(EnumFashionSlot.LEGS);
+        tag.putString("legs", legsIndex.toString());
+
+        if (bootsIndex == null)
+            bootsIndex = getRenderingPart(EnumFashionSlot.BOOTS);
+        tag.putString("boots", bootsIndex.toString());
+
+        if (weaponIndex == null)
+            weaponIndex = getRenderingPart(EnumFashionSlot.WEAPON);
+        tag.putString("weapon", weaponIndex.toString());
+
+        if (shieldIndex == null)
+            shieldIndex = getRenderingPart(EnumFashionSlot.SHIELD);
+        tag.putString("shield", shieldIndex.toString());
 
         if (!keepLayersNamesForServer.isEmpty()) {
             tag.putInt("size", keepLayersNamesForServer.size());
@@ -175,12 +192,14 @@ public class FashionData {
         CompoundNBT tag = ((CompoundNBT) nbt);
 
         renderFashion = tag.getBoolean("renderFashion");
-        hatIndex = tag.getInt("hat");
-        bodyIndex = tag.getInt("body");
-        legsIndex = tag.getInt("legs");
-        bootsIndex = tag.getInt("boots");
-        weaponIndex = tag.getInt("weapon");
-        shieldIndex = tag.getInt("shield");
+        hatIndex = new ResourceLocation(tag.getString("hat"));
+        bodyIndex = new ResourceLocation(tag.getString("body"));
+        legsIndex = new ResourceLocation(tag.getString("legs"));
+        bootsIndex = new ResourceLocation(tag.getString("boots"));
+        weaponIndex = new ResourceLocation(tag.getString("weapon"));
+        shieldIndex = new ResourceLocation(tag.getString("shield"));
+
+        keepLayersNamesForServer.clear();
 
         if (tag.contains("size")) {
             int size = tag.getInt("size");
@@ -225,57 +244,70 @@ public class FashionData {
      * Returns the index at which the player renders fashion at the given moment for
      * the given fashion slot enum
      */
-    public int getPartIndex(EnumFashionSlot slot) {
+    public ResourceLocation getRenderingPart(EnumFashionSlot slot) {
 
+        // try and get the first value of the needed list.
+        // when using missing fashion as a default, it will not find it on first
+        // itteration when opening a new world,
+        // and you need to press twice to start cycling the fashion
+        ResourceLocation DEFAULT = MISSING_FASHION;
+        
+        if (!ResourcePackReader.getListForSlot(slot).isEmpty())
+            if (ResourcePackReader.getListForSlot(slot).get(0) != null)
+                DEFAULT = ResourcePackReader.getListForSlot(slot).get(0);
+
+        // when a resource location is null, it has it's name set to minecraft:missing in
+        // packets. We resolve that here, and transform null / missing to default
+        boolean flag = getAllRenderedParts()[slot.ordinal()] != null && getAllRenderedParts()[slot.ordinal()].toString().contains("missing");
+
+        
         switch (slot) {
         case HEAD:
-            return hatIndex;
+            return hatIndex != null && !flag ? hatIndex : DEFAULT;
         case CHEST:
-            return bodyIndex;
+            return bodyIndex != null && !flag ? bodyIndex : DEFAULT;
         case LEGS:
-            return legsIndex;
+            return legsIndex != null && !flag ? legsIndex : DEFAULT;
         case BOOTS:
-            return bootsIndex;
+            return bootsIndex != null && !flag ? bootsIndex : DEFAULT;
         case WEAPON:
-            return weaponIndex;
+            return weaponIndex != null && !flag ? weaponIndex : DEFAULT;
         case SHIELD:
-            return shieldIndex;
-
-        default:
-            return 0;
+            return shieldIndex != null && !flag ? shieldIndex : DEFAULT;
         }
+        return DEFAULT;
     }
 
     /**
      * Returns the index for all fashion parts currently rendered on the player.
      * This is mainly used in saving data and passing data trough packets
      */
-    public int[] getAllParts() {
+    public ResourceLocation[] getAllRenderedParts() {
 
-        return new int[] { hatIndex, bodyIndex, legsIndex, bootsIndex, weaponIndex, shieldIndex };
+        return new ResourceLocation[] { hatIndex, bodyIndex, legsIndex, bootsIndex, weaponIndex, shieldIndex };
     }
 
     /** Change the index for the given fashion slot to a new index */
-    public void updatePartIndex(int id, EnumFashionSlot slot) {
+    public void updateFashionSlot(ResourceLocation partname, EnumFashionSlot slot) {
 
         switch (slot) {
         case HEAD:
-            hatIndex = id;
+            hatIndex = partname;
             break;
         case CHEST:
-            bodyIndex = id;
+            bodyIndex = partname;
             break;
         case LEGS:
-            legsIndex = id;
+            legsIndex = partname;
             break;
         case BOOTS:
-            bootsIndex = id;
+            bootsIndex = partname;
             break;
         case WEAPON:
-            weaponIndex = id;
+            weaponIndex = partname;
             break;
         case SHIELD:
-            shieldIndex = id;
+            shieldIndex = partname;
             break;
 
         default:
