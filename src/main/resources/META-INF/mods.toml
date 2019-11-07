@@ -11,7 +11,7 @@ logoFile="banner.png" #optional
 
 modId="fashion" #mandatory
 
-version="2.2.0.1" #mandatory
+version="2.3.0.0" #mandatory
 
 displayName="Fashion Mod" #mandatory
 
