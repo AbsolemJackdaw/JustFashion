@@ -1,5 +1,7 @@
 package subaraki.fashion.screen;
 
+import java.util.Arrays;
+
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 
@@ -11,14 +13,9 @@ import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.HoverEvent;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.client.ResourcePackReader;
@@ -42,8 +39,6 @@ public class WardrobeScreen extends Screen {
 
     private PlayerEntity player = ClientReferences.getClientPlayer();
 
-    private String onScreenButtonText[] = new String[] { "hats", "body", "pants", "boots", "weapon", "shield" };
-
     public WardrobeScreen() {
 
         super(new StringTextComponent("fashion.wardrobe"));
@@ -55,31 +50,16 @@ public class WardrobeScreen extends Screen {
         this.guiLeft = (this.width - this.xSize) / 2;
         this.guiTop = (this.height - this.ySize) / 2;
 
+        Arrays.stream(EnumFashionSlot.values()).forEach(t -> {
+            addSlotButton(t);
+            addSlotButton(t);
+        });
+        
+        id = 0; //reset id to 0 in case of resizing ! else it will add up and up and offset y to infinity
+
         DrawEntityOnScreen.drawEntityOnScreen(guiLeft + 33, guiTop + 65, 25, -(guiLeft - 70 - oldMouseX) / 2.5f, guiTop + 40 - oldMouseY, this.minecraft.player,
                 135.0F, 25.0f, true); // TODO hacky way of letting vanilla layers show up on first opening of gui
         // FIXME
-
-        super.init();
-
-        // list of button id's for fashion hat to feet
-        // ids 0-8
-        for (int i = 0; i < 8; i++) {
-            int x = guiLeft + 105 + (i % 2 == 0 ? 0 : 55);
-            int y = guiTop + 10 + (i / 2 * 15);
-            final int id = i;
-
-            this.addButton(new Button(x, y, 10, 10, i % 2 == 0 ? "<" : ">", c -> cycle(id)));
-        }
-
-        // list of button id's for shield and sword
-        // ids 8-12
-        for (int i = 8; i < 12; i++) {
-            int x = guiLeft + 105 + (i % 2 == 0 ? 0 : 55);
-            int y = guiTop + 45 + ((i - 4) / 2 * 15);
-            final int id = i;
-
-            this.addButton(new Button(x, y, 10, 10, (i % 2 == 0 ? "<" : ">"), c -> cycle(id)));
-        }
 
         FashionData.get(player).ifPresent(fashion -> {
 
@@ -97,8 +77,23 @@ public class WardrobeScreen extends Screen {
             // toggle button, with the explicit press ID of 12 (could be anything at this
             // point, it's an artifact for pre 1.14
             this.addButton(new FancyButton(guiLeft + 8, guiTop + ySize / 2 + 14, c -> pressToggle((FancyButton) c)).setActive(fashion.shouldRenderFashion()));
+
         });
 
+    }
+
+    private int id = 0;
+
+    private void addSlotButton(EnumFashionSlot slot) {
+
+        int offset = 0;
+        if (slot.ordinal() > 3)
+            offset = 10;
+
+        boolean back = id % 2 == 0;
+        this.addButton(new Button(guiLeft + 105 + (back ? 0 : 55), guiTop + 10 + offset + (id / 2 * 15), 10, 10, back ? "<" : ">",
+                c -> cycle(back, slot)));
+        id++;
     }
 
     @Override
@@ -118,8 +113,6 @@ public class WardrobeScreen extends Screen {
         GlStateManager.translatef((float) i, (float) j, 0.0F);
         GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.enableRescaleNormal();
-        int k = 240;
-        int l = 240;
         GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, 240.0F, 240.0F);
         GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -138,7 +131,6 @@ public class WardrobeScreen extends Screen {
 
         this.getMinecraft().getTextureManager().bindTexture(BACKGROUND);
 
-        // this.zLevel = 0;
         blit(guiLeft + 14, guiTop + 7, xSize, 0, 38, 62);
 
         GlStateManager.pushMatrix();
@@ -154,7 +146,6 @@ public class WardrobeScreen extends Screen {
         });
         GlStateManager.popMatrix();
 
-        // this.zLevel = 90;
         GlStateManager.enableBlend();
         GlStateManager.enableAlphaTest();
         this.minecraft.getTextureManager().bindTexture(BACKGROUND);
@@ -162,40 +153,16 @@ public class WardrobeScreen extends Screen {
         GlStateManager.disableAlphaTest();
         GlStateManager.disableBlend();
 
-        // this.zLevel = 0;
     }
 
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 
         // super.drawGuiContainerForegroundLayer(mouseX, mouseY);
         FashionData.get(player).ifPresent(fashion -> {
-            for (int i = 0; i < this.onScreenButtonText.length - 2; i++) {
-                EnumFashionSlot slot = EnumFashionSlot.fromInt(i);
 
-                ResourceLocation resLoc = ResourcePackReader.getResourceForPart(slot, fashion.getPartIndex(slot));
-                String[] s = null;
-                String name = null;
-
-                try {
-                    s = resLoc.getPath().split("/");
-                    name = s[s.length - 1].split("\\.")[0];
-                } catch (NullPointerException e) {
-
-                }
-
-                if (name == null)
-                    name = "errored";
-
-                if (name.contains("blank") || name.contains("missing"))
-                    name = "N/A";
-
-                minecraft.fontRenderer.drawString(name, 138 - minecraft.fontRenderer.getStringWidth(name) / 2, ((i + 1) * 15) - 3, 0xffffff);
-
-            }
-
-            for (int i = 4; i < 6; i++) {
-                EnumFashionSlot slot = EnumFashionSlot.fromInt(i);
-                ResourceLocation resLoc = ResourcePackReader.getResourceForPart(slot, fashion.getPartIndex(slot));
+            int id = 0;
+            for (EnumFashionSlot slot : EnumFashionSlot.values()) {
+                ResourceLocation resLoc = fashion.getRenderingPart(slot);
                 String[] s = null;
                 String name = null;
 
@@ -212,14 +179,14 @@ public class WardrobeScreen extends Screen {
                 if (name.contains("blank") || name.contains("missing"))
                     name = "N/A";
 
-                minecraft.fontRenderer.drawString(name, 138 - minecraft.fontRenderer.getStringWidth(name) / 2, 31 + ((i + 1) * 15) - 29, 0xffffff);
+                int offset = 0;
+                if (id > 3)
+                    offset = 10;
+                minecraft.fontRenderer.drawString(name, 138 - minecraft.fontRenderer.getStringWidth(name) / 2, ((id++ + 1) * 15) - 3 + offset, 0xffffff);
             }
 
             String toggled = fashion.shouldRenderFashion() ? "Showing Fashion" : "Showing Armor";
-            minecraft.fontRenderer.drawString(toggled, xSize / 2 - 68, ySize / 2 + 14, 0xffffff); // TODO used to be
-                                                                                                  // a
-            // boolean here for
-            // shadow drawing
+            minecraft.fontRenderer.drawString(toggled, xSize / 2 - 68, ySize / 2 + 14, 0xffffff);
 
             // tracking player view !!
             this.oldMouseX = (float) mouseX;
@@ -252,8 +219,8 @@ public class WardrobeScreen extends Screen {
 
         FashionData.get(player).ifPresent(fashion -> {
 
-            NetworkHandler.NETWORK.sendToServer(
-                    new PacketSyncPlayerFashionToServer(fashion.getAllParts(), fashion.shouldRenderFashion(), fashion.getSimpleNamesForToggledFashionLayers()));
+            NetworkHandler.NETWORK.sendToServer(new PacketSyncPlayerFashionToServer(fashion.getAllRenderedParts(), fashion.shouldRenderFashion(),
+                    fashion.getSimpleNamesForToggledFashionLayers()));
 
             fashion.setInWardrobe(false);
         });
@@ -278,28 +245,15 @@ public class WardrobeScreen extends Screen {
     ///////////////
     ////////////////
 
-    private void cycle(int Id) {
+    private void cycle(boolean back, EnumFashionSlot slot) {
 
         FashionData.get(player).ifPresent(fashion -> {
-            if (fashion.shouldRenderFashion() && Id < 12) {
-                int slot = (Id) / 2;
-                int id = fashion.getPartIndex(EnumFashionSlot.fromInt(slot));
+            if (fashion.shouldRenderFashion()) {
 
-                if (Id % 2 == 0)
-                    id--;
-                else
-                    id++;
-                if (id >= ResourcePackReader.partsSize(EnumFashionSlot.fromInt(slot)))
-                    id = 0;
-                if (id < 0)
-                    id = ResourcePackReader.partsSize(EnumFashionSlot.fromInt(slot)) - 1;
+                ResourceLocation name = fashion.getRenderingPart(slot);
+                ResourceLocation newPart = back ? ResourcePackReader.getPreviousClothes(slot, name) : ResourcePackReader.getNextClothes(slot, name);
 
-                // small fix for when no parts are present or loaded to prevent complaining
-                // about -1
-                if (id < 0)
-                    id = 0;
-
-                fashion.updatePartIndex(id, EnumFashionSlot.fromInt(slot));
+                fashion.updateFashionSlot(newPart, slot);
             }
         });
 
