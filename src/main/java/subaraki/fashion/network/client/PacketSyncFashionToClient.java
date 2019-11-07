@@ -8,6 +8,7 @@ import lib.util.ClientReferences;
 import lib.util.networking.IPacketBase;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.mod.EnumFashionSlot;
@@ -15,7 +16,7 @@ import subaraki.fashion.network.NetworkHandler;
 
 public class PacketSyncFashionToClient implements IPacketBase {
 
-    public int[] ids = new int[6];
+    public ResourceLocation[] ids = new ResourceLocation[6];
     public boolean isActive;
     public List<String> toKeep = new ArrayList<String>();
 
@@ -23,7 +24,7 @@ public class PacketSyncFashionToClient implements IPacketBase {
 
     }
 
-    public PacketSyncFashionToClient(int[] ids, List<String> keepLayers, boolean isActive) {
+    public PacketSyncFashionToClient(ResourceLocation[] ids, List<String> keepLayers, boolean isActive) {
 
         this.ids = ids;
         this.isActive = isActive;
@@ -40,9 +41,9 @@ public class PacketSyncFashionToClient implements IPacketBase {
 
         isActive = buf.readBoolean();
 
-        ids = new int[6];
+        ids = new ResourceLocation[6];
         for (int slot = 0; slot < ids.length; slot++)
-            ids[slot] = buf.readInt();
+            ids[slot] = new ResourceLocation(buf.readString(256));
 
         int size = buf.readInt();
 
@@ -56,8 +57,11 @@ public class PacketSyncFashionToClient implements IPacketBase {
 
         buf.writeBoolean(isActive);
 
-        for (int i : ids)
-            buf.writeInt(i);
+        for (ResourceLocation resLoc : ids)
+            if (resLoc != null)
+                buf.writeString(resLoc.toString());
+            else
+                buf.writeString("missing");
 
         buf.writeInt(toKeep.size());
 
@@ -74,8 +78,8 @@ public class PacketSyncFashionToClient implements IPacketBase {
 
             FashionData.get(ClientReferences.getClientPlayer()).ifPresent(data -> {
 
-                for (int slot = 0; slot < 6; slot++)
-                    data.updatePartIndex(ids[slot], EnumFashionSlot.fromInt(slot));
+                for (EnumFashionSlot slot : EnumFashionSlot.values())
+                    data.updateFashionSlot(ids[slot.ordinal()], slot);
 
                 data.setRenderFashion(isActive);
 
