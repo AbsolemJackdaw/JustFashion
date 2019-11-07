@@ -60,8 +60,6 @@ public class ResourcePackReader {
     private static List<ModelHandle> shields = Lists.<ModelHandle>newArrayList();
     private static List<ModelHandle> shieldsBlocking = Lists.<ModelHandle>newArrayList();
 
-    private static final ResourceLocation MISSING_FASHION = new ResourceLocation(Fashion.MODID, "/textures/fashion/missing_fasion.png");
-
     public void loadFashionPacks() {
 
         hats.clear();
@@ -151,32 +149,42 @@ public class ResourcePackReader {
         shieldTextures.add(resLoc);
     }
 
-    public static ModelHandle getAestheticWeapon(int index) {
+    public static ModelHandle getAestheticWeapon(ResourceLocation resloc) {
 
-        if (index < weapons.size())
-            return (ModelHandle) weapons.keySet().toArray()[index];
+        for (ModelHandle handle : weapons.keySet()) {
+            if (handle != null)
+                if (handle.getModel().equals(resloc))
+                    return handle;
+        }
 
         return rod;
     }
 
-    public static boolean isItem(int index) {
+    public static boolean isItem(ResourceLocation resloc) {
 
-        if (index < weapons.size()) {
-            boolean flag = (boolean) weapons.values().toArray()[index];
-            return flag;
+        for (ModelHandle handle : weapons.keySet()) {
+            if (handle != null)
+                if (handle.getModel().equals(resloc))
+                    return weapons.get(handle);
         }
 
         return false;
     }
 
-    public static ModelHandle getAestheticShield(int index, boolean isBlocking) {
+    public static ModelHandle getAestheticShield(ResourceLocation resloc, boolean isBlocking) {
 
         if (!isBlocking) {
-            if (index < shields.size())
-                return shields.get(index);
+            for (ModelHandle handle : shields) {
+                if (handle != null)
+                    if (handle.getModel().equals(resloc))
+                        return handle;
+            }
         } else {
-            if (index < shieldsBlocking.size())
-                return shieldsBlocking.get(index);
+            for (ModelHandle handle : shieldsBlocking) {
+                if (handle != null)
+                    if (handle.getModel().equals(resloc))
+                        return handle;
+            }
         }
 
         return rod;
@@ -288,26 +296,88 @@ public class ResourcePackReader {
         }
     }
 
-    public static ResourceLocation getResourceForPart(EnumFashionSlot slot, int partIndex) {
+    public static ResourceLocation getNextClothes(EnumFashionSlot slot, ResourceLocation part_name) {
+
+        List<ResourceLocation> resLocs = getListForSlot(slot);
+        int index = 0;
+
+        for (ResourceLocation name : resLocs) {
+            if (name.equals(part_name))
+                break; // break out of loop. index saved is the next one.
+            index++;
+        }
+
+        if (index < resLocs.size() - 1) // if the id is smaller then the size of the array, we can get the next item
+            return resLocs.get(++index);
+        else
+            return resLocs.get(0); // if the id is equal or bigger then the size (equal is more anyway) we need to
+                                   // loop back to the first item
+    }
+
+    public static ResourceLocation getPreviousClothes(EnumFashionSlot slot, ResourceLocation part_name) {
+
+        List<ResourceLocation> resLocs = getListForSlot(slot);
+        int index = 0;
+
+        for (ResourceLocation name : resLocs) {
+            if (name.equals(part_name))
+                break; // break out of loop. index saved is the next one.
+            index++;
+        }
+        if (index > 0) // if the id is smaller then the size of the array, we can get the next item
+            return resLocs.get(--index);
+        else
+            return resLocs.get(resLocs.size() - 1); // if the id is equal or bigger then the size (equal is more anyway) we need to
+        // loop back to the first item
+    }
+
+    public static List<ResourceLocation> getListForSlot(EnumFashionSlot slot) {
 
         switch (slot) {
         case HEAD:
-            return partIndex >= hats.size() ? MISSING_FASHION : hats.get(partIndex);
+            return hats;
         case CHEST:
-            return partIndex >= body.size() ? MISSING_FASHION : body.get(partIndex);
+            return body;
         case LEGS:
-            return partIndex >= legs.size() ? MISSING_FASHION : legs.get(partIndex);
+            return legs;
         case BOOTS:
-            return partIndex >= boots.size() ? MISSING_FASHION : boots.get(partIndex);
-        case WEAPON: {
-            ModelHandle handle = ((ModelHandle) weapons.keySet().toArray()[partIndex]);
-            return partIndex < weapons.keySet().size() && handle != null ? handle.getModel() : MISSING_FASHION;
-        }
+            return boots;
+        case WEAPON:
+            return toArrayList(slot);
         case SHIELD:
-            return partIndex >= shieldTextures.size() ? MISSING_FASHION : shieldTextures.get(partIndex);
+            return toArrayList(slot);
         default:
-            return MISSING_FASHION;
+            return Lists.newArrayList();
         }
+    }
+
+    private static List<ResourceLocation> toArrayList(EnumFashionSlot slot) {
+
+        List<ResourceLocation> resLoc = Lists.newArrayList();
+
+        switch (slot) {
+        case WEAPON: {
+
+            for (ModelHandle handle : weapons.keySet())
+                if (handle != null)
+                    resLoc.add(handle.getModel());
+                else
+                    resLoc.add(new ResourceLocation("missing"));
+            break;
+        }
+        case SHIELD: {
+            for (ModelHandle handle : shields)
+                if (handle != null)
+                    resLoc.add(handle.getModel());
+                else
+                    resLoc.add(new ResourceLocation("missing"));
+            break;
+        }
+        default:
+            break;
+        }
+
+        return resLoc;
     }
 
     public static List<ResourceLocation> getTexturesForStitcher(EnumFashionSlot slot) {
@@ -324,23 +394,8 @@ public class ResourcePackReader {
         }
     }
 
-    public static int partsSize(EnumFashionSlot slot) {
+    public static int getWeaponSize() {
 
-        switch (slot) {
-        case HEAD:
-            return hats.size();
-        case CHEST:
-            return body.size();
-        case LEGS:
-            return legs.size();
-        case BOOTS:
-            return boots.size();
-        case WEAPON:
-            return weapons.keySet().size();
-        case SHIELD:
-            return shields.size();
-        default:
-            return 0;
-        }
+        return weapons.size();
     }
 }
