@@ -4,15 +4,18 @@ public enum EnumFashionSlot {
 
     HEAD, CHEST, LEGS, BOOTS, WEAPON, SHIELD;
 
-    public static EnumFashionSlot fromInt(int id) {
+    public static enum EnumFashionSlotTypes {
+        CLOTHES(new EnumFashionSlot[] { EnumFashionSlot.HEAD, EnumFashionSlot.CHEST, EnumFashionSlot.LEGS, EnumFashionSlot.BOOTS }),
+        INHANDS(new EnumFashionSlot[] { EnumFashionSlot.WEAPON, EnumFashionSlot.SHIELD});
 
-        for (EnumFashionSlot SLOT : EnumFashionSlot.values()) {
-            if (SLOT.ordinal() == id)
-                return SLOT;
+        private EnumFashionSlot[] list;
+        private EnumFashionSlotTypes(EnumFashionSlot[] slots) {
+            this.list = slots;
         }
-
-        Fashion.log.error("Resorted to Default HEAD for fashion slot lookup. This is an error and should not happen. ");
-
-        return HEAD;
+        
+        public EnumFashionSlot[] get()
+        {
+            return list;
+        }
     }
 }
