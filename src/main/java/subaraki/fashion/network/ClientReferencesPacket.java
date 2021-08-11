@@ -52,8 +52,8 @@ public class ClientReferencesPacket {
                 distFashion.updateFashionSlot(ids[slot.ordinal()], slot);
             distFashion.setRenderFashion(isActive);
 
-            EntityRenderer<PlayerEntity> distantPlayerRenderer = ClientReferences.getRenderManager().getRenderer(distantPlayer);
-            EntityRenderer<PlayerEntity> playerRenderer = ClientReferences.getRenderManager().getRenderer(player);
+            EntityRenderer<? super PlayerEntity> distantPlayerRenderer = ClientReferences.getRenderManager().getRenderer(distantPlayer);
+            EntityRenderer<? super PlayerEntity> playerRenderer = ClientReferences.getRenderManager().getRenderer(player);
 
             Field field = null;
             Object ob = null;

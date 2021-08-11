@@ -1,6 +1,8 @@
 package subaraki.fashion.model;
 
-public class ModelFashionHead extends ModelFashion {
+import net.minecraft.entity.LivingEntity;
+
+public class ModelFashionHead<T extends LivingEntity> extends ModelFashion<T> {
 
     public ModelFashionHead(float modelSize) {
 

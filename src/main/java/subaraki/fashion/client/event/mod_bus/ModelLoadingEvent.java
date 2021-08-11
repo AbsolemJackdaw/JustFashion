@@ -2,7 +2,8 @@ package subaraki.fashion.client.event.mod_bus;
 
 import java.util.List;
 
-import net.minecraft.client.renderer.model.ModelResourceLocation;
+import com.google.common.collect.Lists;
+
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -17,17 +18,40 @@ import subaraki.fashion.mod.Fashion;
 public class ModelLoadingEvent {
 
     @SubscribeEvent
-    public static void registerItemModel(ModelRegistryEvent event) {
+    public static void registerItemModel(ModelRegistryEvent event)
+    {
 
-        Fashion.log.info("FIRING MODEL LOADER REGISTRY");
-        int size = ResourcePackReader.getWeaponSize();
-        Fashion.log.info("MODELS TO LOAD LIST SIZE = " + size);
-        List<ResourceLocation> theList = ResourcePackReader.getListForSlot(EnumFashionSlot.WEAPON);
-        for (ResourceLocation resLoc : theList) {
-            if (ResourcePackReader.isItem(resLoc)) {
-                ModelResourceLocation modelres = new ModelResourceLocation(resLoc, "inventory");
-                ModelLoader.addSpecialModel(modelres);
-                Fashion.log.info(String.format("ITEM MODEL REGISTRY %s", modelres));
+        new ResourcePackReader();
+
+        ResourceLocation wardrobe = new ResourceLocation("fashion:wardrobe");
+        ModelLoader.addSpecialModel(wardrobe);
+
+        Fashion.log.debug("Firing Model Registry Event");
+        int size_weapons = ResourcePackReader.getWeaponSize();
+        int size_shields = ResourcePackReader.getShieldSize();
+
+        Fashion.log.debug("Weapons to load : " + size_weapons);
+        Fashion.log.debug("Shields to load : " + size_shields);
+
+        List<ResourceLocation> theList = Lists.newArrayList();
+
+        theList = ResourcePackReader.getListForSlot(EnumFashionSlot.WEAPON);
+        for (ResourceLocation resLoc : theList)
+        {
+
+            Fashion.log.debug(String.format("Weapon Registry %s", resLoc));
+            ModelLoader.addSpecialModel(resLoc);
+        }
+
+        theList = ResourcePackReader.getListForSlot(EnumFashionSlot.SHIELD);
+        for (ResourceLocation resLoc : theList)
+        {
+            Fashion.log.debug(String.format("ShieldRegistry %s", resLoc));
+
+            for(int i = 0; i < 2; i++)
+            {
+             boolean blocking = i == 0;
+                ModelLoader.addSpecialModel(ResourcePackReader.getAestheticShield(resLoc, blocking));
             }
         }
     }

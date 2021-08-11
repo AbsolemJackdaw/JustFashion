@@ -2,8 +2,8 @@ package subaraki.fashion.screen;
 
 import java.util.Arrays;
 
-import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import lib.util.ClientReferences;
 import lib.util.DrawEntityOnScreen;
@@ -20,6 +20,7 @@ import net.minecraft.util.text.event.HoverEvent;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.client.ResourcePackReader;
 import subaraki.fashion.client.event.forge_bus.KeyRegistry;
+import subaraki.fashion.mod.ConfigData;
 import subaraki.fashion.mod.EnumFashionSlot;
 import subaraki.fashion.mod.Fashion;
 import subaraki.fashion.network.NetworkHandler;
@@ -45,7 +46,8 @@ public class WardrobeScreen extends Screen {
     }
 
     @Override
-    protected void init() {
+    protected void init()
+    {
 
         this.guiLeft = (this.width - this.xSize) / 2;
         this.guiTop = (this.height - this.ySize) / 2;
@@ -54,11 +56,12 @@ public class WardrobeScreen extends Screen {
             addSlotButton(t);
             addSlotButton(t);
         });
-        
-        id = 0; //reset id to 0 in case of resizing ! else it will add up and up and offset y to infinity
 
-        DrawEntityOnScreen.drawEntityOnScreen(guiLeft + 33, guiTop + 65, 25, -(guiLeft - 70 - oldMouseX) / 2.5f, guiTop + 40 - oldMouseY, this.minecraft.player,
-                135.0F, 25.0f, true); // TODO hacky way of letting vanilla layers show up on first opening of gui
+        id = 0; // reset id to 0 in case of resizing ! else it will add up and up and offset y
+                // to infinity
+
+        DrawEntityOnScreen.drawEntityOnScreen(new MatrixStack(), guiLeft + 33, guiTop + 65, 25, -(guiLeft - 70 - oldMouseX) / 2.5f, guiTop + 40 - oldMouseY,
+                this.minecraft.player, 135.0F, 25.0f, true); // TODO hacky way of letting vanilla layers show up on first opening of gui
         // FIXME
 
         FashionData.get(player).ifPresent(fashion -> {
@@ -66,7 +69,8 @@ public class WardrobeScreen extends Screen {
             // toggle buttons for each render layer that exists in the game for players,
             // both from mods and vanilla
             if (!fashion.getModLayersList().isEmpty())
-                for (int i = 0; i < fashion.getModLayersList().size(); i++) {
+                for (int i = 0; i < fashion.getModLayersList().size(); i++)
+                {
                     final int index = i;
                     LayerRenderer<?, ?> layer = fashion.getModLayersList().get(index);
 
@@ -84,92 +88,115 @@ public class WardrobeScreen extends Screen {
 
     private int id = 0;
 
-    private void addSlotButton(EnumFashionSlot slot) {
+    private void addSlotButton(EnumFashionSlot slot)
+    {
 
         int offset = 0;
         if (slot.ordinal() > 3)
             offset = 10;
 
         boolean back = id % 2 == 0;
-        this.addButton(new Button(guiLeft + 105 + (back ? 0 : 55), guiTop + 10 + offset + (id / 2 * 15), 10, 10, back ? "<" : ">",
-                c -> cycle(back, slot)));
+        Button b = new Button(guiLeft + 105 + (back ? 0 : 55), guiTop + 10 + offset + (id / 2 * 15), 10, 10, new StringTextComponent(back ? "<" : ">"),
+                c -> cycle(back, slot));
+        this.addButton(b);
         id++;
     }
 
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks) {
+    public void render(MatrixStack mat, int mouseX, int mouseY, float partialTicks)
+    {
 
-        int i = this.guiLeft;
-        int j = this.guiTop;
-        this.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
+        this.drawGuiContainerBackgroundLayer(mat, partialTicks, mouseX, mouseY);
 
-        GlStateManager.disableRescaleNormal();
+        RenderSystem.disableRescaleNormal();
         RenderHelper.disableStandardItemLighting();
-        GlStateManager.disableLighting();
-        GlStateManager.disableDepthTest();
-        super.render(mouseX, mouseY, partialTicks);
-        RenderHelper.enableGUIStandardItemLighting();
-        GlStateManager.pushMatrix();
-        GlStateManager.translatef((float) i, (float) j, 0.0F);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.enableRescaleNormal();
-        GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, 240.0F, 240.0F);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.disableLighting();
+        RenderSystem.disableDepthTest();
+        super.render(mat, mouseX, mouseY, partialTicks);
+
+        RenderHelper.enableStandardItemLighting();
+
+        mat.push();
+        // RenderSystem.translatef((float) i, (float) j, 0.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.enableRescaleNormal();
+        // GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, 240.0F, 240.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         RenderHelper.disableStandardItemLighting();
-        this.drawGuiContainerForegroundLayer(mouseX, mouseY);
-        RenderHelper.enableGUIStandardItemLighting();
+        this.drawGuiContainerForegroundLayer(mat, mouseX, mouseY);
+        RenderHelper.enableStandardItemLighting();
 
-        GlStateManager.popMatrix();
-        GlStateManager.enableLighting();
-        GlStateManager.enableDepthTest();
+        mat.pop();
+        RenderHelper.enableStandardItemLighting();
+
+        RenderSystem.enableLighting();
+        RenderSystem.enableDepthTest();
         RenderHelper.enableStandardItemLighting();
 
     }
 
-    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+    protected void drawGuiContainerBackgroundLayer(MatrixStack mat, float partialTicks, int mouseX, int mouseY)
+    {
 
         this.getMinecraft().getTextureManager().bindTexture(BACKGROUND);
 
-        blit(guiLeft + 14, guiTop + 7, xSize, 0, 38, 62);
+        blit(mat, guiLeft + 14, guiTop + 7, xSize, 0, 38, 62);
 
-        GlStateManager.pushMatrix();
         FashionData.get(player).ifPresent(fashion -> {
             fashion.setInWardrobe(false); // disable for in gui rendering
         });
-        DrawEntityOnScreen.drawEntityOnScreen(guiLeft + 33, guiTop + 65, 25, -(guiLeft - 70 - oldMouseX) / 2.5f, guiTop + 40 - oldMouseY, this.minecraft.player,
-                135.0F, 25.0f, true);
-        DrawEntityOnScreen.drawEntityOnScreen(guiLeft + 68, guiTop + 82, 30, -(guiLeft + 70 - oldMouseX) / 2.5f, guiTop + 40 - oldMouseY, this.minecraft.player,
-                -45.0f, 150.0f, false);
+        mat.push();
+
+        float rotationMirror_back = ConfigData.face_mirror ? 30.0F : -150F;
+        float rotationMirron_front = ConfigData.face_mirror ? -150.0F : 30F;
+
+        float flip_mouse = ConfigData.face_mirror ? -1f : 1f;
+
+        float scale = ConfigData.bigger_model ? 1.3f : 1.1f;
+
+        int offset_big_model = (ConfigData.bigger_model ? 5 : 0);
+
+        DrawEntityOnScreen.drawEntityOnScreen(mat, guiLeft + 33, guiTop + 65 + offset_big_model, (int) (25f * scale),
+                ((guiLeft + 70 - oldMouseX) / 2.5f) * -flip_mouse, guiTop + 40 - oldMouseY, this.minecraft.player, rotationMirror_back, 0.0f, false);
+
+        RenderSystem.enableBlend();
+        RenderSystem.enableAlphaTest();
+        this.minecraft.getTextureManager().bindTexture(BACKGROUND);
+        blit(mat, guiLeft, guiTop, 0, 0, xSize, ySize);
+        RenderSystem.disableAlphaTest();
+        RenderSystem.disableBlend();
+
+        DrawEntityOnScreen.drawEntityOnScreen(mat, (int) ((guiLeft + 68f)), (int) ((guiTop + 82f)), (int) (30f * scale),
+                ((guiLeft + 70 - oldMouseX) / 2.5f) * flip_mouse, guiTop + 40 - oldMouseY, this.minecraft.player, rotationMirron_front, 0.0f, false);
+
+        mat.pop();
+
         FashionData.get(player).ifPresent(fashion -> {
             fashion.setInWardrobe(true);// set back after drawn for in world rendering
         });
-        GlStateManager.popMatrix();
-
-        GlStateManager.enableBlend();
-        GlStateManager.enableAlphaTest();
-        this.minecraft.getTextureManager().bindTexture(BACKGROUND);
-        blit(guiLeft, guiTop, 0, 0, xSize, ySize);
-        GlStateManager.disableAlphaTest();
-        GlStateManager.disableBlend();
-
     }
 
-    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+    protected void drawGuiContainerForegroundLayer(MatrixStack mat, int mouseX, int mouseY)
+    {
 
         // super.drawGuiContainerForegroundLayer(mouseX, mouseY);
         FashionData.get(player).ifPresent(fashion -> {
 
             int id = 0;
-            for (EnumFashionSlot slot : EnumFashionSlot.values()) {
+            for (EnumFashionSlot slot : EnumFashionSlot.values())
+            {
                 ResourceLocation resLoc = fashion.getRenderingPart(slot);
                 String[] s = null;
                 String name = null;
 
-                try {
+                try
+                {
                     s = resLoc.getPath().split("/");
                     name = s[s.length - 1].split("\\.")[0];
-                } catch (NullPointerException e) {
+                }
+                catch (NullPointerException e)
+                {
 
                 }
 
@@ -182,23 +209,27 @@ public class WardrobeScreen extends Screen {
                 int offset = 0;
                 if (id > 3)
                     offset = 10;
-                minecraft.fontRenderer.drawString(name, 138 - minecraft.fontRenderer.getStringWidth(name) / 2, ((id++ + 1) * 15) - 3 + offset, 0xffffff);
+                minecraft.fontRenderer.drawString(mat, name, guiLeft + 138 - minecraft.fontRenderer.getStringWidth(name) / 2,
+                        guiTop + ((id++ + 1) * 15) - 3 + offset, 0xffffff);
             }
 
             String toggled = fashion.shouldRenderFashion() ? "Showing Fashion" : "Showing Armor";
-            minecraft.fontRenderer.drawString(toggled, xSize / 2 - 68, ySize / 2 + 14, 0xffffff);
+            minecraft.fontRenderer.drawString(mat, toggled, guiLeft + xSize / 2 - 68, guiTop + ySize / 2 + 14, 0xffffff);
 
             // tracking player view !!
             this.oldMouseX = (float) mouseX;
             this.oldMouseY = Math.min((float) mouseY, guiTop + 50);
 
-            for (Widget guiButton : buttons) {
-                if (guiButton instanceof FancyButton) {
+            for (Widget guiButton : buttons)
+            {
+                if (guiButton instanceof FancyButton)
+                {
                     FancyButton gfb = (FancyButton) guiButton;
-                    if (gfb.isMouseOver(mouseX, mouseY) && !gfb.isSwitch()) {
+                    if (gfb.isMouseOver(mouseX, mouseY) && !gfb.isSwitch())
+                    {
                         HoverEvent hover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent(gfb.name));
-                        Style style = new Style().setHoverEvent(hover);
-                        this.renderComponentHoverEffect(hover.getValue().setStyle(style), mouseX - guiLeft, mouseY - guiTop);
+                        Style style = Style.EMPTY.setHoverEvent(hover);
+                        this.renderComponentHoverEffect(mat, style, mouseX, mouseY);
                     }
                 }
             }
@@ -207,15 +238,18 @@ public class WardrobeScreen extends Screen {
     }
 
     @Override
-    public boolean shouldCloseOnEsc() {
+    public boolean shouldCloseOnEsc()
+    {
 
         return true; // needed to trigger onClose and packets on pressing escape button
     }
 
     // called whenever a screen is closed, by player or by opening another screen or
     // trough force (to far away)
+
     @Override
-    public void removed() {
+    public void onClose()
+    {
 
         FashionData.get(player).ifPresent(fashion -> {
 
@@ -230,9 +264,11 @@ public class WardrobeScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int keysym, int scancode, int p_keyPressed_3_) {
+    public boolean keyPressed(int keysym, int scancode, int p_keyPressed_3_)
+    {
 
-        if (KeyRegistry.keyWardrobe.getKeyBinding().matchesKey(keysym, scancode)) {
+        if (KeyRegistry.keyWardrobe.getKeyBinding().matchesKey(keysym, scancode))
+        {
             this.minecraft.player.closeScreen();
             return true;
         }
@@ -245,10 +281,12 @@ public class WardrobeScreen extends Screen {
     ///////////////
     ////////////////
 
-    private void cycle(boolean back, EnumFashionSlot slot) {
+    private void cycle(boolean back, EnumFashionSlot slot)
+    {
 
         FashionData.get(player).ifPresent(fashion -> {
-            if (fashion.shouldRenderFashion()) {
+            if (fashion.shouldRenderFashion())
+            {
 
                 ResourceLocation name = fashion.getRenderingPart(slot);
                 ResourceLocation newPart = back ? ResourcePackReader.getPreviousClothes(slot, name) : ResourcePackReader.getNextClothes(slot, name);
@@ -259,7 +297,8 @@ public class WardrobeScreen extends Screen {
 
     }
 
-    private void pressToggle(FancyButton button) {
+    private void pressToggle(FancyButton button)
+    {
 
         button.toggle();
 
@@ -268,7 +307,8 @@ public class WardrobeScreen extends Screen {
         });
     }
 
-    private void toggleLayer(FancyButton button, LayerRenderer<?, ?> layer) {
+    private void toggleLayer(FancyButton button, LayerRenderer<?, ?> layer)
+    {
 
         button.toggle(); // set opposite of current state
 
@@ -285,7 +325,8 @@ public class WardrobeScreen extends Screen {
     }
 
     @Override
-    public boolean isPauseScreen() {
+    public boolean isPauseScreen()
+    {
 
         return false;
     }

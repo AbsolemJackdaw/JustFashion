@@ -1,9 +1,10 @@
 package subaraki.fashion.screen;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.util.text.StringTextComponent;
 
 public class FancyButton extends Button {
 
@@ -17,7 +18,8 @@ public class FancyButton extends Button {
      */
     public FancyButton(int x, int y, IPressable press) {
 
-        super(x, y, 8, 8, "_", press);
+        super(x, y, 8, 8, new StringTextComponent("_"), press);
+        name = "_";
     }
 
     /**
@@ -40,7 +42,7 @@ public class FancyButton extends Button {
     }
 
     @Override
-    public void renderButton(int mouseX, int mouseY, float particleTicks) {
+    public void renderWidget(MatrixStack mat, int mouseX, int mouseY, float particleTicks) {
 
         Minecraft mc = Minecraft.getInstance();
 
@@ -50,11 +52,10 @@ public class FancyButton extends Button {
 
             mc.getTextureManager().bindTexture(WIDGETS_LOCATION);
 
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(0.5f, 0.5f, 0.5f);
-            this.blit((this.x) * 2, (this.y) * 2, isActive ? 208 : 224, 0, 15, 15);
-            GlStateManager.popMatrix();
+            mat.push();
+            mat.scale(0.5f, 0.5f, 0.5f);
+            this.blit(mat, (this.x) * 2, (this.y) * 2, isActive ? 208 : 224, 0, 15, 15);
+            mat.pop();
         }
     }
 

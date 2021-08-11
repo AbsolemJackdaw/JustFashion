@@ -1,5 +1,5 @@
 modLoader="javafml" #mandatory
-
+license="GNU V3"
 loaderVersion="[28,)" #mandatory (26 is current forge version)
 
 # A URL to refer people to when problems occur with this mod

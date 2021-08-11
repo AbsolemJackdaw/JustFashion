@@ -1,1 +1,1 @@
-gradlew genEclipseRuns
+gradlew eclipse genEclipseRuns
