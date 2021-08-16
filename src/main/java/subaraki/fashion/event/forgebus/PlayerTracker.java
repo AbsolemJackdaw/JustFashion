@@ -1,12 +1,13 @@
-package subaraki.fashion.server.event.forge_bus;
+package subaraki.fashion.event.forgebus;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.mod.Fashion;
 import subaraki.fashion.network.NetworkHandler;
@@ -14,33 +15,34 @@ import subaraki.fashion.network.client.PacketSetWardrobeToTrackedClientPlayers;
 import subaraki.fashion.network.client.PacketSyncFashionToClient;
 import subaraki.fashion.network.client.PacketSyncFashionToTrackedPlayers;
 
+@Mod.EventBusSubscriber(modid = Fashion.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PlayerTracker {
 
     @SubscribeEvent
-    public void playerLogin(PlayerLoggedInEvent event) {
+    public static void playerLogin(PlayerLoggedInEvent event) {
 
-        if (!event.getPlayer().world.isRemote) {
+        if (!event.getPlayer().level.isClientSide) {
             toClient(event.getPlayer());
         }
     }
 
     @SubscribeEvent
-    public void playerDimensionChange(PlayerChangedDimensionEvent event) {
+    public static void playerDimensionChange(PlayerChangedDimensionEvent event) {
 
-        if (!event.getPlayer().world.isRemote) {
+        if (!event.getPlayer().level.isClientSide) {
             toClient(event.getPlayer());
         }
     }
 
     @SubscribeEvent
-    public void playerTracking(PlayerEvent.StartTracking event) {
+    public static void playerTracking(PlayerEvent.StartTracking event) {
 
-        if (event.getTarget() instanceof PlayerEntity && event.getPlayer() != null)
-            this.sync((PlayerEntity) event.getTarget());
+        if (event.getTarget() instanceof Player && event.getPlayer() != null)
+            sync((Player) event.getTarget());
     }
 
     @SubscribeEvent
-    public void clone(PlayerEvent.Clone event) {
+    public static void clone(PlayerEvent.Clone event) {
 
         if (!event.isWasDeath())
             return;
@@ -48,7 +50,7 @@ public class PlayerTracker {
             return;
         if (event.getOriginal() == null)
             return;
-        if (event.getPlayer().world.isRemote || event.getOriginal().world.isRemote)
+        if (event.getPlayer().level.isClientSide || event.getOriginal().level.isClientSide)
             return;
 
         FashionData.get(event.getOriginal()).ifPresent(dataOriginal -> {
@@ -59,36 +61,36 @@ public class PlayerTracker {
     }
 
     @SubscribeEvent
-    public void join(PlayerEvent.PlayerRespawnEvent event) {
+    public static void join(PlayerEvent.PlayerRespawnEvent event) {
 
         if (event.getPlayer() == null)
             return;
-        if (event.getPlayer().world.isRemote)
+        if (event.getPlayer().level.isClientSide)
             return;
 
         toClient(event.getPlayer());
     }
 
-    private void sync(PlayerEntity player) {
+    private static void sync(Player player) {
 
-        if (!player.world.isRemote) {
+        if (!player.level.isClientSide) {
             FashionData.get(player).ifPresent(data -> {
-                
+
                 NetworkHandler.NETWORK.send(PacketDistributor.TRACKING_ENTITY.with(() -> player), new PacketSyncFashionToTrackedPlayers(data.getAllRenderedParts(),
-                        data.shouldRenderFashion(), player.getUniqueID(), data.getSimpleNamesForToggledFashionLayers()));
-                
+                        data.shouldRenderFashion(), player.getUUID(), data.getKeepLayerNames()));
+
                 NetworkHandler.NETWORK.send(PacketDistributor.TRACKING_ENTITY.with(() -> player),
-                        new PacketSetWardrobeToTrackedClientPlayers(player.getUniqueID(), data.isInWardrobe()));
+                        new PacketSetWardrobeToTrackedClientPlayers(player.getUUID(), data.isInWardrobe()));
             });
         }
     }
 
-    private void toClient(PlayerEntity player) {
+    private static void toClient(Player player) {
 
         FashionData.get(player).ifPresent(data -> {
-            Fashion.log.debug(data.keepLayersNamesForServer);
-            NetworkHandler.NETWORK.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
-                    new PacketSyncFashionToClient(data.getAllRenderedParts(), data.keepLayersNamesForServer, data.shouldRenderFashion()));
+            Fashion.log.debug(data.getKeepLayerNames());
+            NetworkHandler.NETWORK.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player),
+                    new PacketSyncFashionToClient(data.getAllRenderedParts(), data.getKeepLayerNames(), data.shouldRenderFashion()));
         });
     }
 }

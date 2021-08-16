@@ -1,27 +1,23 @@
 package subaraki.fashion.network;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.layers.*;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import subaraki.fashion.capability.FashionData;
+import subaraki.fashion.render.EnumFashionSlot;
+import subaraki.fashion.render.layer.LayerAestheticHeldItem;
+import subaraki.fashion.render.layer.LayerFashion;
+import subaraki.fashion.render.layer.LayerWardrobe;
+import subaraki.fashion.util.ClientReferences;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import lib.util.ClientReferences;
-import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.layers.ArrowLayer;
-import net.minecraft.client.renderer.entity.layers.CapeLayer;
-import net.minecraft.client.renderer.entity.layers.Deadmau5HeadLayer;
-import net.minecraft.client.renderer.entity.layers.ElytraLayer;
-import net.minecraft.client.renderer.entity.layers.HeadLayer;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import subaraki.fashion.capability.FashionData;
-import subaraki.fashion.client.render.layer.LayerAestheticHeldItem;
-import subaraki.fashion.client.render.layer.LayerFashion;
-import subaraki.fashion.client.render.layer.LayerWardrobe;
-import subaraki.fashion.mod.EnumFashionSlot;
 
 public class ClientReferencesPacket {
 
@@ -31,9 +27,9 @@ public class ClientReferencesPacket {
 
         list.add(LayerAestheticHeldItem.class.getSimpleName());
         list.add(ArrowLayer.class.getSimpleName());
-        list.add(Deadmau5HeadLayer.class.getSimpleName());
+        list.add(Deadmau5EarsLayer.class.getSimpleName());
         list.add(CapeLayer.class.getSimpleName());
-        list.add(HeadLayer.class.getSimpleName());
+        list.add(CustomHeadLayer.class.getSimpleName());
         list.add(ElytraLayer.class.getSimpleName());
         list.add(LayerWardrobe.class.getSimpleName());
         list.add(LayerFashion.class.getSimpleName());
@@ -43,8 +39,8 @@ public class ClientReferencesPacket {
 
     public static void handle(ResourceLocation ids[], boolean isActive, UUID sender, List<String> layers) {
 
-        PlayerEntity distantPlayer = ClientReferences.getClientPlayerByUUID(sender);
-        PlayerEntity player = ClientReferences.getClientPlayer();
+        Player distantPlayer = ClientReferences.getClientPlayerByUUID(sender);
+        Player player = Minecraft.getInstance().player;
 
         FashionData.get(distantPlayer).ifPresent(distFashion -> {
 
@@ -52,36 +48,34 @@ public class ClientReferencesPacket {
                 distFashion.updateFashionSlot(ids[slot.ordinal()], slot);
             distFashion.setRenderFashion(isActive);
 
-            EntityRenderer<? super PlayerEntity> distantPlayerRenderer = ClientReferences.getRenderManager().getRenderer(distantPlayer);
-            EntityRenderer<? super PlayerEntity> playerRenderer = ClientReferences.getRenderManager().getRenderer(player);
+            EntityRenderer<? super Player> distantPlayerRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(distantPlayer);
+            EntityRenderer<? super Player> playerRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
 
             Field field = null;
             Object ob = null;
 
             try {
-                if (field == null)
-                    field = ObfuscationReflectionHelper.findField(LivingRenderer.class, "field_177097_h");
-                if (ob == null)
-                    ob = field.get(distantPlayerRenderer);
+                field = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class, "layers");
+                ob = field.get(distantPlayerRenderer);
             } catch (IllegalArgumentException | IllegalAccessException e) {
                 e.printStackTrace();
             }
 
             try {
                 if (field == null)
-                    field = ObfuscationReflectionHelper.findField(LivingRenderer.class, "field_177097_h");
+                    field = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class, "layers");
 
                 ob = field.get(playerRenderer);
             } catch (IllegalArgumentException | IllegalAccessException e) {
                 e.printStackTrace();
             }
 
-            distFashion.keepLayers.clear();
-            if (layers != null && !layers.isEmpty()) {
+            distFashion.resetKeepLayerForDistantPlayer();
+            if (layers != null && !layers.isEmpty() && ob != null) {
                 for (Object content : (List<?>) ob) {
                     for (String name : layers)
                         if (content.getClass().getSimpleName().equals(name))
-                            distFashion.keepLayers.add((LayerRenderer<?, ?>) content);
+                            distFashion.addLayerToKeep(name);
                 }
             }
             distFashion.fashionLayers.clear();

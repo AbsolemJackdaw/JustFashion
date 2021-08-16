@@ -1,14 +1,15 @@
 package subaraki.fashion.network.server;
 
-import java.util.function.Supplier;
-
-import lib.util.networking.IPacketBase;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import subaraki.fashion.capability.FashionData;
+import subaraki.fashion.network.IPacketBase;
 import subaraki.fashion.network.NetworkHandler;
 import subaraki.fashion.network.client.PacketSetWardrobeToTrackedClientPlayers;
+
+import java.util.function.Supplier;
 
 public class PacketSetInWardrobeToTrackedPlayers implements IPacketBase {
 
@@ -23,21 +24,21 @@ public class PacketSetInWardrobeToTrackedPlayers implements IPacketBase {
         this.isInWardrobe = isInWardrobe;
     }
 
-    public PacketSetInWardrobeToTrackedPlayers(PacketBuffer buf) {
+    public PacketSetInWardrobeToTrackedPlayers(FriendlyByteBuf buf) {
 
         decode(buf);
 
     }
 
     @Override
-    public void decode(PacketBuffer buf) {
+    public void decode(FriendlyByteBuf buf) {
 
         isInWardrobe = buf.readBoolean();
     }
 
     @Override
 
-    public void encode(PacketBuffer buf) {
+    public void encode(FriendlyByteBuf buf) {
 
         buf.writeBoolean(isInWardrobe);
     }
@@ -47,12 +48,15 @@ public class PacketSetInWardrobeToTrackedPlayers implements IPacketBase {
     public void handle(Supplier<NetworkEvent.Context> context) {
 
         context.get().enqueueWork(() -> {
-            
-            FashionData.get(context.get().getSender()).ifPresent(data -> {
-                data.setInWardrobe(isInWardrobe);
-            });
-            NetworkHandler.NETWORK.send(PacketDistributor.TRACKING_ENTITY.with(() -> context.get().getSender()),
-                    new PacketSetWardrobeToTrackedClientPlayers(context.get().getSender().getUniqueID(), isInWardrobe));
+            ServerPlayer player = context.get().getSender();
+
+            if (player != null) {
+                FashionData.get(player).ifPresent(data -> {
+                    data.setInWardrobe(isInWardrobe);
+                });
+                NetworkHandler.NETWORK.send(PacketDistributor.TRACKING_ENTITY.with(() -> context.get().getSender()),
+                        new PacketSetWardrobeToTrackedClientPlayers(player.getUUID(), isInWardrobe));
+            }
         });
         context.get().setPacketHandled(true);
     }

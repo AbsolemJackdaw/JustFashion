@@ -1,12 +1,10 @@
 package subaraki.fashion.capability;
 
-import java.util.concurrent.Callable;
-
-import net.minecraft.nbt.INBT;
-import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+
+import java.util.concurrent.Callable;
 
 public class FashionCapability {
 
@@ -25,31 +23,7 @@ public class FashionCapability {
         CapabilityManager.INSTANCE.register(
 
                 // This is the class the capability works with
-                FashionData.class,
-
-                // This is a helper for users to save and load
-                new StorageHelper(),
-
-                // This is a factory for default instances
-                new DefaultInstanceFactory());
-    }
-
-    /*
-     * This class handles saving and loading the data.
-     */
-    public static class StorageHelper implements Capability.IStorage<FashionData> {
-
-        @Override
-        public INBT writeNBT(Capability<FashionData> capability, FashionData instance, Direction side) {
-
-            return instance.writeData();
-        }
-
-        @Override
-        public void readNBT(Capability<FashionData> capability, FashionData instance, Direction side, INBT nbt) {
-
-            instance.readData(nbt);
-        }
+                FashionData.class);
     }
 
     /*

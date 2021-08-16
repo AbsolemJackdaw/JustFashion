@@ -1,33 +1,39 @@
-package subaraki.fashion.mod;
-
-import org.apache.commons.lang3.tuple.Pair;
+package subaraki.fashion.util;
 
 import net.minecraftforge.common.ForgeConfigSpec;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class ConfigData {
 
     public static final ServerConfig SERVER;
     public static final ForgeConfigSpec SERVER_SPEC;
+    public static final ClientConfig CLIENT;
+    public static final ForgeConfigSpec CLIENT_SPEC;
+    public static boolean bigger_model = false;
+    public static boolean face_mirror = true;
 
-    static
-    {
+    static {
         final Pair<ServerConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(ServerConfig::new);
         SERVER_SPEC = specPair.getRight();
         SERVER = specPair.getLeft();
     }
 
-    public static final ClientConfig CLIENT;
-    public static final ForgeConfigSpec CLIENT_SPEC;
-
-    static
-    {
+    static {
         final Pair<ClientConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(ClientConfig::new);
         CLIENT_SPEC = specPair.getRight();
         CLIENT = specPair.getLeft();
     }
 
-    public static boolean bigger_model = false;
-    public static boolean face_mirror = true;
+    public static void refreshClient() {
+
+        bigger_model = CLIENT.bigger_model.get();
+        face_mirror = CLIENT.face_mirror.get();
+
+    }
+
+    public static void refreshServer() {
+
+    }
 
     public static class ServerConfig {
 
@@ -53,18 +59,5 @@ public class ConfigData {
             builder.pop();
 
         }
-    }
-
-    public static void refreshClient()
-    {
-
-        bigger_model = CLIENT.bigger_model.get();
-        face_mirror = CLIENT.face_mirror.get();
-
-    }
-
-    public static void refreshServer()
-    {
-
     }
 }

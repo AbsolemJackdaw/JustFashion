@@ -1,24 +1,24 @@
 package subaraki.fashion.screen;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.TextComponent;
 
 public class FancyButton extends Button {
 
-    private boolean isActive;
-
     public String name = "unknown layer";
+    private boolean isActive;
 
     /**
      * Constructor with default empty name. used mainly for the toggler of viewing
      * fashion
      */
-    public FancyButton(int x, int y, IPressable press) {
+    public FancyButton(int x, int y, OnPress press) {
 
-        super(x, y, 8, 8, new StringTextComponent("_"), press);
+        super(x, y, 8, 8, new TextComponent("_"), press);
         name = "_";
     }
 
@@ -26,7 +26,7 @@ public class FancyButton extends Button {
      * Create a Button of 15x15, round toggle texture. Name mainly used only for
      * hover over purposes.
      */
-    public FancyButton(int x, int y, String name, IPressable press) {
+    public FancyButton(int x, int y, String name, OnPress press) {
 
         this(x, y, press);
         this.name = name;
@@ -42,24 +42,26 @@ public class FancyButton extends Button {
     }
 
     @Override
-    public void renderWidget(MatrixStack mat, int mouseX, int mouseY, float particleTicks) {
+    public void renderButton(PoseStack mat, int mouseX, int mouseY, float particleTicks) {
 
         Minecraft mc = Minecraft.getInstance();
 
         if (this.visible) {
             // this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x +
             // this.width / 2 && mouseY < this.y + this.height / 2;
-
-            mc.getTextureManager().bindTexture(WIDGETS_LOCATION);
-
-            mat.push();
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+            mat.pushPose();
             mat.scale(0.5f, 0.5f, 0.5f);
             this.blit(mat, (this.x) * 2, (this.y) * 2, isActive ? 208 : 224, 0, 15, 15);
-            mat.pop();
+            mat.popPose();
         }
     }
 
-    /** Wether or not this button has been toggled */
+    /**
+     * Wether or not this button has been toggled
+     */
     public boolean isActive() {
 
         return isActive;
@@ -75,7 +77,9 @@ public class FancyButton extends Button {
         return this;
     }
 
-    /** Switch the state of this button to it's inverse. */
+    /**
+     * Switch the state of this button to it's inverse.
+     */
     public void toggle() {
 
         this.isActive = !isActive;

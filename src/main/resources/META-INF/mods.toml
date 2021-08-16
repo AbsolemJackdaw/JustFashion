@@ -1,6 +1,6 @@
 modLoader="javafml" #mandatory
 license="GNU V3"
-loaderVersion="[28,)" #mandatory (26 is current forge version)
+loaderVersion="[32,)" #mandatory (26 is current forge version)
 
 # A URL to refer people to when problems occur with this mod
 issueTrackerURL="https://github.com/ArtixAllMighty/JustFashion/issues" #optional
@@ -11,7 +11,7 @@ logoFile="banner.png" #optional
 
 modId="fashion" #mandatory
 
-version="2.3.0.0" #mandatory
+version="3.0.0.0" #mandatory
 
 displayName="Fashion Mod" #mandatory
 
@@ -25,21 +25,10 @@ Pop in de wardrobe and pick from any base items provided, or make your own resou
 F A B U L O U S
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
-[[dependencies.subcommonlib]] #optional
-    # the modid of the dependency
-    modId="subcommonlib" #mandatory
-    # Does this dependency have to exist - if not, ordering below must be specified
-    mandatory=true #mandatory
-    # The version range of the dependency
-    versionRange="[1.14.4,)" #mandatory
-    # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
-    ordering="AFTER"
-    # Side this dependency is applied on - BOTH, CLIENT or SERVER
-    side="BOTH"
 # Here's another dependency
-[[dependencies.examplemod]]
+[[dependencies.fashion]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.14.4]"
+    versionRange="[1.17.1]"
     ordering="NONE"
     side="BOTH"

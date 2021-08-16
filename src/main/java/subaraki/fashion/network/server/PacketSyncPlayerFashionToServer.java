@@ -1,20 +1,20 @@
 package subaraki.fashion.network.server;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
-
-import lib.util.networking.IPacketBase;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkEvent;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import subaraki.fashion.capability.FashionData;
-import subaraki.fashion.mod.EnumFashionSlot;
+import subaraki.fashion.network.IPacketBase;
 import subaraki.fashion.network.NetworkHandler;
 import subaraki.fashion.network.client.PacketSetWardrobeToTrackedClientPlayers;
 import subaraki.fashion.network.client.PacketSyncFashionToTrackedPlayers;
+import subaraki.fashion.render.EnumFashionSlot;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 
 public class PacketSyncPlayerFashionToServer implements IPacketBase {
 
@@ -33,18 +33,18 @@ public class PacketSyncPlayerFashionToServer implements IPacketBase {
         this.layers = layers;
     }
 
-    public PacketSyncPlayerFashionToServer(PacketBuffer buf) {
+    public PacketSyncPlayerFashionToServer(FriendlyByteBuf buf) {
 
         decode(buf);
 
     }
 
     @Override
-    public void decode(PacketBuffer buf) {
+    public void decode(FriendlyByteBuf buf) {
 
         ids = new ResourceLocation[6];
         for (int slot = 0; slot < ids.length; slot++)
-            ids[slot] = new ResourceLocation(buf.readString(256));
+            ids[slot] = new ResourceLocation(buf.readUtf(256));
 
         isActive = buf.readBoolean();
 
@@ -52,18 +52,18 @@ public class PacketSyncPlayerFashionToServer implements IPacketBase {
 
         if (size > 0) {
             for (int i = 0; i < size; i++)
-                layers.add(buf.readString(128));
+                layers.add(buf.readUtf(128));
         }
     }
 
     @Override
-    public void encode(PacketBuffer buf) {
+    public void encode(FriendlyByteBuf buf) {
 
         for (ResourceLocation resLoc : ids)
             if (resLoc != null)
-                buf.writeString(resLoc.toString());
+                buf.writeUtf(resLoc.toString());
             else
-                buf.writeString("missing");
+                buf.writeUtf("missing");
 
         buf.writeBoolean(isActive);
 
@@ -71,7 +71,7 @@ public class PacketSyncPlayerFashionToServer implements IPacketBase {
 
         if (layers != null && !layers.isEmpty()) {
             for (String layer : layers) {
-                buf.writeString(layer);
+                buf.writeUtf(layer);
             }
         }
     }
@@ -79,7 +79,7 @@ public class PacketSyncPlayerFashionToServer implements IPacketBase {
     @Override
     public void handle(Supplier<NetworkEvent.Context> ctx) {
 
-        ServerPlayerEntity player = ctx.get().getSender();
+        ServerPlayer player = ctx.get().getSender();
 
         ctx.get().enqueueWork(() -> {
 
@@ -92,20 +92,17 @@ public class PacketSyncPlayerFashionToServer implements IPacketBase {
 
                 fashion.setInWardrobe(false);
 
-                fashion.keepLayersNamesForServer.clear();
-
-                for (String layer : fashion.getSavedOriginalListNamesForServerSidePurposes())
-                    for (String classname : layers)
-                        if (layer.equals(classname))
-                            fashion.keepLayersNamesForServer.add(layer);
+                //server sided keep layer list
+                fashion.getKeepLayerNames().clear();
+                fashion.addLayersToKeep(layers);
             });
 
             // Send to tracked players
 
-            Object packet = new PacketSyncFashionToTrackedPlayers(ids, isActive, player.getUniqueID(), layers);
+            Object packet = new PacketSyncFashionToTrackedPlayers(ids, isActive, player.getUUID(), layers);
             NetworkHandler.NETWORK.send(PacketDistributor.TRACKING_ENTITY.with(() -> player), packet);
 
-            packet = new PacketSetWardrobeToTrackedClientPlayers(player.getUniqueID(), false);
+            packet = new PacketSetWardrobeToTrackedClientPlayers(player.getUUID(), false);
             NetworkHandler.NETWORK.send(PacketDistributor.TRACKING_ENTITY.with(() -> player), packet);
         });
 

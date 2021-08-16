@@ -1,15 +1,14 @@
 package subaraki.fashion.network;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.fmllegacy.network.NetworkRegistry;
+import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
 import subaraki.fashion.mod.Fashion;
 import subaraki.fashion.network.client.PacketSetWardrobeToTrackedClientPlayers;
 import subaraki.fashion.network.client.PacketSyncFashionToClient;
 import subaraki.fashion.network.client.PacketSyncFashionToTrackedPlayers;
 import subaraki.fashion.network.server.PacketSetInWardrobeToTrackedPlayers;
 import subaraki.fashion.network.server.PacketSyncPlayerFashionToServer;
-import subaraki.fashion.network.server.PacketSyncSavedListToServer;
 
 public class NetworkHandler {
 
@@ -25,7 +24,6 @@ public class NetworkHandler {
         new PacketSetWardrobeToTrackedClientPlayers().register(messageId++);
         new PacketSyncFashionToClient().register(messageId++);
         new PacketSyncFashionToTrackedPlayers().register(messageId++);
-        new PacketSyncSavedListToServer().register(messageId++);
         new PacketSetInWardrobeToTrackedPlayers().register(messageId++);
 
     }

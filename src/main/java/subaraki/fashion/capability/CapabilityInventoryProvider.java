@@ -1,15 +1,15 @@
 package subaraki.fashion.capability;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 import subaraki.fashion.mod.Fashion;
 
-public class CapabilityInventoryProvider implements ICapabilitySerializable<CompoundNBT> {
+public class CapabilityInventoryProvider implements ICapabilitySerializable<CompoundTag> {
 
     /**
      * Unique key to identify the attached provider from others
@@ -25,24 +25,23 @@ public class CapabilityInventoryProvider implements ICapabilitySerializable<Comp
      * Gets called before world is initiated. player.worldObj will return null here
      * !
      */
-    public CapabilityInventoryProvider(PlayerEntity player) {
+    public CapabilityInventoryProvider(Player player) {
 
         slots.setPlayer(player);
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
+    public CompoundTag serializeNBT() {
 
-        return (CompoundNBT) FashionCapability.CAPABILITY.writeNBT(slots, null);
+        return (CompoundTag) slots.writeData();
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(CompoundTag nbt) {
 
-        FashionCapability.CAPABILITY.readNBT(slots, null, nbt);
+        slots.readData(nbt);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
 
@@ -54,10 +53,7 @@ public class CapabilityInventoryProvider implements ICapabilitySerializable<Comp
 
     private FashionData getImpl() {
 
-        if (slots != null) {
-            return slots;
-        }
-        return new FashionData();
+        return slots;
     }
 
 }

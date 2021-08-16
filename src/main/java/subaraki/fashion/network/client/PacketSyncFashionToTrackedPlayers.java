@@ -1,16 +1,16 @@
 package subaraki.fashion.network.client;
 
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import subaraki.fashion.network.ClientReferencesPacket;
+import subaraki.fashion.network.IPacketBase;
+import subaraki.fashion.network.NetworkHandler;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
-
-import lib.util.networking.IPacketBase;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkEvent;
-import subaraki.fashion.network.ClientReferencesPacket;
-import subaraki.fashion.network.NetworkHandler;
 
 public class PacketSyncFashionToTrackedPlayers implements IPacketBase {
 
@@ -32,29 +32,29 @@ public class PacketSyncFashionToTrackedPlayers implements IPacketBase {
 
     }
 
-    public PacketSyncFashionToTrackedPlayers(PacketBuffer buf) {
+    public PacketSyncFashionToTrackedPlayers(FriendlyByteBuf buf) {
 
         decode(buf);
 
     }
 
     @Override
-    public void encode(PacketBuffer buf) {
+    public void encode(FriendlyByteBuf buf) {
 
         for (ResourceLocation resLoc : ids)
             if (resLoc != null)
-                buf.writeString(resLoc.toString());
+                buf.writeUtf(resLoc.toString());
             else
-                buf.writeString("missing");
+                buf.writeUtf("missing");
 
         buf.writeBoolean(isActive);
-        buf.writeUniqueId(sender);
+        buf.writeUUID(sender);
 
         buf.writeInt(layers == null ? 0 : layers.isEmpty() ? 0 : layers.size());
 
         if (layers != null && !layers.isEmpty()) {
             for (String layer : layers) {
-                buf.writeString(layer);
+                buf.writeUtf(layer);
             }
         }
     }
@@ -71,20 +71,20 @@ public class PacketSyncFashionToTrackedPlayers implements IPacketBase {
     }
 
     @Override
-    public void decode(PacketBuffer buf) {
+    public void decode(FriendlyByteBuf buf) {
 
         ids = new ResourceLocation[6];
         for (int slot = 0; slot < ids.length; slot++)
-            ids[slot] = new ResourceLocation(buf.readString(256));
+            ids[slot] = new ResourceLocation(buf.readUtf(256));
 
         isActive = buf.readBoolean();
 
-        sender = buf.readUniqueId();
+        sender = buf.readUUID();
 
         int size = buf.readInt();
         if (size > 0) {
             for (int i = 0; i < size; i++)
-                layers.add(buf.readString(128));
+                layers.add(buf.readUtf(128));
         }
     }
 
