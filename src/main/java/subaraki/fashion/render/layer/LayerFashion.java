@@ -69,6 +69,17 @@ public class LayerFashion extends RenderLayer<AbstractClientPlayer, PlayerModel<
                 return;
 
             this.getParentModel().copyPropertiesTo(model);
+
+            //possible fix for mr crayfish's gun mod, where sleeves dont follow arm movement
+            if (model.rightArm.visible) {
+                model.rightArm.copyFrom(this.getParentModel().rightArm);
+                model.rightSleeve.copyFrom(this.getParentModel().rightArm);
+            }
+            if (model.leftArm.visible) {
+                model.leftArm.copyFrom(this.getParentModel().leftArm);
+                model.leftSleeve.copyFrom(this.getParentModel().leftArm);
+            }
+
             model.prepareMobModel(player, limbSwing, limbSwingAmount, partialTicks);
             model.setupAnim(player, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
 
