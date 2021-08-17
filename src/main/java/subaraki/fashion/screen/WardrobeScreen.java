@@ -178,8 +178,8 @@ public class WardrobeScreen extends Screen {
         });
         mat.pushPose();
 
-        float rotationMirror_back = ConfigData.face_mirror ? 30.0F : -150F;
-        float rotationMirron_front = ConfigData.face_mirror ? -150.0F : 30F;
+        float rotationMirror_back = ConfigData.face_mirror ? 0.0F : -150F;
+        float rotationMirror_front = ConfigData.face_mirror ? 180.0F : 0.0F;
 
         float flip_mouse = ConfigData.face_mirror ? -1f : 1f;
 
@@ -188,7 +188,7 @@ public class WardrobeScreen extends Screen {
         int offset_big_model = (ConfigData.bigger_model ? 5 : 0);
 
         renderEntityInInventory(guiLeft + 33, guiTop + 65 + offset_big_model, (int) (25f * scale),
-                ((guiLeft + 70 - oldMouseX) / 2.5f) * -flip_mouse, guiTop + 40 - oldMouseY, player, 0.0f + rotationMirror_back);
+                ((guiLeft + 70 - oldMouseX) / 2.5f) * -flip_mouse, guiTop + 40 - oldMouseY, player, rotationMirror_back);
 
         RenderSystem.enableBlend();
 
@@ -201,7 +201,7 @@ public class WardrobeScreen extends Screen {
 
         mat.pushPose();
         renderEntityInInventory((int) ((guiLeft + 68f)), (int) ((guiTop + 82f)), (int) (30f * scale),
-                ((guiLeft + 70 - oldMouseX) / 2.5f) * flip_mouse, guiTop + 40 - oldMouseY, player, 180.0f + rotationMirron_front);
+                ((guiLeft + 70 - oldMouseX) / 2.5f) * flip_mouse, guiTop + 40 - oldMouseY, player, rotationMirror_front);
 
         mat.popPose();
 
