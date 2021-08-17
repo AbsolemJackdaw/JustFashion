@@ -10,7 +10,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.item.MapItem;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.SpyglassItem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -29,20 +31,18 @@ public class HandRenderEvent {
     @SubscribeEvent
     public static void renderHandEvent(RenderHandEvent event) {
 
-        if (!event.getItemStack().isEmpty())
-            return;
-        else if (!event.getItemStack().isEmpty() && !(event.getItemStack().getItem() instanceof MapItem))
+        Player player = Minecraft.getInstance().player;
+
+        if (!event.getItemStack().isEmpty() || player.isScoping())
             return;
 
-        FashionData.get(Minecraft.getInstance().player).ifPresent(fashionData -> {
+        FashionData.get(player).ifPresent(fashionData -> {
 
             if (body == null) {
                 body = new PlayerModel<AbstractClientPlayer>(Minecraft.getInstance().getEntityModels().bakeLayer(FashionModels.NORML_MODEL_LOCATION), false);
                 body.setAllVisible(false);
                 body.rightArm.visible = true;
-//                body.leftArm.visible = true;
                 body.rightSleeve.visible = true;
-//                body.leftSleeve.visible = true;
             }
 
             ResourceLocation resLoc = fashionData.getRenderingPart(EnumFashionSlot.CHEST);
@@ -55,7 +55,7 @@ public class HandRenderEvent {
             boolean handFlag = event.getHand() == InteractionHand.MAIN_HAND;
             if (!handFlag)
                 return;
-            HumanoidArm humanoidarm = handFlag ? Minecraft.getInstance().player.getMainArm() : Minecraft.getInstance().player.getMainArm().getOpposite();
+            HumanoidArm humanoidarm = handFlag ? player.getMainArm() : player.getMainArm().getOpposite();
             boolean flag = humanoidarm != HumanoidArm.LEFT;
             float f = flag ? 1.0F : -1.0F;
             float f1 = Mth.sqrt(event.getSwingProgress());
