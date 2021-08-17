@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.event.modbus.BindLayersEvent;
+import subaraki.fashion.mod.Fashion;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -27,7 +28,7 @@ public class HandleRenderSwap {
                 // reflection 'swap' fields are volatile and will be set to null after rendering
                 // is done
                 if (swap_field_layerrenders == null) {
-                    swap_field_layerrenders = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class, "f_115291_ "); //f_115291_   layers
+                    swap_field_layerrenders = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class, Fashion.obfLayerName); //f_115291_   layers
                 }
 
                 if (swap_list_layerrenders == null) {
@@ -102,7 +103,7 @@ public class HandleRenderSwap {
 
             try {
                 if (swap_field_layerrenders == null)
-                    swap_field_layerrenders = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class, "f_115291_ "); // f_115291_  layers
+                    swap_field_layerrenders = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class, Fashion.obfLayerName); // f_115291_  layers
                 if (swap_list_layerrenders == null)
                     swap_list_layerrenders = swap_field_layerrenders.get(renderer);
 
