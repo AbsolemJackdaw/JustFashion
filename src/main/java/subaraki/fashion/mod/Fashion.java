@@ -27,6 +27,10 @@ public class Fashion {
 
     public static Logger log = LogManager.getLogger(MODID);
 
+    static boolean isDev = false;
+    public static String obfLayerName = isDev ? "layers" : "field_177097_h"; //"f_115291_" / "layers"
+
+
     public Fashion() {
 
         // Register doClientStuff method for modloading

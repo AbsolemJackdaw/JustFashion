@@ -3,12 +3,12 @@ package subaraki.fashion.network.client;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import lib.util.ClientReferences;
-import lib.util.networking.IPacketBase;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 import subaraki.fashion.capability.FashionData;
+import subaraki.fashion.network.IPacketBase;
 import subaraki.fashion.network.NetworkHandler;
 
 public class PacketSetWardrobeToTrackedClientPlayers implements IPacketBase {
@@ -35,7 +35,7 @@ public class PacketSetWardrobeToTrackedClientPlayers implements IPacketBase {
     @Override
     public void decode(PacketBuffer buf) {
 
-        sender = buf.readUniqueId();
+        sender = buf.readUUID();
         isInWardrobe = buf.readBoolean();
     }
 
@@ -43,7 +43,7 @@ public class PacketSetWardrobeToTrackedClientPlayers implements IPacketBase {
 
     public void encode(PacketBuffer buf) {
 
-        buf.writeUniqueId(sender);
+        buf.writeUUID(sender);
         buf.writeBoolean(isInWardrobe);
     }
 
@@ -52,7 +52,7 @@ public class PacketSetWardrobeToTrackedClientPlayers implements IPacketBase {
     public void handle(Supplier<NetworkEvent.Context> context) {
 
         context.get().enqueueWork(() -> {
-            PlayerEntity player = ClientReferences.getClientPlayerByUUID(sender);
+            PlayerEntity player = Minecraft.getInstance().level.getPlayerByUUID(sender);
             FashionData.get(player).ifPresent(data -> {
                 data.setInWardrobe(isInWardrobe);
             });

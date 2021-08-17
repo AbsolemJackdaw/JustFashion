@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import lib.util.networking.IPacketBase;
+import subaraki.fashion.network.IPacketBase;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
 import subaraki.fashion.capability.FashionData;
@@ -35,7 +35,7 @@ public class PacketSyncSavedListToServer implements IPacketBase {
 
         if (!names.isEmpty())
             for (String name : names)
-                buf.writeString(name);
+                buf.writeUtf(name);
 
     }
 
@@ -46,7 +46,7 @@ public class PacketSyncSavedListToServer implements IPacketBase {
 
         if (size > 0)
             for (int i = 0; i < size; i++)
-                names.add(buf.readString(128));
+                names.add(buf.readUtf(128));
     }
 
     @Override

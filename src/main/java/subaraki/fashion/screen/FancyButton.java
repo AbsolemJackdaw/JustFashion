@@ -6,6 +6,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.text.StringTextComponent;
 
+import net.minecraft.client.gui.widget.button.Button.IPressable;
+
 public class FancyButton extends Button {
 
     private boolean isActive;
@@ -42,7 +44,7 @@ public class FancyButton extends Button {
     }
 
     @Override
-    public void renderWidget(MatrixStack mat, int mouseX, int mouseY, float particleTicks) {
+    public void renderButton(MatrixStack mat, int mouseX, int mouseY, float particleTicks) {
 
         Minecraft mc = Minecraft.getInstance();
 
@@ -50,12 +52,12 @@ public class FancyButton extends Button {
             // this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x +
             // this.width / 2 && mouseY < this.y + this.height / 2;
 
-            mc.getTextureManager().bindTexture(WIDGETS_LOCATION);
+            mc.getTextureManager().bind(WIDGETS_LOCATION);
 
-            mat.push();
+            mat.pushPose();
             mat.scale(0.5f, 0.5f, 0.5f);
             this.blit(mat, (this.x) * 2, (this.y) * 2, isActive ? 208 : 224, 0, 15, 15);
-            mat.pop();
+            mat.popPose();
         }
     }
 

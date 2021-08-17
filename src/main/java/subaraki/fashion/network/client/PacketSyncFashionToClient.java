@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import lib.util.ClientReferences;
-import lib.util.networking.IPacketBase;
+import net.minecraft.client.Minecraft;
+import subaraki.fashion.network.IPacketBase;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
@@ -43,13 +43,13 @@ public class PacketSyncFashionToClient implements IPacketBase {
 
         ids = new ResourceLocation[6];
         for (int slot = 0; slot < ids.length; slot++)
-            ids[slot] = new ResourceLocation(buf.readString(256));
+            ids[slot] = new ResourceLocation(buf.readUtf(256));
 
         int size = buf.readInt();
 
         if (size > 0)
             for (int i = 0; i < size; i++)
-                toKeep.add(buf.readString(128));
+                toKeep.add(buf.readUtf(128));
     }
 
     @Override
@@ -59,15 +59,15 @@ public class PacketSyncFashionToClient implements IPacketBase {
 
         for (ResourceLocation resLoc : ids)
             if (resLoc != null)
-                buf.writeString(resLoc.toString());
+                buf.writeUtf(resLoc.toString());
             else
-                buf.writeString("missing");
+                buf.writeUtf("missing");
 
         buf.writeInt(toKeep.size());
 
         if (!toKeep.isEmpty())
             for (String s : toKeep)
-                buf.writeString(s);
+                buf.writeUtf(s);
 
     }
 
@@ -76,7 +76,7 @@ public class PacketSyncFashionToClient implements IPacketBase {
 
         context.get().enqueueWork(() -> {
 
-            FashionData.get(ClientReferences.getClientPlayer()).ifPresent(data -> {
+            FashionData.get(Minecraft.getInstance().player).ifPresent(data -> {
 
                 for (EnumFashionSlot slot : EnumFashionSlot.values())
                     data.updateFashionSlot(ids[slot.ordinal()], slot);

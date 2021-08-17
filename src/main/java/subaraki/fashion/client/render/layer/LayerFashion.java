@@ -59,61 +59,62 @@ public class LayerFashion extends LayerRenderer<AbstractClientPlayerEntity, Play
             if (resLoc == null || resLoc.toString().contains("missing"))
                 return;
 
-             model = getModelFromSlot(slot, ((AbstractClientPlayerEntity) player).getSkinType().equals("slim"));
+             model = getModelFromSlot(slot, ((AbstractClientPlayerEntity) player).getModelName().equals("slim"));
 
              if(model == null)
                  return;
              
-            this.getEntityModel().copyModelAttributesTo(model);
-            model.setLivingAnimations(player, limbSwing, limbSwingAmount, partialTicks);
-            model.setRotationAngles(player, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+            this.getParentModel().copyPropertiesTo(model);
 
-            model.setVisible(false);
+            model.prepareMobModel(player, limbSwing, limbSwingAmount, partialTicks);
+            model.setupAnim(player, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+
+            model.setAllVisible(false);
             
             if (slot == HEAD)
             {
-                model.bipedHead.showModel = !player.isInvisible();
-                model.bipedHeadwear.showModel = !player.isInvisible();
+                model.head.visible = !player.isInvisible();
+                model.hat.visible = !player.isInvisible();
             }
 
             if (slot == LEGS )
             {
-                model.bipedLeftLeg.showModel = !player.isInvisible();
-                model.bipedLeftLegwear.showModel = !player.isInvisible();
-                model.bipedRightLeg.showModel = !player.isInvisible();
-                model.bipedRightLegwear.showModel = !player.isInvisible();
-                model.bipedBody.showModel = !player.isInvisible();
+                model.leftLeg.visible = !player.isInvisible();
+                model.bipedLeftLegwear.visible = !player.isInvisible();
+                model.rightLeg.visible = !player.isInvisible();
+                model.bipedRightLegwear.visible = !player.isInvisible();
+                model.body.visible = !player.isInvisible();
 
             }
             
             if(slot == BOOTS)
             {
-                model.bipedLeftLeg.showModel = !player.isInvisible();
-                model.bipedLeftLegwear.showModel = !player.isInvisible();
-                model.bipedRightLeg.showModel = !player.isInvisible();
-                model.bipedRightLegwear.showModel = !player.isInvisible();
+                model.leftLeg.visible = !player.isInvisible();
+                model.bipedLeftLegwear.visible = !player.isInvisible();
+                model.rightLeg.visible = !player.isInvisible();
+                model.bipedRightLegwear.visible = !player.isInvisible();
             }
 
             if (slot == CHEST)
             {
-                model.bipedBody.showModel = !player.isInvisible();
-                model.bipedBodyWear.showModel = !player.isInvisible();
+                model.body.visible = !player.isInvisible();
+                model.bipedBodyWear.visible = !player.isInvisible();
 
-                model.bipedLeftArm.showModel = !player.isInvisible();
-                model.bipedLeftArmwear.showModel = !player.isInvisible();
+                model.leftArm.visible = !player.isInvisible();
+                model.bipedLeftArmwear.visible = !player.isInvisible();
 
-                model.bipedRightArm.showModel = !player.isInvisible();
-                model.bipedRightArmwear.showModel = !player.isInvisible();
+                model.rightArm.visible = !player.isInvisible();
+                model.bipedRightArmwear.visible = !player.isInvisible();
             }
 
-            model.isSneak = getEntityModel().isSneak;
-            model.isChild = getEntityModel().isChild;
-            model.rightArmPose = getEntityModel().rightArmPose;
-            model.leftArmPose = getEntityModel().leftArmPose;
-            model.isSitting = getEntityModel().isSitting;
+            model.crouching = getParentModel().crouching;
+            model.young = getParentModel().young;
+            model.rightArmPose = getParentModel().rightArmPose;
+            model.leftArmPose = getParentModel().leftArmPose;
+            model.riding = getParentModel().riding;
 
-            IVertexBuilder bb = bufferIn.getBuffer(RenderType.getEntityTranslucent(resLoc));
-            model.render(matrixStackIn, bb, packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+            IVertexBuilder bb = bufferIn.getBuffer(RenderType.entityTranslucent(resLoc));
+            model.renderToBuffer(matrixStackIn, bb, packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
 
         });
     }

@@ -47,9 +47,10 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
     {
 
         FashionData.get(player).ifPresent(fashionData -> {
+            boolean isMainHand = player.getMainArm() == HandSide.RIGHT;
 
-            ItemStack stackHeldItem = player.getHeldItemMainhand();
-            ItemStack stackOffHand = player.getHeldItemOffhand();
+            ItemStack stackHeldItem = isMainHand ? player.getMainHandItem() : player.getOffhandItem();
+            ItemStack stackOffHand = isMainHand ? player.getOffhandItem() : player.getMainHandItem();
 
             boolean renderedOffHand = false;
             boolean renderedHand = false;
@@ -71,13 +72,13 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
 
             if (!fashionData.getRenderingPart(EnumFashionSlot.SHIELD).toString().contains("missing"))
             {
-                if (stackHeldItem.getItem() instanceof ShieldItem || stackHeldItem.getItem().getUseAction(stackHeldItem) == UseAction.BLOCK)
+                if (stackHeldItem.getItem() instanceof ShieldItem || stackHeldItem.getItem().getUseAnimation(stackHeldItem) == UseAction.BLOCK)
                 {
                     renderAesthetic(EnumFashionSlot.SHIELD, player, stackHeldItem, cam_right, HandSide.RIGHT, mat, buffer, packedLightIn);
                     renderedHand = true;
                 }
 
-                if (stackOffHand.getItem() instanceof ShieldItem || stackOffHand.getItem().getUseAction(stackOffHand) == UseAction.BLOCK)
+                if (stackOffHand.getItem() instanceof ShieldItem || stackOffHand.getItem().getUseAnimation(stackOffHand) == UseAction.BLOCK)
                 {
                     renderAesthetic(EnumFashionSlot.SHIELD, player, stackOffHand, cam_left, HandSide.LEFT, mat, buffer, packedLightIn);
                     renderedOffHand = true;
@@ -100,13 +101,13 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
             if (stack.isEmpty())
                 return;
 
-            mat.push();
+            mat.pushPose();
             ResourceLocation resLoc = data.getRenderingPart(slot);
             boolean flag = hand == HandSide.LEFT;
 
-            this.getEntityModel().translateHand(hand, mat);
-            mat.rotate(Vector3f.XP.rotationDegrees(-90.0F));
-            mat.rotate(Vector3f.YP.rotationDegrees(180.0F));
+            this.getParentModel().translateToHand(hand, mat);
+            mat.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
+            mat.mulPose(Vector3f.YP.rotationDegrees(180.0F));
             mat.translate((double) ((float) (flag ? -1 : 1) / 16.0F), 0.125D, -0.625D);
 
             switch (slot)
@@ -121,9 +122,9 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
                 break;
 
             case SHIELD:
-                if (stack.getUseAction().equals(UseAction.BLOCK) || stack.getItem() instanceof ShieldItem)
+                if (stack.getUseAnimation().equals(UseAction.BLOCK) || stack.getItem() instanceof ShieldItem)
                 {
-                    boolean isBlocking = player.isHandActive() && player.getActiveItemStack().equals(stack);
+                    boolean isBlocking = player.isUsingItem() && player.getUseItem().equals(stack);
 
                     if (flag)
                     {
@@ -145,9 +146,9 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
                 break;
             }
 
-            if (stack.getItem() instanceof ShieldItem || stack.getItem().getUseAction(stack) == UseAction.BLOCK)
+            if (stack.getItem() instanceof ShieldItem || stack.getItem().getUseAnimation(stack) == UseAction.BLOCK)
             {
-                boolean isBlocking = player.isHandActive() && player.getActiveItemStack() == stack;
+                boolean isBlocking = player.isUsingItem() && player.getUseItem() == stack;
                 resLoc = ResourcePackReader.getAestheticShield(data.getRenderingPart(slot), isBlocking);
             }
 
@@ -156,7 +157,7 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
 
             renderModel(rotatedModel, buffer, getRenderType(), mat, packedLightIn, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
 
-            mat.pop();
+            mat.popPose();
 
         });
 
@@ -165,7 +166,7 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
     private RenderType getRenderType()
     {
 
-        return RenderType.getEntityTranslucent(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
+        return RenderType.entityTranslucent(PlayerContainer.BLOCK_ATLAS);
     }
 
     // vanilla rendering
@@ -174,14 +175,14 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
 
         if (!stack.isEmpty())
         {
-            mat.push();
-            this.getEntityModel().translateHand(hand, mat);
-            mat.rotate(Vector3f.XP.rotationDegrees(-90.0F));
-            mat.rotate(Vector3f.YP.rotationDegrees(180.0F));
+            mat.pushPose();
+            this.getParentModel().translateToHand(hand, mat);
+            mat.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
+            mat.mulPose(Vector3f.YP.rotationDegrees(180.0F));
             boolean flag = hand == HandSide.LEFT;
             mat.translate((double) ((float) (flag ? -1 : 1) / 16.0F), 0.125D, -0.625D);
-            Minecraft.getInstance().getFirstPersonRenderer().renderItemSide(ent, stack, cam, flag, mat, buffer, packedLightIn);
-            mat.pop();
+            Minecraft.getInstance().getItemInHandRenderer().renderItem(ent, stack, cam, flag, mat, buffer, packedLightIn);
+            mat.popPose();
         }
     }
 
@@ -198,7 +199,7 @@ public class LayerAestheticHeldItem extends LayerRenderer<AbstractClientPlayerEn
         IVertexBuilder bb = bufferIn.getBuffer(rt);
         for (BakedQuad quad : model.getQuads(null, null, rand, EmptyModelData.INSTANCE))
         {
-            bb.addVertexData(matrixStackIn.getLast(), quad, r, g, b, a, packedLightIn, overlay, true);
+            bb.addVertexData(matrixStackIn.last(), quad, r, g, b, a, packedLightIn, overlay, true);
         }
     }
 

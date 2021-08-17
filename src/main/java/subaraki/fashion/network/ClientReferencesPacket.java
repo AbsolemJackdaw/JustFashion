@@ -1,19 +1,9 @@
 package subaraki.fashion.network;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import lib.util.ClientReferences;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.layers.ArrowLayer;
-import net.minecraft.client.renderer.entity.layers.CapeLayer;
-import net.minecraft.client.renderer.entity.layers.Deadmau5HeadLayer;
-import net.minecraft.client.renderer.entity.layers.ElytraLayer;
-import net.minecraft.client.renderer.entity.layers.HeadLayer;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
+import net.minecraft.client.renderer.entity.layers.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
@@ -22,6 +12,12 @@ import subaraki.fashion.client.render.layer.LayerAestheticHeldItem;
 import subaraki.fashion.client.render.layer.LayerFashion;
 import subaraki.fashion.client.render.layer.LayerWardrobe;
 import subaraki.fashion.mod.EnumFashionSlot;
+import subaraki.fashion.mod.Fashion;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class ClientReferencesPacket {
 
@@ -41,10 +37,9 @@ public class ClientReferencesPacket {
         return list;
     }
 
-    public static void handle(ResourceLocation ids[], boolean isActive, UUID sender, List<String> layers) {
+    public static void handle(ResourceLocation ids[], boolean isActive, UUID sender, List<String> layers)  {
 
-        PlayerEntity distantPlayer = ClientReferences.getClientPlayerByUUID(sender);
-        PlayerEntity player = ClientReferences.getClientPlayer();
+        PlayerEntity distantPlayer = Minecraft.getInstance().level.getPlayerByUUID(sender);
 
         FashionData.get(distantPlayer).ifPresent(distFashion -> {
 
@@ -52,28 +47,15 @@ public class ClientReferencesPacket {
                 distFashion.updateFashionSlot(ids[slot.ordinal()], slot);
             distFashion.setRenderFashion(isActive);
 
-            EntityRenderer<? super PlayerEntity> distantPlayerRenderer = ClientReferences.getRenderManager().getRenderer(distantPlayer);
-            EntityRenderer<? super PlayerEntity> playerRenderer = ClientReferences.getRenderManager().getRenderer(player);
+            EntityRenderer<? super PlayerEntity> distantPlayerRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(distantPlayer);
 
-            Field field = null;
+            Field field = ObfuscationReflectionHelper.findField(LivingRenderer.class, Fashion.obfLayerName);
             Object ob = null;
-
             try {
-                if (field == null)
-                    field = ObfuscationReflectionHelper.findField(LivingRenderer.class, "field_177097_h");
-                if (ob == null)
-                    ob = field.get(distantPlayerRenderer);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
+                ob = field.get(distantPlayerRenderer);
+            } catch (IllegalAccessException e) {
                 e.printStackTrace();
-            }
-
-            try {
-                if (field == null)
-                    field = ObfuscationReflectionHelper.findField(LivingRenderer.class, "field_177097_h");
-
-                ob = field.get(playerRenderer);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
-                e.printStackTrace();
+                return;
             }
 
             distFashion.keepLayers.clear();

@@ -19,7 +19,7 @@ public class PlayerTracker {
     @SubscribeEvent
     public void playerLogin(PlayerLoggedInEvent event) {
 
-        if (!event.getPlayer().world.isRemote) {
+        if (!event.getPlayer().level.isClientSide) {
             toClient(event.getPlayer());
         }
     }
@@ -27,7 +27,7 @@ public class PlayerTracker {
     @SubscribeEvent
     public void playerDimensionChange(PlayerChangedDimensionEvent event) {
 
-        if (!event.getPlayer().world.isRemote) {
+        if (!event.getPlayer().level.isClientSide) {
             toClient(event.getPlayer());
         }
     }
@@ -48,7 +48,7 @@ public class PlayerTracker {
             return;
         if (event.getOriginal() == null)
             return;
-        if (event.getPlayer().world.isRemote || event.getOriginal().world.isRemote)
+        if (event.getPlayer().level.isClientSide || event.getOriginal().level.isClientSide)
             return;
 
         FashionData.get(event.getOriginal()).ifPresent(dataOriginal -> {
@@ -63,7 +63,7 @@ public class PlayerTracker {
 
         if (event.getPlayer() == null)
             return;
-        if (event.getPlayer().world.isRemote)
+        if (event.getPlayer().level.isClientSide)
             return;
 
         toClient(event.getPlayer());
@@ -71,14 +71,14 @@ public class PlayerTracker {
 
     private void sync(PlayerEntity player) {
 
-        if (!player.world.isRemote) {
+        if (!player.level.isClientSide) {
             FashionData.get(player).ifPresent(data -> {
                 
                 NetworkHandler.NETWORK.send(PacketDistributor.TRACKING_ENTITY.with(() -> player), new PacketSyncFashionToTrackedPlayers(data.getAllRenderedParts(),
-                        data.shouldRenderFashion(), player.getUniqueID(), data.getSimpleNamesForToggledFashionLayers()));
+                        data.shouldRenderFashion(), player.getUUID(), data.getSimpleNamesForToggledFashionLayers()));
                 
                 NetworkHandler.NETWORK.send(PacketDistributor.TRACKING_ENTITY.with(() -> player),
-                        new PacketSetWardrobeToTrackedClientPlayers(player.getUniqueID(), data.isInWardrobe()));
+                        new PacketSetWardrobeToTrackedClientPlayers(player.getUUID(), data.isInWardrobe()));
             });
         }
     }

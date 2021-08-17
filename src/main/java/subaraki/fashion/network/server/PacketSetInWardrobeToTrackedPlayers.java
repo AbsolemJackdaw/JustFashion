@@ -2,7 +2,7 @@ package subaraki.fashion.network.server;
 
 import java.util.function.Supplier;
 
-import lib.util.networking.IPacketBase;
+import subaraki.fashion.network.IPacketBase;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
@@ -52,7 +52,7 @@ public class PacketSetInWardrobeToTrackedPlayers implements IPacketBase {
                 data.setInWardrobe(isInWardrobe);
             });
             NetworkHandler.NETWORK.send(PacketDistributor.TRACKING_ENTITY.with(() -> context.get().getSender()),
-                    new PacketSetWardrobeToTrackedClientPlayers(context.get().getSender().getUniqueID(), isInWardrobe));
+                    new PacketSetWardrobeToTrackedClientPlayers(context.get().getSender().getUUID(), isInWardrobe));
         });
         context.get().setPacketHandled(true);
     }

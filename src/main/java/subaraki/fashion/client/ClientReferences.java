@@ -15,6 +15,7 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import subaraki.fashion.client.render.layer.LayerAestheticHeldItem;
 import subaraki.fashion.client.render.layer.LayerFashion;
 import subaraki.fashion.client.render.layer.LayerWardrobe;
+import subaraki.fashion.mod.Fashion;
 
 public class ClientReferences {
 
@@ -27,7 +28,7 @@ public class ClientReferences {
 
         for (String type : types)
         {
-            PlayerRenderer renderer = ((PlayerRenderer) Minecraft.getInstance().getRenderManager().getSkinMap().get(type));
+            PlayerRenderer renderer = ((PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap().get(type));
             renderer.addLayer(new LayerWardrobe(renderer));
 
             mappedfashion.put(new LayerAestheticHeldItem(renderer), renderer);
@@ -37,7 +38,7 @@ public class ClientReferences {
     
     public static boolean isBlockTextureMap(TextureStitchEvent.Pre event) {
         
-        boolean flag = event.getMap().getTextureLocation().equals(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
+        boolean flag = event.getMap().location().equals(PlayerContainer.BLOCK_ATLAS);
         return flag;
     }
 
@@ -59,11 +60,11 @@ public class ClientReferences {
 
         List<LayerRenderer<?, ?>> list = new ArrayList<>();
 
-        PlayerRenderer renderer = ((PlayerRenderer) Minecraft.getInstance().getRenderManager().getSkinMap().get("default"));
+        PlayerRenderer renderer = ((PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap().get("default"));
 
         if (swap_field_layerrenders == null)
         {
-            swap_field_layerrenders = ObfuscationReflectionHelper.findField(LivingRenderer.class, "field_177097_h");
+            swap_field_layerrenders = ObfuscationReflectionHelper.findField(LivingRenderer.class, Fashion.obfLayerName);
         }
 
         if (swap_list_layerrenders == null)

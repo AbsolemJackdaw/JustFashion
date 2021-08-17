@@ -39,16 +39,16 @@ public class LayerWardrobe extends LayerRenderer<AbstractClientPlayerEntity, Pla
 
             if (fashion.isInWardrobe())
             {
-                mat.push();
+                mat.pushPose();
                 // pixel scale * pixel offset = 16 pixels is one block
                 float scale = 0.0625f * (16 + 4);
                 mat.scale(scale, scale, scale);
 
-                mat.rotate(Vector3f.XP.rotationDegrees(180));
+                mat.mulPose(Vector3f.XP.rotationDegrees(180));
                 mat.translate(-(0.0625f * 8), -(0.0625f * (16 + 4)), -(0.0625f * 8));
                 IBakedModel model = Minecraft.getInstance().getModelManager().getModel(modelLocation);
                 render(model, bufferIn, getRenderType(), mat, packedLightIn, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
-                mat.pop();
+                mat.popPose();
             }
         });
     }
@@ -56,7 +56,7 @@ public class LayerWardrobe extends LayerRenderer<AbstractClientPlayerEntity, Pla
     private RenderType getRenderType()
     {
 
-        return RenderType.getEntitySolid(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
+        return RenderType.entitySolid(PlayerContainer.BLOCK_ATLAS);
     }
 
     public void render(IBakedModel model, IRenderTypeBuffer bufferIn, RenderType rt, MatrixStack matrixStackIn, int packedLightIn, int overlay, int color)
@@ -72,7 +72,7 @@ public class LayerWardrobe extends LayerRenderer<AbstractClientPlayerEntity, Pla
         IVertexBuilder bb = bufferIn.getBuffer(rt);
         for (BakedQuad quad : model.getQuads(null, null, rand, EmptyModelData.INSTANCE))
         {
-            bb.addVertexData(matrixStackIn.getLast(), quad, r, g, b, a, packedLightIn, overlay, true);
+            bb.addVertexData(matrixStackIn.last(), quad, r, g, b, a, packedLightIn, overlay, true);
         }
     }
 }

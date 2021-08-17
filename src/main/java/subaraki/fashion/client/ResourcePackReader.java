@@ -42,7 +42,7 @@ public class ResourcePackReader {
         IResourceManager rm = Minecraft.getInstance().getResourceManager();
         if (rm instanceof IReloadableResourceManager)
         {
-            ((IReloadableResourceManager) rm).addReloadListener((ISelectiveResourceReloadListener) (resourceManager, resourcePredicate) -> {
+            ((IReloadableResourceManager) rm).registerReloadListener((ISelectiveResourceReloadListener) (resourceManager, resourcePredicate) -> {
                 if (resourcePredicate.test(VanillaResourceType.TEXTURES))
                 {
                     loadFashionPacks();
@@ -200,7 +200,7 @@ public class ResourcePackReader {
 
         try
         {
-            List<IResource> jsons = Minecraft.getInstance().getResourceManager().getAllResources(new ResourceLocation(Fashion.MODID, "fashionpack.json"));
+            List<IResource> jsons = Minecraft.getInstance().getResourceManager().getResources(new ResourceLocation(Fashion.MODID, "fashionpack.json"));
             Gson gson = new GsonBuilder().create();
 
             for (IResource res : jsons)
@@ -213,7 +213,7 @@ public class ResourcePackReader {
 
                 if (!json.has("pack"))
                 {
-                    Fashion.log.warn(res.getPackName() + "'s fashion pack did not contain a pack id !");
+                    Fashion.log.warn(res.getSourceName() + "'s fashion pack did not contain a pack id !");
                     continue;
                 }
                 String pack = json.get("pack").getAsString();
@@ -361,7 +361,6 @@ public class ResourcePackReader {
         case BOOTS:
             return boots;
         case WEAPON:
-            return toArrayList(slot);
         case SHIELD:
             return toArrayList(slot);
         default:

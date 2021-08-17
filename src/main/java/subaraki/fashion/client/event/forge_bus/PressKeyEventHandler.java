@@ -13,7 +13,7 @@ public class PressKeyEventHandler {
     @SubscribeEvent
     public void keyPressed(KeyInputEvent event) {
 
-        if (KeyRegistry.keyWardrobe.isPressed()) {
+        if (KeyRegistry.keyWardrobe.consumeClick()) {
 
             FashionData.get(Minecraft.getInstance().player).ifPresent(data -> {
                 data.setInWardrobe(true);
@@ -22,7 +22,7 @@ public class PressKeyEventHandler {
 
             NetworkHandler.NETWORK.sendToServer(new PacketSetInWardrobeToTrackedPlayers(true));
 
-            Minecraft.getInstance().displayGuiScreen(new WardrobeScreen());
+            Minecraft.getInstance().setScreen(new WardrobeScreen());
         }
     }
 }
