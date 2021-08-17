@@ -1,40 +1,70 @@
 package subaraki.fashion.capability;
 
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.ICapabilitySerializable;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import subaraki.fashion.mod.Fashion;
 
-import java.util.concurrent.Callable;
+public class FashionCapability implements ICapabilitySerializable<CompoundTag> {
 
-public class FashionCapability {
-
+    /**
+     * Unique key to identify the attached provider from others
+     */
+    public static final ResourceLocation KEY = new ResourceLocation(Fashion.MODID, "fashion_cap");
     /*
      * This field will contain the forge-allocated Capability class. This instance
-     * will be initialized internally by Forge, upon calling register.
+     * will be initialized internally by Forge, upon calling register in FMLCommonSetupEvent.
      */
     @CapabilityInject(FashionData.class)
     public static Capability<FashionData> CAPABILITY;
 
-    /*
-     * This registers our capability to the manager
+    final FashionData slots = new FashionData();
+
+    /**
+     * Gets called before world is initiated. player.worldObj will return null here !
+     *
      */
-    public void register() {
+    public FashionCapability(Player player) {
 
-        CapabilityManager.INSTANCE.register(
-
-                // This is the class the capability works with
-                FashionData.class);
+        slots.setPlayer(player);
     }
 
-    /*
-     * This class handles constructing new instances for this capability
-     */
-    public static class DefaultInstanceFactory implements Callable<FashionData> {
+    @SubscribeEvent
+    public static void startCommonSetup(FMLCommonSetupEvent event) {
+        CapabilityManager.INSTANCE.register(FashionData.class);
+    }
 
-        @Override
-        public FashionData call() throws Exception {
+    @Override
+    public CompoundTag serializeNBT() {
 
-            return new FashionData();
-        }
+        return (CompoundTag) slots.writeData();
+    }
+
+    @Override
+    public void deserializeNBT(CompoundTag nbt) {
+
+        slots.readData(nbt);
+    }
+
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
+
+        if (cap == FashionCapability.CAPABILITY)
+            return (LazyOptional<T>) LazyOptional.of(this::getImpl);
+
+        return LazyOptional.empty();
+    }
+
+    private FashionData getImpl() {
+
+        return slots;
     }
 }

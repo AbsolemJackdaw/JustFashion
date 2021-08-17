@@ -12,7 +12,6 @@ public class CommonSetupEvent {
 
     @SubscribeEvent
     public static void startCommonSetup(FMLCommonSetupEvent event) {
-        new FashionCapability().register();
         new NetworkHandler();
     }
 }

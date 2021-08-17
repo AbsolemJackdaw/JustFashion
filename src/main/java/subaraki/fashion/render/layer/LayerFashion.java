@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.render.EnumFashionSlot;
 import subaraki.fashion.render.FashionModels;
@@ -57,75 +58,18 @@ public class LayerFashion extends RenderLayer<AbstractClientPlayer, PlayerModel<
     private void renderFashionPart(PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer player, EnumFashionSlot slot, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
 
         FashionData.get(player).ifPresent(fashionData -> {
-
             ResourceLocation resLoc = fashionData.getRenderingPart(slot);
-
             if (resLoc == null || resLoc.toString().contains("missing"))
                 return;
-
             model = getModelFromSlot(slot, player.getModelName().equals("slim"));
-
             if (model == null)
                 return;
-
             this.getParentModel().copyPropertiesTo(model);
-
-            //possible fix for mr crayfish's gun mod, where sleeves dont follow arm movement
-            if (model.rightArm.visible) {
-                model.rightArm.copyFrom(this.getParentModel().rightArm);
-                model.rightSleeve.copyFrom(this.getParentModel().rightArm);
-            }
-            if (model.leftArm.visible) {
-                model.leftArm.copyFrom(this.getParentModel().leftArm);
-                model.leftSleeve.copyFrom(this.getParentModel().leftArm);
-            }
-
+            setVisibility(slot, player);
             model.prepareMobModel(player, limbSwing, limbSwingAmount, partialTicks);
             model.setupAnim(player, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-
-            model.setAllVisible(false);
-
-            if (slot == HEAD) {
-                model.head.visible = !player.isInvisible();
-                model.hat.visible = !player.isInvisible();
-            }
-
-            if (slot == LEGS) {
-                model.leftLeg.visible = !player.isInvisible();
-                model.leftPants.visible = !player.isInvisible();
-                model.rightLeg.visible = !player.isInvisible();
-                model.rightPants.visible = !player.isInvisible();
-                model.body.visible = !player.isInvisible();
-
-            }
-
-            if (slot == BOOTS) {
-                model.leftLeg.visible = !player.isInvisible();
-                model.leftPants.visible = !player.isInvisible();
-                model.rightLeg.visible = !player.isInvisible();
-                model.rightPants.visible = !player.isInvisible();
-            }
-
-            if (slot == CHEST) {
-                model.body.visible = !player.isInvisible();
-                model.jacket.visible = !player.isInvisible();
-
-                model.leftArm.visible = !player.isInvisible();
-                model.leftSleeve.visible = !player.isInvisible();
-
-                model.rightArm.visible = !player.isInvisible();
-                model.rightSleeve.visible = !player.isInvisible();
-            }
-
-            model.crouching = getParentModel().crouching;
-            model.young = getParentModel().young;
-            model.rightArmPose = getParentModel().rightArmPose;
-            model.leftArmPose = getParentModel().leftArmPose;
-            model.riding = getParentModel().riding;
-
             VertexConsumer bb = bufferIn.getBuffer(RenderType.entityTranslucent(resLoc));
             model.renderToBuffer(matrixStackIn, bb, packedLightIn, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
-
         });
     }
 
@@ -140,4 +84,35 @@ public class LayerFashion extends RenderLayer<AbstractClientPlayer, PlayerModel<
         };
     }
 
+    private void setVisibility(EnumFashionSlot slot, Player player) {
+        model.setAllVisible(false);
+
+        switch (slot) {
+            case HEAD -> {
+                model.head.visible = !player.isInvisible();
+                model.hat.visible = !player.isInvisible();
+            }
+            case CHEST -> {
+                model.body.visible = !player.isInvisible();
+                model.jacket.visible = !player.isInvisible();
+                model.leftArm.visible = !player.isInvisible();
+                model.leftSleeve.visible = !player.isInvisible();
+                model.rightArm.visible = !player.isInvisible();
+                model.rightSleeve.visible = !player.isInvisible();
+            }
+            case LEGS -> {
+                model.leftLeg.visible = !player.isInvisible();
+                model.leftPants.visible = !player.isInvisible();
+                model.rightLeg.visible = !player.isInvisible();
+                model.rightPants.visible = !player.isInvisible();
+                model.body.visible = !player.isInvisible();
+            }
+            case BOOTS -> {
+                model.leftLeg.visible = !player.isInvisible();
+                model.leftPants.visible = !player.isInvisible();
+                model.rightLeg.visible = !player.isInvisible();
+                model.rightPants.visible = !player.isInvisible();
+            }
+        }
+    }
 }

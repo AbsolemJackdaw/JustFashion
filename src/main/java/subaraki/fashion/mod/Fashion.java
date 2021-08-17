@@ -20,7 +20,7 @@ public class Fashion {
     public static final HandleRenderSwap SWAPPER = new HandleRenderSwap();
     public static Logger log = LogManager.getLogger(MODID);
 
-    static boolean isDev = true;
+    static boolean isDev = false;
     public static String obfLayerName = isDev ? "layers" : "f_115291_"; //"f_115291_" / "layers"
 
     public Fashion() {

@@ -38,15 +38,6 @@ public class HandleRenderSwap {
                 // save mod list. not volatile !
                 if (data.getSavedLayers().isEmpty()) {
                     data.saveOriginalList((List<RenderLayer<?, ?>>) swap_list_layerrenders);
-
-                    //this feature got removed with the change to name based keepLayer checking.
-                    //it is no longer needed to check these layers against the full list of saved layers
-                    // save mod list to server , used for toggling save purposes (only names are allowed on server)
-//                    List<String> names = new ArrayList<String>();
-//                    for (RenderLayer<?, ?> layer : data.getOtherModLayersList())
-//                        names.add(layer.getClass().getSimpleName());
-                    // send list of class names to server
-//                    NetworkHandler.NETWORK.sendToServer(new PacketSyncSavedListToServer(names));
                 }
 
                 // if you need fashion rendered

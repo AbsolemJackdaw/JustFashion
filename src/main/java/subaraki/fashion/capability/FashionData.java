@@ -325,27 +325,24 @@ public class FashionData {
     public void updateFashionSlot(ResourceLocation partname, EnumFashionSlot slot) {
 
         switch (slot) {
-            case HEAD:
+            case HEAD -> {
                 hatIndex = partname;
-                break;
-            case CHEST:
+            }
+            case CHEST -> {
                 bodyIndex = partname;
-                break;
-            case LEGS:
+            }
+            case LEGS -> {
                 legsIndex = partname;
-                break;
-            case BOOTS:
+            }
+            case BOOTS -> {
                 bootsIndex = partname;
-                break;
-            case WEAPON:
+            }
+            case WEAPON -> {
                 weaponIndex = partname;
-                break;
-            case SHIELD:
+            }
+            case SHIELD -> {
                 shieldIndex = partname;
-                break;
-
-            default:
-                break;
+            }
         }
     }
 

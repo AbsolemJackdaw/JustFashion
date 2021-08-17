@@ -90,10 +90,7 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
                     } else {
                         renderHeldItem(player, stackOffHand, cam_left, HumanoidArm.LEFT, poseStack, buffer, packedLightIn);
                     }
-
             }
-
-
         });
     }
 

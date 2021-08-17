@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import subaraki.fashion.capability.FashionData;
+import subaraki.fashion.mod.Fashion;
 import subaraki.fashion.render.EnumFashionSlot;
 import subaraki.fashion.render.layer.LayerAestheticHeldItem;
 import subaraki.fashion.render.layer.LayerFashion;
@@ -55,7 +56,7 @@ public class ClientReferencesPacket {
             Object ob = null;
 
             try {
-                field = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class, "layers");
+                field = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class, Fashion.obfLayerName);
                 ob = field.get(distantPlayerRenderer);
             } catch (IllegalArgumentException | IllegalAccessException e) {
                 e.printStackTrace();
@@ -63,7 +64,7 @@ public class ClientReferencesPacket {
 
             try {
                 if (field == null)
-                    field = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class, "layers");
+                    field = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class, Fashion.obfLayerName);
 
                 ob = field.get(playerRenderer);
             } catch (IllegalArgumentException | IllegalAccessException e) {

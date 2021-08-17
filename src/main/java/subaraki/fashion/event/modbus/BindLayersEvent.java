@@ -25,13 +25,13 @@ public class BindLayersEvent {
         //clear map or you'll get duplicates
         mappedfashion.clear();
 
-        String[] types = new String[]{"default", "slim"};
-        for (String type : types)
-            if (event.getSkin(type) instanceof PlayerRenderer renderer) {
+        event.getSkins().forEach(skinTypeName -> { //default , slim
+            if (event.getSkin(skinTypeName) instanceof PlayerRenderer renderer) {
                 renderer.addLayer(new LayerWardrobe(renderer));
                 mappedfashion.put(new LayerAestheticHeldItem(renderer), renderer);
                 mappedfashion.put(new LayerFashion(renderer), renderer);
             }
+        });
     }
 
     public static HashMap<RenderLayer<?, ?>, PlayerRenderer> getMappedfashion() {
