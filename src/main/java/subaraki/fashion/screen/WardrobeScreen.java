@@ -48,19 +48,20 @@ public class WardrobeScreen extends Screen {
         super(new TextComponent("fashion.wardrobe"));
     }
 
-    public static void renderEntityInInventory(int x, int y, int scale, float mouseX, float mouseY, LivingEntity player, float rotateY) {
-        float var6 = (float) Math.atan((double) (mouseX / 40.0F));
-        float var7 = (float) Math.atan((double) (mouseY / 40.0F));
+    public static void renderEntityInInventory(int x, int y, int scale, float mouseX, float mouseY, LivingEntity player, float rotateY, float offsetZ) {
+        float flipScale = offsetZ < 0 ? -1.0f : 1.0f;
+        float lookX = (float) Math.atan((double) (mouseX / 40.0F)) * flipScale;
+        float lookY = (float) Math.atan((double) (mouseY / 40.0F));
         PoseStack poseStackGeneral = RenderSystem.getModelViewStack();
         poseStackGeneral.pushPose();
-        poseStackGeneral.translate((double) x, (double) y, 1050.0D);
-        poseStackGeneral.scale(1.0F, 1.0F, -1.0F);
+        poseStackGeneral.translate((double) x, (double) y, 1050.0D + offsetZ);
+        poseStackGeneral.scale(flipScale, 1.0F, -1.0F);
         RenderSystem.applyModelViewMatrix();
         PoseStack poseStack = new PoseStack();
         poseStack.translate(0.0D, 0.0D, 1000.0D);
         poseStack.scale((float) scale, (float) scale, (float) scale);
         Quaternion rotationZ = Vector3f.ZP.rotationDegrees(180.0F);
-        Quaternion rotationX = Vector3f.XP.rotationDegrees(var7 * 20.0F);
+        Quaternion rotationX = Vector3f.XP.rotationDegrees(lookY * 20.0F);
         // rotationZ.mul(rotationX);
         poseStack.mulPose(rotationZ);
         float var12 = player.yBodyRot;
@@ -68,9 +69,9 @@ public class WardrobeScreen extends Screen {
         float var14 = player.getXRot();
         float var15 = player.yHeadRotO;
         float var16 = player.yHeadRot;
-        player.yBodyRot = 180.0F + var6 * 20.0F;
-        player.setYRot(180.0F + var6 * 40.0F);
-        player.setXRot(-var7 * 20.0F);
+        player.yBodyRot = 180.0F + lookX * 20.0F;
+        player.setYRot(180.0F + lookX * 40.0F);
+        player.setXRot(-lookY * 20.0F);
         player.yHeadRot = player.getYRot();
         player.yHeadRotO = player.getYRot();
         Lighting.setupForEntityInInventory();
@@ -187,8 +188,10 @@ public class WardrobeScreen extends Screen {
 
         int offset_big_model = (ConfigData.bigger_model ? 5 : 0);
 
+        mat.pushPose();
         renderEntityInInventory(guiLeft + 33, guiTop + 65 + offset_big_model, (int) (25f * scale),
-                ((guiLeft + 70 - oldMouseX) / 2.5f) * -flip_mouse, guiTop + 40 - oldMouseY, player, rotationMirror_back);
+                ((guiLeft + 70 - oldMouseX) / 2.5f) * -flip_mouse, guiTop + 40 - oldMouseY, player, rotationMirror_back, -200f);
+        mat.popPose();
 
         RenderSystem.enableBlend();
 
@@ -201,8 +204,7 @@ public class WardrobeScreen extends Screen {
 
         mat.pushPose();
         renderEntityInInventory((int) ((guiLeft + 68f)), (int) ((guiTop + 82f)), (int) (30f * scale),
-                ((guiLeft + 70 - oldMouseX) / 2.5f) * flip_mouse, guiTop + 40 - oldMouseY, player, rotationMirror_front);
-
+                ((guiLeft + 70 - oldMouseX) / 2.5f) * flip_mouse, guiTop + 40 - oldMouseY, player, rotationMirror_front, 200f);
         mat.popPose();
 
         mat.popPose();
@@ -214,7 +216,6 @@ public class WardrobeScreen extends Screen {
 
     protected void drawGuiContainerForegroundLayer(PoseStack mat, int mouseX, int mouseY) {
 
-        // super.drawGuiContainerForegroundLayer(mouseX, mouseY);
         FashionData.get(player).ifPresent(fashion -> {
 
             int id = 0;
@@ -223,12 +224,9 @@ public class WardrobeScreen extends Screen {
                 String[] s = null;
                 String name = null;
 
-                try {
-                    s = resLoc.getPath().split("/");
+                s = resLoc.getPath().split("/");
+                if (s.length > 0)
                     name = s[s.length - 1].split("\\.")[0];
-                } catch (NullPointerException e) {
-
-                }
 
                 if (name == null)
                     name = "no model";
@@ -259,7 +257,6 @@ public class WardrobeScreen extends Screen {
                     }
                 }
             }
-
         });
     }
 
