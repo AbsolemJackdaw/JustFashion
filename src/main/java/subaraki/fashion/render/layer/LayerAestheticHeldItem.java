@@ -4,25 +4,26 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShieldItem;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.*;
 import net.minecraftforge.client.ForgeHooksClient;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.render.EnumFashionSlot;
@@ -41,44 +42,57 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
     }
 
     @Override
-    public void render(PoseStack mat, MultiBufferSource buffer, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
 
         FashionData.get(player).ifPresent(fashionData -> {
+            boolean isMainHand = player.getMainArm() == HumanoidArm.RIGHT;
 
-            ItemStack stackHeldItem = player.getMainHandItem();
-            ItemStack stackOffHand = player.getOffhandItem();
+            ItemStack stackHeldItem = isMainHand ? player.getMainHandItem() : player.getOffhandItem();
+            ItemStack stackOffHand = isMainHand ? player.getOffhandItem() : player.getMainHandItem();
 
             boolean renderedOffHand = false;
             boolean renderedHand = false;
 
-            if (!fashionData.getRenderingPart(EnumFashionSlot.WEAPON).toString().contains("missing")) {
-                if (stackHeldItem.getItem() instanceof SwordItem) {
-                    renderAesthetic(EnumFashionSlot.WEAPON, player, stackHeldItem, cam_right, HumanoidArm.RIGHT, mat, buffer, packedLightIn);
-                    renderedHand = true;
+            if (!stackHeldItem.isEmpty() || !stackOffHand.isEmpty()) {
+                if (!fashionData.getRenderingPart(EnumFashionSlot.WEAPON).toString().contains("missing")) {
+                    if (stackHeldItem.getItem() instanceof SwordItem) {
+                        renderAesthetic(EnumFashionSlot.WEAPON, player, stackHeldItem, cam_right, HumanoidArm.RIGHT, poseStack, buffer, packedLightIn);
+                        renderedHand = true;
+                    }
+
+                    if (stackOffHand.getItem() instanceof SwordItem) {
+                        renderAesthetic(EnumFashionSlot.WEAPON, player, stackOffHand, cam_left, HumanoidArm.LEFT, poseStack, buffer, packedLightIn);
+                        renderedOffHand = true;
+                    }
                 }
 
-                if (stackOffHand.getItem() instanceof SwordItem) {
-                    renderAesthetic(EnumFashionSlot.WEAPON, player, stackOffHand, cam_left, HumanoidArm.LEFT, mat, buffer, packedLightIn);
-                    renderedOffHand = true;
+                if (!fashionData.getRenderingPart(EnumFashionSlot.SHIELD).toString().contains("missing")) {
+                    if (stackHeldItem.getItem() instanceof ShieldItem || stackHeldItem.getItem().getUseAnimation(stackHeldItem) == UseAnim.BLOCK) {
+                        renderAesthetic(EnumFashionSlot.SHIELD, player, stackHeldItem, cam_right, HumanoidArm.RIGHT, poseStack, buffer, packedLightIn);
+                        renderedHand = true;
+                    }
+
+                    if (stackOffHand.getItem() instanceof ShieldItem || stackOffHand.getItem().getUseAnimation(stackOffHand) == UseAnim.BLOCK) {
+                        renderAesthetic(EnumFashionSlot.SHIELD, player, stackOffHand, cam_left, HumanoidArm.LEFT, poseStack, buffer, packedLightIn);
+                        renderedOffHand = true;
+                    }
                 }
+
+                if (!renderedHand)
+                    if (stackHeldItem.is(Items.SPYGLASS) && player.getUseItem() == stackHeldItem && player.swingTime == 0) {
+                        renderArmWithSpyglass(player, stackHeldItem, HumanoidArm.RIGHT, poseStack, buffer, packedLightIn);
+                    } else {
+                        renderHeldItem(player, stackHeldItem, cam_right, HumanoidArm.RIGHT, poseStack, buffer, packedLightIn);
+                    }
+                if (!renderedOffHand)
+                    if (stackOffHand.is(Items.SPYGLASS) && player.getUseItem() == stackOffHand && player.swingTime == 0) {
+                        renderArmWithSpyglass(player, stackOffHand, HumanoidArm.LEFT, poseStack, buffer, packedLightIn);
+                    } else {
+                        renderHeldItem(player, stackOffHand, cam_left, HumanoidArm.LEFT, poseStack, buffer, packedLightIn);
+                    }
+
             }
 
-            if (!fashionData.getRenderingPart(EnumFashionSlot.SHIELD).toString().contains("missing")) {
-                if (stackHeldItem.getItem() instanceof ShieldItem || stackHeldItem.getItem().getUseAnimation(stackHeldItem) == UseAnim.BLOCK) {
-                    renderAesthetic(EnumFashionSlot.SHIELD, player, stackHeldItem, cam_right, HumanoidArm.RIGHT, mat, buffer, packedLightIn);
-                    renderedHand = true;
-                }
-
-                if (stackOffHand.getItem() instanceof ShieldItem || stackOffHand.getItem().getUseAnimation(stackOffHand) == UseAnim.BLOCK) {
-                    renderAesthetic(EnumFashionSlot.SHIELD, player, stackOffHand, cam_left, HumanoidArm.LEFT, mat, buffer, packedLightIn);
-                    renderedOffHand = true;
-                }
-            }
-
-            if (!renderedHand)
-                renderHeldItem(player, stackHeldItem, cam_right, HumanoidArm.RIGHT, mat, buffer, packedLightIn);
-            if (!renderedOffHand)
-                renderHeldItem(player, stackOffHand, cam_left, HumanoidArm.LEFT, mat, buffer, packedLightIn);
 
         });
     }
@@ -156,7 +170,7 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
 
         if (!stack.isEmpty()) {
             mat.pushPose();
-            this.getParentModel().translateToHand(hand, mat);
+            ((ArmedModel) this.getParentModel()).translateToHand(hand, mat);
             mat.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
             mat.mulPose(Vector3f.YP.rotationDegrees(180.0F));
             boolean flag = hand == HumanoidArm.LEFT;
@@ -181,4 +195,17 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
         }
     }
 
+    private void renderArmWithSpyglass(LivingEntity player, ItemStack stack, HumanoidArm arm, PoseStack poseStack, MultiBufferSource buffer, int light) {
+        poseStack.pushPose();
+        ModelPart modelpart = this.getParentModel().getHead();
+        float f = modelpart.xRot;
+        modelpart.xRot = Mth.clamp(modelpart.xRot, (-(float) Math.PI / 6F), ((float) Math.PI / 2F));
+        modelpart.translateAndRotate(poseStack);
+        modelpart.xRot = f;
+        CustomHeadLayer.translateToHead(poseStack, false);
+        boolean flag = arm == HumanoidArm.LEFT;
+        poseStack.translate((double) ((flag ? -2.5F : 2.5F) / 16.0F), -0.0625D, 0.0D);
+        Minecraft.getInstance().getItemInHandRenderer().renderItem(player, stack, ItemTransforms.TransformType.HEAD, false, poseStack, buffer, light);
+        poseStack.popPose();
+    }
 }
