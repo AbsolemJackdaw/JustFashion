@@ -1,6 +1,5 @@
 package subaraki.fashion.network.client;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -77,7 +76,7 @@ public class PacketSyncFashionToClient implements IPacketBase {
 
         context.get().enqueueWork(() -> {
 
-            FashionData.get(Minecraft.getInstance().player).ifPresent(data -> {
+            FashionData.get(ClientReferences.getClientPlayer()).ifPresent(data -> {
 
                 for (EnumFashionSlot slot : EnumFashionSlot.values())
                     data.updateFashionSlot(ids[slot.ordinal()], slot);

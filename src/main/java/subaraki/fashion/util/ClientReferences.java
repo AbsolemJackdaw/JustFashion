@@ -41,4 +41,8 @@ public class ClientReferences {
         return Minecraft.getInstance().level.getPlayerByUUID(uuid);
     }
 
+    public static Player getClientPlayer(){
+        return Minecraft.getInstance().player;
+    }
+
 }
