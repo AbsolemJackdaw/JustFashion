@@ -27,15 +27,15 @@ import java.util.List;
 @Mod.EventBusSubscriber(modid = Fashion.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList<JsonObject>> {
 
-    private static ResourceLocation rod = new ResourceLocation("item/blaze_rod");
-    private static List<ResourceLocation> hats = Lists.<ResourceLocation>newArrayList();
-    private static List<ResourceLocation> body = Lists.<ResourceLocation>newArrayList();
-    private static List<ResourceLocation> legs = Lists.<ResourceLocation>newArrayList();
-    private static List<ResourceLocation> boots = Lists.<ResourceLocation>newArrayList();
-    private static List<ResourceLocation> weapons = Lists.<ResourceLocation>newArrayList();
-    private static List<ResourceLocation> items = Lists.<ResourceLocation>newArrayList();
-    private static List<ResourceLocation> shields = Lists.<ResourceLocation>newArrayList();
-    private static List<ResourceLocation> shieldsBlocking = Lists.<ResourceLocation>newArrayList();
+    private static final ResourceLocation rod = new ResourceLocation("item/blaze_rod");
+    private static final List<ResourceLocation> hats = Lists.newArrayList();
+    private static final List<ResourceLocation> body = Lists.newArrayList();
+    private static final List<ResourceLocation> legs = Lists.newArrayList();
+    private static final List<ResourceLocation> boots = Lists.newArrayList();
+    private static final List<ResourceLocation> weapons = Lists.newArrayList();
+    private static final List<ResourceLocation> items = Lists.newArrayList();
+    private static final List<ResourceLocation> shields = Lists.newArrayList();
+    private static final List<ResourceLocation> shieldsBlocking = Lists.newArrayList();
 
     @SubscribeEvent
     public static void registerReloadListener(RegisterClientReloadListenersEvent event) {
@@ -165,14 +165,14 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
 
         if (model != null) {
             items.add(model);
-            Fashion.log.debug("added " + model.toString() + " for item rendering");
+            Fashion.log.info("added " + model + " for item rendering");
         }
     }
 
     public void addWeaponModel(ResourceLocation model) {
 
         if (model == null) {
-            weapons.add((ResourceLocation) null);
+            weapons.add(null);
             Fashion.log.warn(String.format(
                     "%n TRIED REGISTERING A NULL WEAPON MODEL %n This is normal the first time for empty placeholders. %n If this happens more then once, check your Resource Pack json for any errors!"));
             return;
@@ -180,14 +180,14 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
 
         weapons.add(model);
 
-        Fashion.log.debug("added " + model.toString());
+        Fashion.log.info("added " + model);
     }
 
     public void addShieldModel(ResourceLocation model, ResourceLocation modelBlocking) {
 
         if (model == null || modelBlocking == null) {
-            shields.add((ResourceLocation) null);
-            shieldsBlocking.add((ResourceLocation) null);
+            shields.add(null);
+            shieldsBlocking.add(null);
 
             Fashion.log.warn(String.format(
                     "%n TRIED REGISTERING A NULL SHIELD MODEL %n This is normal the first time for empty placeholders. %n If this happens more then once, check your Resource Pack json for any errors!"));
@@ -207,14 +207,14 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
         legs.clear();
         boots.clear();
 
-        Fashion.log.debug("Cleared all Fashion lists");
+        Fashion.log.info("Cleared all Fashion lists");
 
         addHats(new ResourceLocation(Fashion.MODID, "textures/fashion/blank_hat.png"));
         addBody(new ResourceLocation(Fashion.MODID, "textures/fashion/blank_body.png"));
         addLegs(new ResourceLocation(Fashion.MODID, "textures/fashion/blank_pants.png"));
         addBoots(new ResourceLocation(Fashion.MODID, "textures/fashion/blank_boots.png"));
 
-        Fashion.log.info("Added fail safe empty Fashion models");
+        Fashion.log.info("Added fail safe empty Fashion Clothes");
     }
 
     public void initModels() {
@@ -224,26 +224,23 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
         shields.clear();
         shieldsBlocking.clear();
 
-        Fashion.log.debug("Cleared all Model lists");
+        Fashion.log.info("Cleared all Model lists");
         addWeaponModel(new ResourceLocation("missing")); // placeholder for empty spot
         addShieldModel(new ResourceLocation("missing"), new ResourceLocation("missing")); // placeholder for empty spot
 
-        Fashion.log.info("Added fail safe empty Fashion models");
+        Fashion.log.info("Added fail safe empty Fashion Weapons");
     }
 
     public ArrayList<JsonObject> prepare() {
         ArrayList<JsonObject> theJsonFiles = Lists.newArrayList();
 
-        List<Resource> jsonFiles = null;
+        List<Resource> jsonFiles;
         try {
             jsonFiles = Minecraft.getInstance().getResourceManager().getResources(new ResourceLocation(Fashion.MODID, "fashionpack.json"));
         } catch (IOException e) {
             Fashion.log.warn("************************************");
-            Fashion.log.warn("!*!*!*!*!");
-            Fashion.log.warn("Issue Loading fashion packs. skipping whole ordeal. Check your json parsing or report to mod author.");
-            Fashion.log.warn("!*!*!*!*!");
-            Fashion.log.warn("************************************");
-            e.printStackTrace();
+            Fashion.log.warn(e.getMessage());
+
             return theJsonFiles;
         }
 
@@ -261,13 +258,14 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
                     Fashion.log.warn(res.getSourceName() + "'s fashion pack did not contain a pack id !");
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                Fashion.log.warn("************************************");
+                Fashion.log.warn(e.getMessage());
             }
         }
         return theJsonFiles;
     }
 
-    public void applyFashion(ArrayList<JsonObject> jsonObjects) {
+    public void fillFashionLists(ArrayList<JsonObject> jsonObjects) {
         if (!jsonObjects.isEmpty()) {
             Runnable run = () -> {
                 for (JsonObject json : jsonObjects) {
@@ -275,7 +273,7 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
 
                         String pack = json.get("pack").getAsString();
 
-                        Fashion.log.debug("Reading out Fashion " + pack + " ...");
+                        Fashion.log.info("Reading out Fashion " + pack + " ...");
 
                         addHats(get("hats", json, pack));
                         addBody(get("body", json, pack));
@@ -289,34 +287,58 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
         }
     }
 
-    public void applyModels(ArrayList<JsonObject> jsonObjects) {
+    public void fillWeaponAndShieldLists(ArrayList<JsonObject> jsonObjects) {
         if (!jsonObjects.isEmpty()) {
             for (JsonObject json : jsonObjects) {
                 if (json.has("pack")) {
 
                     String pack = json.get("pack").getAsString();
 
-                    Fashion.log.debug("Reading out Weapons and Shields" + pack + " ...");
-                    addModelJsons(json, pack);
+                    Fashion.log.info("Reading out Weapons and Shields from " + pack + " ...");
+
+                    if (json.has("weapon_models")) {
+
+                        JsonArray array = json.getAsJsonArray("weapon_models");
+
+                        String path = pack + "/weapons/";
+                        for (JsonElement el : array) {
+                            String name = el.getAsString();
+
+                            boolean isItem = name.contains("item/");
+                            name = name.replace("item/", "");
+
+                            String fullpath = path + name;
+                            ResourceLocation resLoc = new ResourceLocation(Fashion.MODID, fullpath);
+
+                            addWeaponModel(resLoc);
+                            if (isItem)
+                                addWeaponItem(resLoc);
+                        }
+                    }
+
+                    if (json.has("shield_models")) {
+                        JsonArray array = json.getAsJsonArray("shield_models");
+                        for (int i = 0; i < array.size(); i++) {
+                            String path = pack + "/shields/" + array.get(i).getAsString();
+                            String pathBlock = path + "_blocking";
+                            addShieldModel(new ResourceLocation(Fashion.MODID, path), new ResourceLocation(Fashion.MODID, pathBlock));
+                        }
+                    }
                 }
             }
         }
     }
 
-    public void runRegistry() {
-        //clear lists
-        initModels();
-        //fill lists with resourcelocations pointing to the json location
-        applyModels(prepare());
+    public void registerSpecialModels() {
 
-        Fashion.log.debug("Firing Model Registry Event");
+        Fashion.log.info("Firing Special Model Registry Event");
         int size_weapons = ResourcePackReader.getWeaponSize();
         int size_shields = ResourcePackReader.getShieldSize();
 
         Fashion.log.info("Weapons to load : " + size_weapons);
         Fashion.log.info("Shields to load : " + size_shields);
 
-        List<ResourceLocation> theList = Lists.newArrayList();
+        List<ResourceLocation> theList;
 
         theList = ResourcePackReader.getListForSlot(EnumFashionSlot.WEAPON);
         for (ResourceLocation resLoc : theList) {
@@ -350,49 +372,27 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
         return collection;
     }
 
-    public void addModelJsons(JsonObject json, String pack) {
-        if (json.has("weapon_models")) {
-
-            JsonArray array = json.getAsJsonArray("weapon_models");
-
-            String path = pack + "/weapons/";
-            for (JsonElement el : array) {
-                String name = el.getAsString();
-
-                boolean isItem = name.contains("item/");
-                name = name.replace("item/", "");
-
-                String fullpath = path + name;
-                ResourceLocation resLoc = new ResourceLocation(Fashion.MODID, fullpath);
-
-                addWeaponModel(resLoc);
-                if (isItem)
-                    addWeaponItem(resLoc);
-            }
-        }
-
-        if (json.has("shield_models")) {
-            JsonArray array = json.getAsJsonArray("shield_models");
-            for (int i = 0; i < array.size(); i++) {
-                String path = pack + "/shields/" + array.get(i).getAsString();
-                String pathBlock = path + "_blocking";
-                addShieldModel(new ResourceLocation(Fashion.MODID, path), new ResourceLocation(Fashion.MODID, pathBlock));
-            }
-        }
-    }
-
+    /**
+     * Normally we're supposed to prepare a list of all objects in 'prepare' and apply them in 'apply' to win on time and resources,
+     * problem being that the special model loader is fired _before_ apply, so we're just better off doing everything in prepare sadly.
+     * no optimization really possible here.
+     */
     @Nonnull
     @Override
     protected ArrayList<JsonObject> prepare(ResourceManager resourceManager, ProfilerFiller profilerFiller) {
 
         initFashion();
-        runRegistry();
-        return prepare();
+        initModels();
+        ArrayList<JsonObject> prepareLists = prepare();
+        fillFashionLists(prepareLists);
+        fillWeaponAndShieldLists(prepareLists);
+        //model lists have to be prepared for special models to register
+        registerSpecialModels();
+        return prepareLists;
     }
 
     @Override
     protected void apply(ArrayList<JsonObject> jsonObjects, ResourceManager resourceManager, ProfilerFiller profilerFiller) {
-        applyFashion(jsonObjects);
-        applyModels(jsonObjects);
+
     }
 }

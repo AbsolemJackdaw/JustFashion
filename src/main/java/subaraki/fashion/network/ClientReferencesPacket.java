@@ -41,7 +41,6 @@ public class ClientReferencesPacket {
     public static void handle(ResourceLocation ids[], boolean isActive, UUID sender, List<String> layers) {
 
         Player distantPlayer = ClientReferences.getClientPlayerByUUID(sender);
-        Player player = Minecraft.getInstance().player;
 
         FashionData.get(distantPlayer).ifPresent(distFashion -> {
 
@@ -50,7 +49,6 @@ public class ClientReferencesPacket {
             distFashion.setRenderFashion(isActive);
 
             EntityRenderer<? super Player> distantPlayerRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(distantPlayer);
-            EntityRenderer<? super Player> playerRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
 
             Field field = null;
             Object ob = null;
@@ -58,15 +56,6 @@ public class ClientReferencesPacket {
             try {
                 field = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class, Fashion.obfLayerName);
                 ob = field.get(distantPlayerRenderer);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-
-            try {
-                if (field == null)
-                    field = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class, Fashion.obfLayerName);
-
-                ob = field.get(playerRenderer);
             } catch (IllegalArgumentException | IllegalAccessException e) {
                 e.printStackTrace();
             }
