@@ -37,11 +37,6 @@ public class FashionCapability implements ICapabilitySerializable<CompoundTag> {
         slots.setPlayer(player);
     }
 
-    @SubscribeEvent
-    public static void startCommonSetup(FMLCommonSetupEvent event) {
-        CapabilityManager.INSTANCE.register(FashionData.class);
-    }
-
     @Override
     public CompoundTag serializeNBT() {
 
