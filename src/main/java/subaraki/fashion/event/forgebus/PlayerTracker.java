@@ -53,11 +53,13 @@ public class PlayerTracker {
         if (event.getPlayer().level.isClientSide || event.getOriginal().level.isClientSide)
             return;
 
+        event.getOriginal().reviveCaps();
         FashionData.get(event.getOriginal()).ifPresent(dataOriginal -> {
             FashionData.get(event.getPlayer()).ifPresent(data -> {
                 data.readData(dataOriginal.writeData());
             });
         });
+        event.getOriginal().invalidateCaps();
     }
 
     @SubscribeEvent
