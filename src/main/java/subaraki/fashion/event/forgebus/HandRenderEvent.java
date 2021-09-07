@@ -41,8 +41,8 @@ public class HandRenderEvent {
             if (body == null) {
                 body = new PlayerModel<AbstractClientPlayer>(Minecraft.getInstance().getEntityModels().bakeLayer(FashionModels.NORML_MODEL_LOCATION), false);
                 body.setAllVisible(false);
-               // body.rightArm.visible = true;
-               // body.rightSleeve.visible = true;
+                body.rightArm.visible = true;
+                body.rightSleeve.visible = true;
             }
 
             ResourceLocation resLoc = fashionData.getRenderingPart(EnumFashionSlot.CHEST);
