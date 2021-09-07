@@ -221,10 +221,9 @@ public class WardrobeScreen extends Screen {
             int id = 0;
             for (EnumFashionSlot slot : EnumFashionSlot.values()) {
                 ResourceLocation resLoc = fashion.getRenderingPart(slot);
-                String[] s = null;
+                String[] s = resLoc.getPath().split("/");
                 String name = null;
 
-                s = resLoc.getPath().split("/");
                 if (s.length > 0)
                     name = s[s.length - 1].split("\\.")[0];
 
