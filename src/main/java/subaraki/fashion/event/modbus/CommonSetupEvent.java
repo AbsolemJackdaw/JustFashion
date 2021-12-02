@@ -1,6 +1,7 @@
 package subaraki.fashion.event.modbus;
 
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -14,7 +15,10 @@ public class CommonSetupEvent {
     @SubscribeEvent
     public static void startCommonSetup(FMLCommonSetupEvent event) {
         new NetworkHandler();
-        //forge 42 will move this to register capability event
-        CapabilityManager.INSTANCE.register(FashionData.class);
+    }
+
+    @SubscribeEvent
+    public static void capRegistry(RegisterCapabilitiesEvent event){
+        event.register(FashionData.class);
     }
 }

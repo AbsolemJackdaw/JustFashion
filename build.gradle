@@ -15,7 +15,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
-version = '1.17.1-3.0.0.1'
+version = '1.17.1-3.0.0.2'
 group = 'subaraki.fashion' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'fashion'
 
@@ -98,7 +98,7 @@ repositories {
 
 dependencies {
 
-	minecraft 'net.minecraftforge:forge:1.17.1-37.0.32'
+	minecraft 'net.minecraftforge:forge:1.17.1-37.0.53'
 	
 }
 
@@ -118,16 +118,3 @@ jar {
 }
 
 jar.finalizedBy('reobfJar')
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file://${project.projectDir}/mcmodsrepo"
-        }
-    }
-}
