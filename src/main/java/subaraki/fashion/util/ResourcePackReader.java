@@ -9,7 +9,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ForgeModelBakery;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import subaraki.fashion.mod.Fashion;
@@ -345,7 +345,7 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
 
             Fashion.log.info(String.format("Weapon Registry %s", resLoc));
 
-            ModelLoader.addSpecialModel(resLoc);
+            ForgeModelBakery.addSpecialModel(resLoc);
         }
 
         theList = ResourcePackReader.getListForSlot(EnumFashionSlot.SHIELD);
@@ -354,7 +354,7 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
 
             for (int i = 0; i < 2; i++) {
                 boolean blocking = i == 0;
-                ModelLoader.addSpecialModel(ResourcePackReader.getAestheticShield(resLoc, blocking));
+                ForgeModelBakery.addSpecialModel(ResourcePackReader.getAestheticShield(resLoc, blocking));
             }
         }
     }

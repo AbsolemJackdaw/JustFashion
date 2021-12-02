@@ -16,7 +16,7 @@ import java.util.HashMap;
 @Mod.EventBusSubscriber(modid = Fashion.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class BindLayersEvent {
 
-    private static HashMap<RenderLayer<?, ?>, PlayerRenderer> mappedfashion = new HashMap<>();
+    private static final HashMap<RenderLayer<?, ?>, PlayerRenderer> mappedfashion = new HashMap<>();
 
     @SubscribeEvent
     public static void layers(EntityRenderersEvent.AddLayers event) {

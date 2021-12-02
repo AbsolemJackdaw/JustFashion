@@ -23,7 +23,7 @@ import java.util.Random;
 
 public class LayerWardrobe extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
-    private static ResourceLocation modelLocation = new ResourceLocation("fashion:wardrobe");
+    private static final ResourceLocation modelLocation = new ResourceLocation("fashion:wardrobe");
 
     public LayerWardrobe(PlayerRenderer renderer) {
 
@@ -33,7 +33,7 @@ public class LayerWardrobe extends RenderLayer<AbstractClientPlayer, PlayerModel
     @Override
     public void render(PoseStack mat, MultiBufferSource bufferIn, int packedLightIn, AbstractClientPlayer entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
 
-        FashionData.get((Player) entitylivingbaseIn).ifPresent(fashion -> {
+        FashionData.get(entitylivingbaseIn).ifPresent(fashion -> {
 
             if (fashion.isInWardrobe()) {
                 mat.pushPose();

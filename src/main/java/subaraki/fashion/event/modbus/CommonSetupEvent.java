@@ -1,6 +1,5 @@
 package subaraki.fashion.event.modbus;
 
-import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -18,7 +17,7 @@ public class CommonSetupEvent {
     }
 
     @SubscribeEvent
-    public static void capRegistry(RegisterCapabilitiesEvent event){
+    public static void capRegistry(RegisterCapabilitiesEvent event) {
         event.register(FashionData.class);
     }
 }

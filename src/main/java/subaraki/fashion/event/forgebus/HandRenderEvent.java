@@ -11,8 +11,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemUtils;
-import net.minecraft.world.item.SpyglassItem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -50,7 +48,7 @@ public class HandRenderEvent {
             if (!fashionData.shouldRenderFashion() || resLoc == null || resLoc.toString().contains("missing"))
                 return;
 
-            event.getMatrixStack().pushPose();
+            event.getPoseStack().pushPose();
 
             boolean handFlag = event.getHand() == InteractionHand.MAIN_HAND;
             if (!handFlag)
@@ -62,39 +60,39 @@ public class HandRenderEvent {
             float f2 = -0.3F * Mth.sin(f1 * 3.1415927F);
             float f3 = 0.4F * Mth.sin(f1 * 6.2831855F);
             float f4 = -0.4F * Mth.sin(event.getSwingProgress() * 3.1415927F);
-            event.getMatrixStack().translate((double) (f * (f2 + 0.64000005F)), (double) (f3 + -0.6F + event.getEquipProgress() * -0.6F), (double) (f4 + -0.71999997F));
-            event.getMatrixStack().mulPose(Vector3f.YP.rotationDegrees(f * 45.0F));
+            event.getPoseStack().translate((double) (f * (f2 + 0.64000005F)), (double) (f3 + -0.6F + event.getEquipProgress() * -0.6F), (double) (f4 + -0.71999997F));
+            event.getPoseStack().mulPose(Vector3f.YP.rotationDegrees(f * 45.0F));
             float f5 = Mth.sin(event.getSwingProgress() * event.getSwingProgress() * 3.1415927F);
             float f6 = Mth.sin(f1 * 3.1415927F);
-            event.getMatrixStack().mulPose(Vector3f.YP.rotationDegrees(f * f6 * 70.0F));
-            event.getMatrixStack().mulPose(Vector3f.ZP.rotationDegrees(f * f5 * -20.0F));
-            event.getMatrixStack().translate((double) (f * -1.0F), 3.5999999046325684D, 3.5D);
-            event.getMatrixStack().mulPose(Vector3f.ZP.rotationDegrees(f * 120.0F));
-            event.getMatrixStack().mulPose(Vector3f.XP.rotationDegrees(200.0F));
-            event.getMatrixStack().mulPose(Vector3f.YP.rotationDegrees(f * -135.0F));
-            event.getMatrixStack().translate((double) (f * 5.6F), 0.0D, 0.0D);
+            event.getPoseStack().mulPose(Vector3f.YP.rotationDegrees(f * f6 * 70.0F));
+            event.getPoseStack().mulPose(Vector3f.ZP.rotationDegrees(f * f5 * -20.0F));
+            event.getPoseStack().translate((double) (f * -1.0F), 3.5999999046325684D, 3.5D);
+            event.getPoseStack().mulPose(Vector3f.ZP.rotationDegrees(f * 120.0F));
+            event.getPoseStack().mulPose(Vector3f.XP.rotationDegrees(200.0F));
+            event.getPoseStack().mulPose(Vector3f.YP.rotationDegrees(f * -135.0F));
+            event.getPoseStack().translate((double) (f * 5.6F), 0.0D, 0.0D);
 
             if (flag) {
-                event.getMatrixStack().translate(0.0625f * 13.5f, -0.0625 * (16f + 11f), 0.0f);
-                event.getMatrixStack().mulPose(Vector3f.ZP.rotationDegrees(6.25f));
+                event.getPoseStack().translate(0.0625f * 13.5f, -0.0625 * (16f + 11f), 0.0f);
+                event.getPoseStack().mulPose(Vector3f.ZP.rotationDegrees(6.25f));
 
             } else {
-                event.getMatrixStack().translate(-0.0625f, -0.0625 * (16f + 12.5f), -0.0625f / 2f);
-                event.getMatrixStack().mulPose(Vector3f.ZP.rotationDegrees(-6.25f));
+                event.getPoseStack().translate(-0.0625f, -0.0625 * (16f + 12.5f), -0.0625f / 2f);
+                event.getPoseStack().mulPose(Vector3f.ZP.rotationDegrees(-6.25f));
 
             }
 
             var s = 0.0625f * (16f + 16f);
-            event.getMatrixStack().scale(s, s, s);
+            event.getPoseStack().scale(s, s, s);
 
             if (flag)
-                body.rightArm.translateAndRotate(event.getMatrixStack());
+                body.rightArm.translateAndRotate(event.getPoseStack());
             else
-                body.leftArm.translateAndRotate(event.getMatrixStack());
+                body.leftArm.translateAndRotate(event.getPoseStack());
 
-            body.renderToBuffer(event.getMatrixStack(), event.getBuffers().getBuffer(RenderType.entityCutoutNoCull(resLoc)), event.getLight(), OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, 1.0f);
+            body.renderToBuffer(event.getPoseStack(), event.getMultiBufferSource().getBuffer(RenderType.entityCutoutNoCull(resLoc)), event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, 1.0f);
 
-            event.getMatrixStack().popPose();
+            event.getPoseStack().popPose();
 
 
         });

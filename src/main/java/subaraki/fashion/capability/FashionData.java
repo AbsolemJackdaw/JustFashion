@@ -34,8 +34,8 @@ public class FashionData {
     /**
      * Layers that ought to be kept rendered independent from Fashion Layers
      */
-    private List<RenderLayer<?, ?>> keepLayers = Lists.newArrayList();
-    private List<String> keepLayersNames = Lists.newArrayList();
+    private final List<RenderLayer<?, ?>> keepLayers = Lists.newArrayList();
+    private final List<String> keepLayersNames = Lists.newArrayList();
     private Player player;
     private boolean renderFashion;
     private boolean inWardrobe;
@@ -43,7 +43,7 @@ public class FashionData {
     /**
      * all layers, both vanilla and external mod
      */
-    private List<List<RenderLayer<?, ?>>> savedLayers = Lists.newArrayList();
+    private final List<List<RenderLayer<?, ?>>> savedLayers = Lists.newArrayList();
 
     /**
      * since  1.17, the player gets a new renderer and new layers on resource reload.
@@ -83,8 +83,7 @@ public class FashionData {
     }
 
     public void removeLayerFromKeep(String name) {
-        if (keepLayersNames.contains(name))
-            keepLayersNames.remove(name);
+        keepLayersNames.remove(name);
     }
 
     public void addLayersToKeep(List<String> addAll) {

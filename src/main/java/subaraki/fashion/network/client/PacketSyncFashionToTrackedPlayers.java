@@ -2,7 +2,7 @@ package subaraki.fashion.network.client;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 import subaraki.fashion.network.ClientReferencesPacket;
 import subaraki.fashion.network.IPacketBase;
 import subaraki.fashion.network.NetworkHandler;

@@ -33,8 +33,8 @@ import java.util.Random;
 
 public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
-    private TransformType cam_right = ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
-    private TransformType cam_left = ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND;
+    private final TransformType cam_right = ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
+    private final TransformType cam_left = ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND;
 
     public LayerAestheticHeldItem(PlayerRenderer renderer) {
 
@@ -108,7 +108,7 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
             this.getParentModel().translateToHand(hand, mat);
             mat.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
             mat.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-            mat.translate((double) ((float) (flag ? -1 : 1) / 16.0F), 0.125D, -0.625D);
+            mat.translate((float) (flag ? -1 : 1) / 16.0F, 0.125D, -0.625D);
 
             switch (slot) {
                 case WEAPON:
@@ -171,7 +171,7 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
             mat.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
             mat.mulPose(Vector3f.YP.rotationDegrees(180.0F));
             boolean flag = hand == HumanoidArm.LEFT;
-            mat.translate((double) ((float) (flag ? -1 : 1) / 16.0F), 0.125D, -0.625D);
+            mat.translate((float) (flag ? -1 : 1) / 16.0F, 0.125D, -0.625D);
             Minecraft.getInstance().getItemInHandRenderer().renderItem(ent, stack, cam, flag, mat, buffer, packedLightIn);
             mat.popPose();
         }
@@ -201,7 +201,7 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
         modelpart.xRot = f;
         CustomHeadLayer.translateToHead(poseStack, false);
         boolean flag = arm == HumanoidArm.LEFT;
-        poseStack.translate((double) ((flag ? -2.5F : 2.5F) / 16.0F), -0.0625D, 0.0D);
+        poseStack.translate((flag ? -2.5F : 2.5F) / 16.0F, -0.0625D, 0.0D);
         Minecraft.getInstance().getItemInHandRenderer().renderItem(player, stack, ItemTransforms.TransformType.HEAD, false, poseStack, buffer, light);
         poseStack.popPose();
     }

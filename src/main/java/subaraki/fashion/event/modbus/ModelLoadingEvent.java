@@ -2,7 +2,7 @@ package subaraki.fashion.event.modbus;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ForgeModelBakery;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
@@ -14,6 +14,6 @@ public class ModelLoadingEvent {
     @SubscribeEvent
     public static void registerItemModel(ModelRegistryEvent event) {
         ResourceLocation wardrobe = new ResourceLocation("fashion:wardrobe");
-        ModelLoader.addSpecialModel(wardrobe);
+        ForgeModelBakery.addSpecialModel(wardrobe);
     }
 }

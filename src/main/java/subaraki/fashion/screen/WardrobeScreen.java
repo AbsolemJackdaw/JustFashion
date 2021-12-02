@@ -40,7 +40,7 @@ public class WardrobeScreen extends Screen {
     protected int guiTop;
     private float oldMouseX;
     private float oldMouseY;
-    private Player player = Minecraft.getInstance().player;
+    private final Player player = Minecraft.getInstance().player;
     private int id = 0;
 
     public WardrobeScreen() {
@@ -50,11 +50,11 @@ public class WardrobeScreen extends Screen {
 
     public static void renderEntityInInventory(int x, int y, int scale, float mouseX, float mouseY, LivingEntity player, float rotateY, float offsetZ) {
         float flipScale = offsetZ < 0 ? -1.0f : 1.0f;
-        float lookX = (float) Math.atan((double) (mouseX / 40.0F)) * flipScale;
-        float lookY = (float) Math.atan((double) (mouseY / 40.0F));
+        float lookX = (float) Math.atan(mouseX / 40.0F) * flipScale;
+        float lookY = (float) Math.atan(mouseY / 40.0F);
         PoseStack poseStackGeneral = RenderSystem.getModelViewStack();
         poseStackGeneral.pushPose();
-        poseStackGeneral.translate((double) x, (double) y, 1050.0D + offsetZ);
+        poseStackGeneral.translate(x, y, 1050.0D + offsetZ);
         poseStackGeneral.scale(flipScale, 1.0F, -1.0F);
         RenderSystem.applyModelViewMatrix();
         PoseStack poseStack = new PoseStack();

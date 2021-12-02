@@ -38,7 +38,7 @@ public class ClientReferencesPacket {
         return list;
     }
 
-    public static void handle(ResourceLocation ids[], boolean isActive, UUID sender, List<String> layers) {
+    public static void handle(ResourceLocation[] ids, boolean isActive, UUID sender, List<String> layers) {
 
         Player distantPlayer = ClientReferences.getClientPlayerByUUID(sender);
 

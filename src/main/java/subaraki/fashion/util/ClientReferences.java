@@ -19,7 +19,7 @@ public class ClientReferences {
 
     public static boolean isBlockTextureMap(TextureStitchEvent.Pre event) {
 
-        return event.getMap().location().equals(InventoryMenu.BLOCK_ATLAS);
+        return event.getAtlas().location().equals(InventoryMenu.BLOCK_ATLAS);
     }
 
     /**
@@ -41,7 +41,7 @@ public class ClientReferences {
         return Minecraft.getInstance().level.getPlayerByUUID(uuid);
     }
 
-    public static Player getClientPlayer(){
+    public static Player getClientPlayer() {
         return Minecraft.getInstance().player;
     }
 
