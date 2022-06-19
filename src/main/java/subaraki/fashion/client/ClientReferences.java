@@ -21,7 +21,6 @@ public class ClientReferences {
 
     private static HashMap<LayerRenderer<?, ?>, PlayerRenderer> mappedfashion = new HashMap<>();
 
-
     public static void loadLayers()
     {
 

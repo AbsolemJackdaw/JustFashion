@@ -86,9 +86,9 @@ public class PlayerTracker {
     private void toClient(PlayerEntity player) {
 
         FashionData.get(player).ifPresent(data -> {
-            Fashion.log.debug(data.getKeepLayerNames());
+            Fashion.log.debug(data.keepLayersNamesForServer);
             NetworkHandler.NETWORK.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
-                    new PacketSyncFashionToClient(data.getAllRenderedParts(), data.getKeepLayerNames(), data.shouldRenderFashion()));
+                    new PacketSyncFashionToClient(data.getAllRenderedParts(), data.keepLayersNamesForServer, data.shouldRenderFashion()));
         });
     }
 }

@@ -1,5 +1,9 @@
 package subaraki.fashion.client;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.layers.BipedArmorLayer;
@@ -9,9 +13,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.mod.Fashion;
-
-import java.lang.reflect.Field;
-import java.util.List;
+import subaraki.fashion.network.NetworkHandler;
+import subaraki.fashion.network.server.PacketSyncSavedListToServer;
 
 public class HandleRenderSwap {
 
@@ -19,7 +22,7 @@ public class HandleRenderSwap {
     private Object swap_list_layerrenders;
 
     public void swapRenders(PlayerEntity player, PlayerRenderer renderer) {
-        resetAllBeforeResourceReload(player, renderer);
+
         FashionData.get(player).ifPresent(data -> {
 
             try {
@@ -38,15 +41,12 @@ public class HandleRenderSwap {
                 if (data.getSavedLayers().isEmpty()) {
                     data.saveOriginalList((List<LayerRenderer<?, ?>>) swap_list_layerrenders);
 
-                    //this feature got removed with the change to name based keepLayer checking.
-                    //it is no longer needed to check these layers against the full list of saved layers
-                    // save mod list to server , used for toggling save purposes (only names are allowed on server)
                     // save mod list to server , used for toggling save purposes (only names aare allowed on server)
-//                    List<String> names = new ArrayList<String>();
-//                    for (LayerRenderer<?, ?> layer : data.getOtherModLayersList())
-//                        names.add(layer.getClass().getSimpleName());
-//                    // send list of class names to server
-//                    NetworkHandler.NETWORK.sendToServer(new PacketSyncSavedListToServer(names));
+                    List<String> names = new ArrayList<String>();
+                    for (LayerRenderer<?, ?> layer : data.getModLayersList())
+                        names.add(layer.getClass().getSimpleName());
+                    // send list of class names to server
+                    NetworkHandler.NETWORK.sendToServer(new PacketSyncSavedListToServer(names));
                 }
 
                 // if you need fashion rendered
@@ -58,6 +58,7 @@ public class HandleRenderSwap {
 
                         // if all cached fashion is empty (previously not wearing any
                         if (data.fashionLayers.isEmpty()) {
+                            data.fashionLayers.clear();
 
                             // add cached layers for fashion : items and armor
                             for (LayerRenderer<?, ?> fashionlayer : ClientReferences.getMappedfashion().keySet()) {
@@ -66,9 +67,11 @@ public class HandleRenderSwap {
                             }
 
                             // if the list of layers to keep is not empty (aka layers are selected)
-                            if (!data.hasOtherModLayersToRender()) {
+                            if (!data.keepLayers.isEmpty()) {
                                 // add those layers to our fashion list
-                                data.fashionLayers.addAll(data.getLayersToKeep());
+                                for (LayerRenderer<?, ?> layer : data.keepLayers) {
+                                    data.fashionLayers.add(layer);
+                                }
                             }
 
                             // add all vanilla layers back , except for items and armor
@@ -98,7 +101,7 @@ public class HandleRenderSwap {
     }
 
     public void resetRenders(PlayerEntity player, PlayerRenderer renderer) {
-        resetAllBeforeResourceReload(player, renderer);
+
         FashionData.get(player).ifPresent(data -> {
 
             try {
@@ -116,14 +119,5 @@ public class HandleRenderSwap {
                 e.printStackTrace();
             }
         });
-    }
-
-    public void resetAllBeforeResourceReload(PlayerEntity player, PlayerRenderer playerRenderer) {
-        if (player != null)
-            FashionData.get(player).ifPresent(data -> {
-                swap_field_layerrenders = null;
-                swap_list_layerrenders = null;
-                data.checkResourceReloadAndReset(playerRenderer);
-            });
     }
 }

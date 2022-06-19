@@ -37,10 +37,9 @@ public class ClientReferencesPacket {
         return list;
     }
 
-    public static void handle(ResourceLocation ids[], boolean isActive, UUID sender, List<String> layers) {
+    public static void handle(ResourceLocation ids[], boolean isActive, UUID sender, List<String> layers)  {
 
         PlayerEntity distantPlayer = Minecraft.getInstance().level.getPlayerByUUID(sender);
-        PlayerEntity player = Minecraft.getInstance().player;
 
         FashionData.get(distantPlayer).ifPresent(distFashion -> {
 
@@ -49,33 +48,22 @@ public class ClientReferencesPacket {
             distFashion.setRenderFashion(isActive);
 
             EntityRenderer<? super PlayerEntity> distantPlayerRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(distantPlayer);
-            EntityRenderer<? super PlayerEntity> playerRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
 
-            Field field = null;
+            Field field = ObfuscationReflectionHelper.findField(LivingRenderer.class, Fashion.obfLayerName);
             Object ob = null;
-
             try {
-                field = ObfuscationReflectionHelper.findField(LivingRenderer.class, Fashion.obfLayerName);
                 ob = field.get(distantPlayerRenderer);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
+            } catch (IllegalAccessException e) {
                 e.printStackTrace();
+                return;
             }
 
-            try {
-                if (field == null)
-                    field = ObfuscationReflectionHelper.findField(LivingRenderer.class, Fashion.obfLayerName);
-
-                ob = field.get(playerRenderer);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-
-            distFashion.resetKeepLayerForDistantPlayer();
-            if (layers != null && !layers.isEmpty() && ob != null) {
+            distFashion.keepLayers.clear();
+            if (layers != null && !layers.isEmpty()) {
                 for (Object content : (List<?>) ob) {
                     for (String name : layers)
                         if (content.getClass().getSimpleName().equals(name))
-                            distFashion.addLayerToKeep(name);
+                            distFashion.keepLayers.add((LayerRenderer<?, ?>) content);
                 }
             }
             distFashion.fashionLayers.clear();
