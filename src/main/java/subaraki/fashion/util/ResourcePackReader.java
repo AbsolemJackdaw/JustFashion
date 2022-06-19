@@ -2,7 +2,6 @@ package subaraki.fashion.util;
 
 import com.google.common.collect.Lists;
 import com.google.gson.*;
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -18,11 +17,7 @@ import subaraki.fashion.render.EnumFashionSlot;
 import javax.annotation.Nonnull;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Mod.EventBusSubscriber(modid = Fashion.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList<JsonObject>> {
@@ -232,27 +227,26 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
         Fashion.log.info("Added fail safe empty Fashion Weapons");
     }
 
-    public ArrayList<JsonObject> prepare() {
+    public ArrayList<JsonObject> prepare(ResourceManager resourceManager) {
         ArrayList<JsonObject> theJsonFiles = Lists.newArrayList();
-
-        List<Resource> jsonFiles = Minecraft.getInstance().getResourceManager().getResourceStack(new ResourceLocation(Fashion.MODID, "fashionpack.json"));
-
-        for (Resource res : jsonFiles) {
-            try (InputStream stream = res.open()) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-                JsonElement je = GSON.fromJson(reader, JsonElement.class);
-                JsonObject json = je.getAsJsonObject();
-
-                if (json.has("pack")) {
-                    theJsonFiles.add(json);
-                } else {
-                    Fashion.log.warn(res.sourcePackId() + "'s fashion pack did not contain a pack id !");
+        Set<String> packnames = new TreeSet<>();
+        for (Resource res : resourceManager.getResourceStack(new ResourceLocation(Fashion.MODID, "fashionpack.json"))) {
+            if (!packnames.contains(res.sourcePackId())) {
+                packnames.add(res.sourcePackId());
+                try (BufferedReader stream = res.openAsReader()) {
+                    JsonElement je = GSON.fromJson(stream, JsonElement.class);
+                    JsonObject json = je.getAsJsonObject();
+                    if (json.has("pack")) {
+                        theJsonFiles.add(json);
+                    } else {
+                        Fashion.log.warn(res.sourcePackId() + "'s fashion pack did not contain a pack id !");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                Fashion.log.warn("************************************");
-                Fashion.log.warn(e.getMessage());
             }
         }
+
         return theJsonFiles;
     }
 
@@ -374,7 +368,7 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
     protected ArrayList<JsonObject> prepare(ResourceManager resourceManager, ProfilerFiller profilerFiller) {
         initFashion();
         initModels();
-        ArrayList<JsonObject> prepareLists = prepare();
+        ArrayList<JsonObject> prepareLists = prepare(resourceManager);
         fillFashionLists(prepareLists);
         fillWeaponAndShieldLists(prepareLists);
         //model lists have to be prepared for special models to register

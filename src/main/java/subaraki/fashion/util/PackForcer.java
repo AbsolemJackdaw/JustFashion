@@ -37,8 +37,8 @@ public class PackForcer implements RepositorySource {
 
     @SubscribeEvent
     public static void loadedPackEvent(AddPackFindersEvent event) {
-//        if (event.getPackType().equals(PackType.CLIENT_RESOURCES))
-//            event.addRepositorySource(new PackForcer());
+        if (event.getPackType().equals(PackType.CLIENT_RESOURCES))
+            event.addRepositorySource(new PackForcer());
     }
 
     @Override
