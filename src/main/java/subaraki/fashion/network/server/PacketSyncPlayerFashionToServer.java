@@ -92,12 +92,9 @@ public class PacketSyncPlayerFashionToServer implements IPacketBase {
 
                 fashion.setInWardrobe(false);
 
-                fashion.keepLayersNamesForServer.clear();
-
-                for (String layer : fashion.getSavedOriginalListNamesForServerSidePurposes())
-                    for (String classname : layers)
-                        if (layer.equals(classname))
-                            fashion.keepLayersNamesForServer.add(layer);
+                //server sided keep layer list
+                fashion.getKeepLayerNames().clear();
+                fashion.addLayersToKeep(layers);
             });
 
             // Send to tracked players

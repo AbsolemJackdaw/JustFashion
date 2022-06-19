@@ -90,7 +90,7 @@ public class PacketSyncFashionToClient implements IPacketBase {
                         for (LayerRenderer<?, ?> layer : list)
                             for (String classname : toKeep)
                                 if (layer.getClass().getSimpleName().equals(classname))
-                                    data.keepLayers.add(layer);
+                                    data.addLayerToKeep(classname);
 
                 } catch (IllegalArgumentException | IllegalAccessException e) {
                     e.printStackTrace();

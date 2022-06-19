@@ -73,13 +73,13 @@ public class WardrobeScreen extends Screen {
 
             // toggle buttons for each render layer that exists in the game for players,
             // both from mods and vanilla
-            if (!fashion.getModLayersList().isEmpty())
-                for (int i = 0; i < fashion.getModLayersList().size(); i++) {
-                    final int index = i;
-                    LayerRenderer<?, ?> layer = fashion.getModLayersList().get(index);
-
-                    this.addButton(new FancyButton(guiLeft - 12 - (i % 5) * 10, guiTop + 6 + (i / 5) * 10, layer.getClass().getSimpleName(),
-                            b -> toggleLayer((FancyButton) b, layer)).setActive(fashion.keepLayers.contains(layer)));
+            if (!fashion.getOtherModLayersList().isEmpty())
+                for (int i = 0; i < fashion.getOtherModLayersList().size(); i++) {
+                    LayerRenderer<?, ?> layer = fashion.getOtherModLayersList().get(i);
+                    boolean isActive = fashion.getLayersToKeep().contains(layer);
+                    String classname = layer.getClass().getSimpleName();
+                    this.addButton(new FancyButton(guiLeft - 12 - (i % 5) * 10, guiTop + 6 + (i / 5) * 10, classname,
+                            b -> toggleLayer((FancyButton) b, classname)).setActive(isActive));
                 }
 
             // toggle button, with the explicit press ID of 12 (could be anything at this
@@ -293,16 +293,16 @@ public class WardrobeScreen extends Screen {
         });
     }
 
-    private void toggleLayer(FancyButton button, LayerRenderer<?, ?> layer) {
+    private void toggleLayer(FancyButton button, String layername) {
 
         button.toggle(); // set opposite of current state
 
         FashionData.get(player).ifPresent(fashion -> {
 
             if (button.isActive())// if set to active
-                fashion.keepLayers.add(layer);
+                fashion.addLayerToKeep(layername);
             else
-                fashion.keepLayers.remove(layer);
+                fashion.removeLayerFromKeep(layername);
 
             fashion.fashionLayers.clear();
         });
