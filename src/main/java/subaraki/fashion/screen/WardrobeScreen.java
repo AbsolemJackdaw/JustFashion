@@ -14,9 +14,9 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -34,18 +34,18 @@ import java.util.Arrays;
 public class WardrobeScreen extends Screen {
 
     private static final ResourceLocation BACKGROUND = new ResourceLocation(Fashion.MODID, "textures/gui/wardrobe.png");
+    private final Player player = Minecraft.getInstance().player;
     protected int xSize = 176;
     protected int ySize = 166;
     protected int guiLeft;
     protected int guiTop;
     private float oldMouseX;
     private float oldMouseY;
-    private final Player player = Minecraft.getInstance().player;
     private int id = 0;
 
     public WardrobeScreen() {
 
-        super(new TextComponent("fashion.wardrobe"));
+        super(Component.literal("fashion.wardrobe"));
     }
 
     public static void renderEntityInInventory(int x, int y, int scale, float mouseX, float mouseY, LivingEntity player, float rotateY, float offsetZ) {
@@ -142,7 +142,7 @@ public class WardrobeScreen extends Screen {
             offset = 10;
 
         boolean back = id % 2 == 0;
-        Button b = new Button(guiLeft + 105 + (back ? 0 : 55), guiTop + 10 + offset + (id / 2 * 15), 10, 10, new TextComponent(back ? "<" : ">"),
+        Button b = new Button(guiLeft + 105 + (back ? 0 : 55), guiTop + 10 + offset + (id / 2 * 15), 10, 10, Component.literal(back ? "<" : ">"),
                 c -> cycle(back, slot));
         this.addRenderableWidget(b);
         id++;
@@ -250,7 +250,7 @@ public class WardrobeScreen extends Screen {
             for (Widget guiButton : renderables) {
                 if (guiButton instanceof FancyButton gfb) {
                     if (gfb.isMouseOver(mouseX, mouseY) && !gfb.isSwitch()) {
-                        HoverEvent hover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent(gfb.name));
+                        HoverEvent hover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(gfb.name));
                         Style style = Style.EMPTY.withHoverEvent(hover);
                         this.renderComponentHoverEffect(mat, style, mouseX, mouseY);
                     }

@@ -21,7 +21,7 @@ public class KeyRegistry {
 
     public void registerKey() {
 
-        keyWardrobe = new KeyMapping("Wardrobe", GLFW.GLFW_KEY_W, "Wardrobe");
+        keyWardrobe = new KeyMapping("Wardrobe", GLFW.GLFW_KEY_SEMICOLON, "Wardrobe");
         ClientRegistry.registerKeyBinding(keyWardrobe);
     }
 

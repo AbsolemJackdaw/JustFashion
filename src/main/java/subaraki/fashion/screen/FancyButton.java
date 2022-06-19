@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 
 public class FancyButton extends Button {
 
@@ -18,7 +18,7 @@ public class FancyButton extends Button {
      */
     public FancyButton(int x, int y, OnPress press) {
 
-        super(x, y, 8, 8, new TextComponent("_"), press);
+        super(x, y, 8, 8, Component.literal("_"), press);
         name = "_";
     }
 

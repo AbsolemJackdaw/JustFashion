@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -28,8 +29,6 @@ import net.minecraftforge.client.ForgeHooksClient;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.render.EnumFashionSlot;
 import subaraki.fashion.util.ResourcePackReader;
-
-import java.util.Random;
 
 public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
@@ -172,14 +171,14 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
             mat.mulPose(Vector3f.YP.rotationDegrees(180.0F));
             boolean flag = hand == HumanoidArm.LEFT;
             mat.translate((float) (flag ? -1 : 1) / 16.0F, 0.125D, -0.625D);
-            Minecraft.getInstance().getItemInHandRenderer().renderItem(ent, stack, cam, flag, mat, buffer, packedLightIn);
+            Minecraft.getInstance().getEntityRenderDispatcher().getItemInHandRenderer().renderItem(ent, stack, cam, flag, mat, buffer, packedLightIn);
             mat.popPose();
         }
     }
 
     public void renderModel(BakedModel model, MultiBufferSource bufferIn, RenderType rt, PoseStack matrixStackIn, int packedLightIn, int overlay, int color) {
 
-        Random rand = new Random(42L);
+        RandomSource rand = RandomSource.create(42L);
 
         float a = ((color >> 24) & 0xFF) / 255.0f;
         float r = ((color >> 16) & 0xFF) / 255.0f;
@@ -202,7 +201,7 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
         CustomHeadLayer.translateToHead(poseStack, false);
         boolean flag = arm == HumanoidArm.LEFT;
         poseStack.translate((flag ? -2.5F : 2.5F) / 16.0F, -0.0625D, 0.0D);
-        Minecraft.getInstance().getItemInHandRenderer().renderItem(player, stack, ItemTransforms.TransformType.HEAD, false, poseStack, buffer, light);
+        Minecraft.getInstance().getEntityRenderDispatcher().getItemInHandRenderer().renderItem(player, stack, ItemTransforms.TransformType.HEAD, false, poseStack, buffer, light);
         poseStack.popPose();
     }
 }

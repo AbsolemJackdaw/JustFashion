@@ -14,12 +14,10 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import subaraki.fashion.capability.FashionData;
-
-import java.util.Random;
 
 public class LayerWardrobe extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
@@ -57,7 +55,7 @@ public class LayerWardrobe extends RenderLayer<AbstractClientPlayer, PlayerModel
 
     public void render(BakedModel model, MultiBufferSource bufferIn, RenderType rt, PoseStack matrixStackIn, int packedLightIn, int overlay, int color) {
 
-        Random rand = new Random(42);
+        RandomSource rand = RandomSource.create(42);
 
         float a = ((color >> 24) & 0xFF) / 255.0f;
         float r = ((color >> 16) & 0xFF) / 255.0f;

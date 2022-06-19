@@ -36,6 +36,7 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
     private static final List<ResourceLocation> items = Lists.newArrayList();
     private static final List<ResourceLocation> shields = Lists.newArrayList();
     private static final List<ResourceLocation> shieldsBlocking = Lists.newArrayList();
+    private static final Gson GSON = new GsonBuilder().create();
 
     @SubscribeEvent
     public static void registerReloadListener(RegisterClientReloadListenersEvent event) {
@@ -234,28 +235,18 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
     public ArrayList<JsonObject> prepare() {
         ArrayList<JsonObject> theJsonFiles = Lists.newArrayList();
 
-        List<Resource> jsonFiles;
-        try {
-            jsonFiles = Minecraft.getInstance().getResourceManager().getResources(new ResourceLocation(Fashion.MODID, "fashionpack.json"));
-        } catch (IOException e) {
-            Fashion.log.warn("************************************");
-            Fashion.log.warn(e.getMessage());
-
-            return theJsonFiles;
-        }
-
-        Gson gson = new GsonBuilder().create();
+        List<Resource> jsonFiles = Minecraft.getInstance().getResourceManager().getResourceStack(new ResourceLocation(Fashion.MODID, "fashionpack.json"));
 
         for (Resource res : jsonFiles) {
-            try (InputStream stream = res.getInputStream()) {
+            try (InputStream stream = res.open()) {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-                JsonElement je = gson.fromJson(reader, JsonElement.class);
+                JsonElement je = GSON.fromJson(reader, JsonElement.class);
                 JsonObject json = je.getAsJsonObject();
 
                 if (json.has("pack")) {
                     theJsonFiles.add(json);
                 } else {
-                    Fashion.log.warn(res.getSourceName() + "'s fashion pack did not contain a pack id !");
+                    Fashion.log.warn(res.sourcePackId() + "'s fashion pack did not contain a pack id !");
                 }
             } catch (IOException e) {
                 Fashion.log.warn("************************************");
@@ -267,6 +258,7 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
 
     public void fillFashionLists(ArrayList<JsonObject> jsonObjects) {
         if (!jsonObjects.isEmpty()) {
+            //TODO check if runnable is needed
             Runnable run = () -> {
                 for (JsonObject json : jsonObjects) {
                     if (json.has("pack")) {
@@ -380,7 +372,6 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
     @Nonnull
     @Override
     protected ArrayList<JsonObject> prepare(ResourceManager resourceManager, ProfilerFiller profilerFiller) {
-
         initFashion();
         initModels();
         ArrayList<JsonObject> prepareLists = prepare();
