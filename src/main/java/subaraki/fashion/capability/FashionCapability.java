@@ -23,26 +23,26 @@ public class FashionCapability implements ICapabilitySerializable<CompoundTag> {
      */
     public static Capability<FashionData> CAPABILITY = CapabilityManager.get(new CapabilityToken<FashionData>() {
     });
-    final FashionData slots = new FashionData();
+    final FashionData fashionData = new FashionData();
 
     /**
      * Gets called before world is initiated. player.worldObj will return null here !
      */
     public FashionCapability(Player player) {
 
-        slots.setPlayer(player);
+        fashionData.setPlayer(player);
     }
 
     @Override
     public CompoundTag serializeNBT() {
 
-        return (CompoundTag) slots.writeData();
+        return (CompoundTag) fashionData.writeData();
     }
 
     @Override
     public void deserializeNBT(CompoundTag nbt) {
 
-        slots.readData(nbt);
+        fashionData.readData(nbt);
     }
 
     @Override
@@ -56,6 +56,6 @@ public class FashionCapability implements ICapabilitySerializable<CompoundTag> {
 
     private FashionData getImpl() {
 
-        return slots;
+        return fashionData;
     }
 }
