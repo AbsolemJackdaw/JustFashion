@@ -1,0 +1,7 @@
+{
+	"screens" : [{
+			"COMMENT" : "Public Gui Announcement support",
+			"class" : "subaraki.fashion.screen.WardrobeScreen",
+			"texture" : "fasion:textures/gui/wardrobe.png"
+		}]
+}
