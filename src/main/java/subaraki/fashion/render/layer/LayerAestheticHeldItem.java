@@ -43,7 +43,9 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
     @Override
     public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
 
-        FashionData.get(player).ifPresent(fashionData -> {
+        boolean pres = FashionData.get(player).isPresent();
+        if (pres) {
+            FashionData fashionData = FashionData.get(player).orElseThrow(NullPointerException::new);
             boolean isMainHand = player.getMainArm() == HumanoidArm.RIGHT;
 
             ItemStack stackHeldItem = isMainHand ? player.getMainHandItem() : player.getOffhandItem();
@@ -90,13 +92,19 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
                         renderHeldItem(player, stackOffHand, cam_left, HumanoidArm.LEFT, poseStack, buffer, packedLightIn);
                     }
             }
-        });
+        }
+
+//        FashionData.get(player).ifPresent(fashionData -> {
+//
+//        });
     }
 
     private void renderAesthetic(EnumFashionSlot slot, AbstractClientPlayer player, ItemStack stack, ItemTransforms.TransformType cam, HumanoidArm hand, PoseStack mat, MultiBufferSource buffer, int packedLightIn) {
 
-        FashionData.get(player).ifPresent(data -> {
-
+//        FashionData.get(player).ifPresent(data -> {
+        boolean pres = FashionData.get(player).isPresent();
+        if (pres) {
+            FashionData data = FashionData.get(player).orElseThrow(NullPointerException::new);
             if (stack.isEmpty())
                 return;
 
@@ -105,8 +113,12 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
             boolean flag = hand == HumanoidArm.LEFT;
 
             this.getParentModel().translateToHand(hand, mat);
-            mat.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
-            mat.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+
+            mat.mulPose(Vector3f.XP.rotationDegrees(-90.0F * (flag ? -1 : 1)));
+            if (!flag) {
+                mat.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+            }
+
             mat.translate((float) (flag ? -1 : 1) / 16.0F, 0.125D, -0.625D);
 
             switch (slot) {
@@ -125,14 +137,13 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
 
                         if (flag) {
                             if (isBlocking)
-                                mat.translate(0.0625f * -10, 0.0625f * -3, 0.0625f * -9);
+                                mat.translate(0.0625f * 0f, 0.0625f * 0f, 0.0625f * 0f);
                             else
-                                mat.translate(0.0625f * -8, -0.0625f * 8, -0.0625f * -10);
+                                mat.translate(0.0625f * -9.5f, 0.0625f * -8.5f, 0.0625f * -4f);
                         } else if (isBlocking)
-                            mat.translate(0.0625f * -5, 0.0, 0.0625f * -13);
+                            mat.translate(0.0625f * 0f, 0.0625f * 0f, 0.0625f * 0f);
                         else
-                            mat.translate(0.0625f * 8, -0.0625f * 8, -0.0625f * 6);
-
+                            mat.translate(0.0625f * -11.5f, 0.0625f * -9.5f, 0.0625f * -4f);
                     }
 
                     break;
@@ -151,8 +162,8 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
             renderModel(rotatedModel, buffer, getRenderType(), mat, packedLightIn, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
 
             mat.popPose();
-
-        });
+        }
+//        });
 
     }
 
