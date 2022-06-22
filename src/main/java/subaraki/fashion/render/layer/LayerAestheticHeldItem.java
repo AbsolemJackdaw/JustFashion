@@ -111,18 +111,12 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
             mat.pushPose();
             ResourceLocation resLoc = data.getRenderingPart(slot);
             boolean flag = hand == HumanoidArm.LEFT;
-
             this.getParentModel().translateToHand(hand, mat);
-
-            mat.mulPose(Vector3f.XP.rotationDegrees(-90.0F * (flag ? -1 : 1)));
-            if (!flag) {
-                mat.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-            }
-
-            mat.translate((float) (flag ? -1 : 1) / 16.0F, 0.125D, -0.625D);
-
             switch (slot) {
                 case WEAPON:
+                    mat.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
+                    mat.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+                    mat.translate((float) (flag ? -1 : 1) / 16.0F, 0.125D, -0.625D);
                     if (ResourcePackReader.isItem(resLoc))
                         // correct small offset for items
                         mat.translate(0.425, -0.592, 0.102);
@@ -134,14 +128,20 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
                 case SHIELD:
                     if (stack.getUseAnimation().equals(UseAnim.BLOCK) || stack.getItem() instanceof ShieldItem) {
                         boolean isBlocking = player.isUsingItem() && player.getUseItem().equals(stack);
+                        mat.mulPose(Vector3f.XP.rotationDegrees(isBlocking ? -135F : -90.0F));
+                        if (!flag)
+                            mat.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+                        if (isBlocking)
+                            mat.mulPose(Vector3f.YP.rotationDegrees(-45.0F * (flag ? 1 : -1)));
 
+                        mat.translate((float) (flag ? -1 : 1) / 16.0F, 0.125D, -0.625D);
                         if (flag) {
                             if (isBlocking)
-                                mat.translate(0.0625f * 0f, 0.0625f * 0f, 0.0625f * 0f);
+                                mat.translate(0.0625f * -5.5f, 0.0625f * -16.5f, 0.0625f * 5f);
                             else
-                                mat.translate(0.0625f * -9.5f, 0.0625f * -8.5f, 0.0625f * -4f);
+                                mat.translate(0.0625f * -9.5f, 0.0625f * -9.5f, 0.0625f * 8f);
                         } else if (isBlocking)
-                            mat.translate(0.0625f * 0f, 0.0625f * 0f, 0.0625f * 0f);
+                            mat.translate(0.0625f * -7.5f, 0.0625f * -16.5f, 0.0625f * -0.5f);
                         else
                             mat.translate(0.0625f * -11.5f, 0.0625f * -9.5f, 0.0625f * -4f);
                     }

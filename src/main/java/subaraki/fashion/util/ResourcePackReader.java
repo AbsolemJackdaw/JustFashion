@@ -30,7 +30,6 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
     private static final List<ResourceLocation> weapons = Lists.newArrayList();
     private static final List<ResourceLocation> items = Lists.newArrayList();
     private static final List<ResourceLocation> shields = Lists.newArrayList();
-    private static final List<ResourceLocation> shieldsBlocking = Lists.newArrayList();
     private static final Gson GSON = new GsonBuilder().create();
 
     @SubscribeEvent
@@ -47,9 +46,9 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
 
         ResourceLocation resloc_blocking = new ResourceLocation(resloc.getNamespace(), resloc.getPath() + "_blocking");
 
-        for (ResourceLocation resource : isBlocking ? shieldsBlocking : shields) {
+        for (ResourceLocation resource : shields) {
             if (resource != null)
-                if (resource.getPath().equals(isBlocking ? resloc_blocking.getPath() : resloc.getPath()))
+                if (resource.getPath().equals(resloc.getPath()))
                     return resource;
         }
 
@@ -179,18 +178,16 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
         Fashion.log.info("added " + model);
     }
 
-    public void addShieldModel(ResourceLocation model, ResourceLocation modelBlocking) {
+    public void addShieldModel(ResourceLocation model) {
 
-        if (model == null || modelBlocking == null) {
+        if (model == null) {
             shields.add(null);
-            shieldsBlocking.add(null);
 
             Fashion.log.warn(String.format(
                     "%n TRIED REGISTERING A NULL SHIELD MODEL %n This is normal the first time for empty placeholders. %n If this happens more then once, check your Resource Pack json for any errors!"));
             return;
         }
         shields.add(model);
-        shieldsBlocking.add(modelBlocking);
 
     }
 
@@ -218,11 +215,10 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
         items.clear();
 
         shields.clear();
-        shieldsBlocking.clear();
 
         Fashion.log.info("Cleared all Model lists");
         addWeaponModel(new ResourceLocation("missing")); // placeholder for empty spot
-        addShieldModel(new ResourceLocation("missing"), new ResourceLocation("missing")); // placeholder for empty spot
+        addShieldModel(new ResourceLocation("missing")); // placeholder for empty spot
 
         Fashion.log.info("Added fail safe empty Fashion Weapons");
     }
@@ -306,8 +302,7 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
                         JsonArray array = json.getAsJsonArray("shield_models");
                         for (int i = 0; i < array.size(); i++) {
                             String path = pack + "/shields/" + array.get(i).getAsString();
-                            String pathBlock = path + "_blocking";
-                            addShieldModel(new ResourceLocation(Fashion.MODID, path), new ResourceLocation(Fashion.MODID, pathBlock));
+                            addShieldModel(new ResourceLocation(Fashion.MODID, path));
                         }
                     }
                 }
