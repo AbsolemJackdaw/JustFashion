@@ -139,11 +139,11 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
                             if (isBlocking)
                                 mat.translate(0.0625f * -5.5f, 0.0625f * -16.5f, 0.0625f * 5f);
                             else
-                                mat.translate(0.0625f * -9.5f, 0.0625f * -9.5f, 0.0625f * 8f);
+                                mat.translate(0.0625f * -10f, 0.0625f * -10f, 0.0625f * 8f);
                         } else if (isBlocking)
                             mat.translate(0.0625f * -7.5f, 0.0625f * -16.5f, 0.0625f * -0.5f);
                         else
-                            mat.translate(0.0625f * -11.5f, 0.0625f * -9.5f, 0.0625f * -4f);
+                            mat.translate(0.0625f * -12f, 0.0625f * -10f, 0.0625f * -4f);
                     }
 
                     break;
