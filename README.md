@@ -80,7 +80,7 @@ and takes a 'handheld' parent, and an item texture, see below :
 {  
     "parent": "item/handheld",  
     "textures": {  
-        "layer0": "items/carrot"   
+        "layer0": "item/carrot"   
     }    
 } 
 ```  
