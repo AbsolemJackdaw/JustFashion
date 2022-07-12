@@ -17,14 +17,15 @@ public class NetworkHandler {
     public static final SimpleChannel NETWORK = NetworkRegistry.newSimpleChannel(new ResourceLocation(Fashion.MODID, "fashion_network"), () -> PROTOCOL_VERSION,
             PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
 
-    public NetworkHandler() {
+    protected NetworkHandler() {
+    }
 
+    public static void init() {
         int messageId = 0;
         new PacketSyncPlayerFashionToServer().register(messageId++);
         new PacketSetWardrobeToTrackedClientPlayers().register(messageId++);
         new PacketSyncFashionToClient().register(messageId++);
         new PacketSyncFashionToTrackedPlayers().register(messageId++);
-        new PacketSetInWardrobeToTrackedPlayers().register(messageId++);
-
+        new PacketSetInWardrobeToTrackedPlayers().register(messageId);
     }
 }

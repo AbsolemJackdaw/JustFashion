@@ -50,20 +50,18 @@ public class ClientReferencesPacket {
 
             EntityRenderer<? super Player> distantPlayerRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(distantPlayer);
 
-            Field field = null;
             Object ob = null;
-
             try {
-                field = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class, Fashion.obfLayerName);
+                Field field = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class, Fashion.obfLayerName);
                 ob = field.get(distantPlayerRenderer);
             } catch (IllegalArgumentException | IllegalAccessException e) {
                 e.printStackTrace();
             }
 
             distFashion.resetKeepLayerForDistantPlayer();
-            if (layers != null && !layers.isEmpty() && ob != null) {
-                for (Object content : (List<?>) ob) {
-                    for (String name : layers)
+            if (layers != null && !layers.isEmpty() && ob instanceof List list) {
+                for (Object content : list) {
+                    for (String name : layers)//compare with
                         if (content.getClass().getSimpleName().equals(name))
                             distFashion.addLayerToKeep(name);
                 }

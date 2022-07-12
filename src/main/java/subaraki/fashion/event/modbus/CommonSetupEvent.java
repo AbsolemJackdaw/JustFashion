@@ -13,7 +13,7 @@ public class CommonSetupEvent {
 
     @SubscribeEvent
     public static void startCommonSetup(FMLCommonSetupEvent event) {
-        new NetworkHandler();
+        NetworkHandler.init();
     }
 
     @SubscribeEvent

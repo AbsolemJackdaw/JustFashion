@@ -93,10 +93,6 @@ public class LayerAestheticHeldItem extends RenderLayer<AbstractClientPlayer, Pl
                     }
             }
         }
-
-//        FashionData.get(player).ifPresent(fashionData -> {
-//
-//        });
     }
 
     private void renderAesthetic(EnumFashionSlot slot, AbstractClientPlayer player, ItemStack stack, ItemTransforms.TransformType cam, HumanoidArm hand, PoseStack mat, MultiBufferSource buffer, int packedLightIn) {

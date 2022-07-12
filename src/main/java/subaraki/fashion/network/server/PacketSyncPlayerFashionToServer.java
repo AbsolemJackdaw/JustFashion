@@ -5,7 +5,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.PacketDistributor;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.network.IPacketBase;
 import subaraki.fashion.network.NetworkHandler;

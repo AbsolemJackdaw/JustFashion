@@ -24,7 +24,6 @@ import subaraki.fashion.render.FashionModels;
 public class HandRenderEvent {
 
     private static PlayerModel body;
-    private static ResourceLocation resLoc;
 
     @SubscribeEvent
     public static void renderHandEvent(RenderHandEvent event) {
@@ -75,11 +74,9 @@ public class HandRenderEvent {
             if (flag) {
                 event.getPoseStack().translate(0.0625f * 13.5f, -0.0625 * (16f + 11f), 0.0f);
                 event.getPoseStack().mulPose(Vector3f.ZP.rotationDegrees(6.25f));
-
             } else {
                 event.getPoseStack().translate(-0.0625f, -0.0625 * (16f + 12.5f), -0.0625f / 2f);
                 event.getPoseStack().mulPose(Vector3f.ZP.rotationDegrees(-6.25f));
-
             }
 
             var s = 0.0625f * (16f + 16f);
@@ -93,9 +90,6 @@ public class HandRenderEvent {
             body.renderToBuffer(event.getPoseStack(), event.getMultiBufferSource().getBuffer(RenderType.entityCutoutNoCull(resLoc)), event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, 1.0f);
 
             event.getPoseStack().popPose();
-
-
         });
     }
-
 }

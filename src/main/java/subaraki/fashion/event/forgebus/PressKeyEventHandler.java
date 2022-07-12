@@ -17,11 +17,10 @@ public class PressKeyEventHandler {
     @SubscribeEvent
     public static void keyPressed(KeyInputEvent event) {
 
-        if (KeyRegistry.keyWardrobe.consumeClick()) {
+        if (KeyRegistry.keyWardrobe.consumeClick() && Minecraft.getInstance().player != null) {
 
             FashionData.get(Minecraft.getInstance().player).ifPresent(data -> {
                 data.setInWardrobe(true);
-
             });
 
             NetworkHandler.NETWORK.sendToServer(new PacketSetInWardrobeToTrackedPlayers(true));

@@ -202,10 +202,10 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
 
         Fashion.log.info("Cleared all Fashion lists");
 
-        addHats(new ResourceLocation(Fashion.MODID, "textures/fashion/blank_hat.png"));
-        addBody(new ResourceLocation(Fashion.MODID, "textures/fashion/blank_body.png"));
-        addLegs(new ResourceLocation(Fashion.MODID, "textures/fashion/blank_pants.png"));
-        addBoots(new ResourceLocation(Fashion.MODID, "textures/fashion/blank_boots.png"));
+        addHats(new ResourceLocation(Fashion.MODID, "textures/fashion/missing_fashion.png"));
+        addBody(new ResourceLocation(Fashion.MODID, "textures/fashion/missing_fashion.png"));
+        addLegs(new ResourceLocation(Fashion.MODID, "textures/fashion/missing_fashion.png"));
+        addBoots(new ResourceLocation(Fashion.MODID, "textures/fashion/missing_fashion.png"));
 
         Fashion.log.info("Added fail safe empty Fashion Clothes");
     }
@@ -217,8 +217,8 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
         shields.clear();
 
         Fashion.log.info("Cleared all Model lists");
-        addWeaponModel(new ResourceLocation("missing")); // placeholder for empty spot
-        addShieldModel(new ResourceLocation("missing")); // placeholder for empty spot
+        addWeaponModel(new ResourceLocation(Fashion.MODID, "textures/fashion/missing_fashion.png")); // placeholder for empty spot
+        addShieldModel(new ResourceLocation(Fashion.MODID, "textures/fashion/missing_fashion.png")); // placeholder for empty spot
 
         Fashion.log.info("Added fail safe empty Fashion Weapons");
     }

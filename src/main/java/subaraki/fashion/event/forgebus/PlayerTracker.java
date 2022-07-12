@@ -44,13 +44,10 @@ public class PlayerTracker {
     @SubscribeEvent
     public static void clone(PlayerEvent.Clone event) {
 
-        if (!event.isWasDeath())
-            return;
-        if (event.getPlayer() == null)
-            return;
-        if (event.getOriginal() == null)
-            return;
-        if (event.getPlayer().level.isClientSide || event.getOriginal().level.isClientSide)
+        if (!event.isWasDeath()
+                || (event.getPlayer().level.isClientSide || event.getOriginal().level.isClientSide)
+                || event.getPlayer() == null
+                || event.getOriginal() == null)
             return;
 
         event.getOriginal().reviveCaps();
@@ -65,9 +62,7 @@ public class PlayerTracker {
     @SubscribeEvent
     public static void join(PlayerEvent.PlayerRespawnEvent event) {
 
-        if (event.getPlayer() == null)
-            return;
-        if (event.getPlayer().level.isClientSide)
+        if (event.getPlayer() == null || event.getPlayer().level.isClientSide)
             return;
 
         toClient(event.getPlayer());

@@ -2,11 +2,13 @@ package subaraki.fashion.capability;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.layers.*;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -17,6 +19,7 @@ import subaraki.fashion.render.layer.LayerWardrobe;
 import subaraki.fashion.util.ResourcePackReader;
 
 import java.util.List;
+import java.util.Optional;
 
 public class FashionData {
 
@@ -39,7 +42,7 @@ public class FashionData {
     private Player player;
     private boolean renderFashion;
     private boolean inWardrobe;
-    private ResourceLocation hatIndex, bodyIndex, legsIndex, bootsIndex, weaponIndex, shieldIndex;
+    private ResourceLocation currentHeadTex, currentBodyTex, currentPantsTex, currentBootTex, currentWeaponTex, currentShieldTex;
     /**
      * all layers, both vanilla and external mod
      */
@@ -197,29 +200,29 @@ public class FashionData {
         CompoundTag tag = new CompoundTag();
         tag.putBoolean("renderFashion", renderFashion);
 
-        if (hatIndex == null)
-            hatIndex = getRenderingPart(EnumFashionSlot.HEAD);
-        tag.putString("hat", hatIndex.toString());
+        if (currentHeadTex == null)
+            currentHeadTex = getRenderingPart(EnumFashionSlot.HEAD);
+        tag.putString("hat", currentHeadTex.toString());
 
-        if (bodyIndex == null)
-            bodyIndex = getRenderingPart(EnumFashionSlot.CHEST);
-        tag.putString("body", bodyIndex.toString());
+        if (currentBodyTex == null)
+            currentBodyTex = getRenderingPart(EnumFashionSlot.CHEST);
+        tag.putString("body", currentBodyTex.toString());
 
-        if (legsIndex == null)
-            legsIndex = getRenderingPart(EnumFashionSlot.LEGS);
-        tag.putString("legs", legsIndex.toString());
+        if (currentPantsTex == null)
+            currentPantsTex = getRenderingPart(EnumFashionSlot.LEGS);
+        tag.putString("legs", currentPantsTex.toString());
 
-        if (bootsIndex == null)
-            bootsIndex = getRenderingPart(EnumFashionSlot.BOOTS);
-        tag.putString("boots", bootsIndex.toString());
+        if (currentBootTex == null)
+            currentBootTex = getRenderingPart(EnumFashionSlot.BOOTS);
+        tag.putString("boots", currentBootTex.toString());
 
-        if (weaponIndex == null)
-            weaponIndex = getRenderingPart(EnumFashionSlot.WEAPON);
-        tag.putString("weapon", weaponIndex.toString());
+        if (currentWeaponTex == null)
+            currentWeaponTex = getRenderingPart(EnumFashionSlot.WEAPON);
+        tag.putString("weapon", currentWeaponTex.toString());
 
-        if (shieldIndex == null)
-            shieldIndex = getRenderingPart(EnumFashionSlot.SHIELD);
-        tag.putString("shield", shieldIndex.toString());
+        if (currentShieldTex == null)
+            currentShieldTex = getRenderingPart(EnumFashionSlot.SHIELD);
+        tag.putString("shield", currentShieldTex.toString());
 
         if (!keepLayersNames.isEmpty()) {
             tag.putInt("size", keepLayersNames.size());
@@ -237,12 +240,12 @@ public class FashionData {
         CompoundTag tag = ((CompoundTag) nbt);
 
         renderFashion = tag.getBoolean("renderFashion");
-        hatIndex = new ResourceLocation(tag.getString("hat"));
-        bodyIndex = new ResourceLocation(tag.getString("body"));
-        legsIndex = new ResourceLocation(tag.getString("legs"));
-        bootsIndex = new ResourceLocation(tag.getString("boots"));
-        weaponIndex = new ResourceLocation(tag.getString("weapon"));
-        shieldIndex = new ResourceLocation(tag.getString("shield"));
+        currentHeadTex = new ResourceLocation(tag.getString("hat"));
+        currentBodyTex = new ResourceLocation(tag.getString("body"));
+        currentPantsTex = new ResourceLocation(tag.getString("legs"));
+        currentBootTex = new ResourceLocation(tag.getString("boots"));
+        currentWeaponTex = new ResourceLocation(tag.getString("weapon"));
+        currentShieldTex = new ResourceLocation(tag.getString("shield"));
 
         keepLayersNames.clear();
 
@@ -286,27 +289,17 @@ public class FashionData {
 
         // try and get the first value of the needed list.
         // when using missing fashion as a default, it will not find it on first
-        // itteration when opening a new world,
+        // iteration when opening a new world,
         // and you need to press twice to start cycling the fashion
-        ResourceLocation DEFAULT = MISSING_FASHION;
+        ResourceLocation _default = MISSING_FASHION;
 
         if (!ResourcePackReader.getListForSlot(slot).isEmpty())
             if (ResourcePackReader.getListForSlot(slot).get(0) != null)
-                DEFAULT = ResourcePackReader.getListForSlot(slot).get(0);
+                _default = ResourcePackReader.getListForSlot(slot).get(0);
 
-        // when a resource location is null, it has it's name set to minecraft:missing in
-        // packets. We resolve that here, and transform null / missing to default
-        boolean flag = getAllRenderedParts()[slot.ordinal()] != null && getAllRenderedParts()[slot.ordinal()].toString().contains("missing");
-
-
-        return switch (slot) {
-            case HEAD -> hatIndex != null && !flag ? hatIndex : DEFAULT;
-            case CHEST -> bodyIndex != null && !flag ? bodyIndex : DEFAULT;
-            case LEGS -> legsIndex != null && !flag ? legsIndex : DEFAULT;
-            case BOOTS -> bootsIndex != null && !flag ? bootsIndex : DEFAULT;
-            case WEAPON -> weaponIndex != null && !flag ? weaponIndex : DEFAULT;
-            case SHIELD -> shieldIndex != null && !flag ? shieldIndex : DEFAULT;
-        };
+        ResourceLocation forSlot = getAllRenderedParts()[slot.ordinal()];
+        Optional<Resource> imageResource = Minecraft.getInstance().getResourceManager().getResource(forSlot);
+        return imageResource.isPresent() ? forSlot : _default;
     }
 
     /**
@@ -315,7 +308,7 @@ public class FashionData {
      */
     public ResourceLocation[] getAllRenderedParts() {
 
-        return new ResourceLocation[]{hatIndex, bodyIndex, legsIndex, bootsIndex, weaponIndex, shieldIndex};
+        return new ResourceLocation[]{currentHeadTex, currentBodyTex, currentPantsTex, currentBootTex, currentWeaponTex, currentShieldTex};
     }
 
     /**
@@ -325,22 +318,22 @@ public class FashionData {
 
         switch (slot) {
             case HEAD -> {
-                hatIndex = partname;
+                currentHeadTex = partname;
             }
             case CHEST -> {
-                bodyIndex = partname;
+                currentBodyTex = partname;
             }
             case LEGS -> {
-                legsIndex = partname;
+                currentPantsTex = partname;
             }
             case BOOTS -> {
-                bootsIndex = partname;
+                currentBootTex = partname;
             }
             case WEAPON -> {
-                weaponIndex = partname;
+                currentWeaponTex = partname;
             }
             case SHIELD -> {
-                shieldIndex = partname;
+                currentShieldTex = partname;
             }
         }
     }

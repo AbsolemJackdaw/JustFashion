@@ -28,9 +28,7 @@ public class Fashion {
         ModLoadingContext modLoadingContext = ModLoadingContext.get();
         modLoadingContext.registerConfig(ModConfig.Type.SERVER, ConfigData.SERVER_SPEC);
         modLoadingContext.registerConfig(ModConfig.Type.CLIENT, ConfigData.CLIENT_SPEC);
-
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::modConfig);
-
     }
 
     public void modConfig(ModConfigEvent event) {
