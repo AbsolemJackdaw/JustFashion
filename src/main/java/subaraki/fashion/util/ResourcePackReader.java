@@ -8,7 +8,6 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.client.model.ForgeModelBakery;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import subaraki.fashion.mod.Fashion;
@@ -211,6 +210,7 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
     }
 
     public void initModels() {
+        queueModelForRegistry.clear();
         weapons.clear();
         items.clear();
 
@@ -326,7 +326,7 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
 
             Fashion.log.info(String.format("Weapon Registry %s", resLoc));
 
-            ForgeModelBakery.addSpecialModel(resLoc);
+            queueModelForRegistry.add(resLoc);
         }
 
         theList = ResourcePackReader.getListForSlot(EnumFashionSlot.SHIELD);
@@ -335,10 +335,12 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
 
             for (int i = 0; i < 2; i++) {
                 boolean blocking = i == 0;
-                ForgeModelBakery.addSpecialModel(ResourcePackReader.getAestheticShield(resLoc, blocking));
+                queueModelForRegistry.add(ResourcePackReader.getAestheticShield(resLoc, blocking));
             }
         }
     }
+
+    public static List<ResourceLocation> queueModelForRegistry = new ArrayList<>();
 
     public Collection<ResourceLocation> get(String element, JsonObject json, String pack) {
 

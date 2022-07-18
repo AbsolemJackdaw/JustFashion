@@ -21,23 +21,23 @@ public class PlayerTracker {
     @SubscribeEvent
     public static void playerLogin(PlayerLoggedInEvent event) {
 
-        if (!event.getPlayer().level.isClientSide) {
-            toClient(event.getPlayer());
+        if (!event.getEntity().level.isClientSide) {
+            toClient(event.getEntity());
         }
     }
 
     @SubscribeEvent
     public static void playerDimensionChange(PlayerChangedDimensionEvent event) {
 
-        if (!event.getPlayer().level.isClientSide) {
-            toClient(event.getPlayer());
+        if (!event.getEntity().level.isClientSide) {
+            toClient(event.getEntity());
         }
     }
 
     @SubscribeEvent
     public static void playerTracking(PlayerEvent.StartTracking event) {
 
-        if (event.getTarget() instanceof Player && event.getPlayer() != null)
+        if (event.getTarget() instanceof Player && event.getEntity() != null)
             sync((Player) event.getTarget());
     }
 
@@ -45,14 +45,14 @@ public class PlayerTracker {
     public static void clone(PlayerEvent.Clone event) {
 
         if (!event.isWasDeath()
-                || (event.getPlayer().level.isClientSide || event.getOriginal().level.isClientSide)
-                || event.getPlayer() == null
+                || (event.getEntity().level.isClientSide || event.getOriginal().level.isClientSide)
+                || event.getEntity() == null
                 || event.getOriginal() == null)
             return;
 
         event.getOriginal().reviveCaps();
         FashionData.get(event.getOriginal()).ifPresent(dataOriginal -> {
-            FashionData.get(event.getPlayer()).ifPresent(data -> {
+            FashionData.get(event.getEntity()).ifPresent(data -> {
                 data.readData(dataOriginal.writeData());
             });
         });
@@ -62,10 +62,10 @@ public class PlayerTracker {
     @SubscribeEvent
     public static void join(PlayerEvent.PlayerRespawnEvent event) {
 
-        if (event.getPlayer() == null || event.getPlayer().level.isClientSide)
+        if (event.getEntity() == null || event.getEntity().level.isClientSide)
             return;
 
-        toClient(event.getPlayer());
+        toClient(event.getEntity());
     }
 
     private static void sync(Player player) {

@@ -12,12 +12,12 @@ public class RenderPlayerEventHandler {
     @SubscribeEvent
     public static void renderPlayerPre(RenderPlayerEvent.Pre event) {
 
-        Fashion.SWAPPER.swapRenders(event.getPlayer(), event.getRenderer());
+        Fashion.SWAPPER.swapRenders(event.getEntity(), event.getRenderer());
     }
 
     @SubscribeEvent
     public static void renderPlayerPost(RenderPlayerEvent.Post event) {
 
-        Fashion.SWAPPER.resetRenders(event.getPlayer(), event.getRenderer());
+        Fashion.SWAPPER.resetRenders(event.getEntity(), event.getRenderer());
     }
 }

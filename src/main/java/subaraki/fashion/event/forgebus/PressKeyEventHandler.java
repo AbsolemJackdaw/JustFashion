@@ -2,7 +2,7 @@ package subaraki.fashion.event.forgebus;
 
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.InputEvent.KeyInputEvent;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import subaraki.fashion.capability.FashionData;
@@ -15,7 +15,7 @@ import subaraki.fashion.screen.WardrobeScreen;
 public class PressKeyEventHandler {
 
     @SubscribeEvent
-    public static void keyPressed(KeyInputEvent event) {
+    public static void keyPressed(InputEvent.Key event) {
 
         if (KeyRegistry.keyWardrobe.consumeClick() && Minecraft.getInstance().player != null) {
 

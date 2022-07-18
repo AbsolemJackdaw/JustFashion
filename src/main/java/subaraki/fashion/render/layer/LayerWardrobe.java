@@ -16,7 +16,8 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraftforge.client.model.data.EmptyModelData;
+import net.minecraftforge.client.extensions.IForgeBakedModel;
+import net.minecraftforge.client.model.data.ModelData;
 import subaraki.fashion.capability.FashionData;
 
 public class LayerWardrobe extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
@@ -53,7 +54,7 @@ public class LayerWardrobe extends RenderLayer<AbstractClientPlayer, PlayerModel
         return RenderType.entitySolid(InventoryMenu.BLOCK_ATLAS);
     }
 
-    public void render(BakedModel model, MultiBufferSource bufferIn, RenderType rt, PoseStack matrixStackIn, int packedLightIn, int overlay, int color) {
+    public void render(IForgeBakedModel model, MultiBufferSource bufferIn, RenderType rt, PoseStack matrixStackIn, int packedLightIn, int overlay, int color) {
 
         RandomSource rand = RandomSource.create(42);
 
@@ -63,7 +64,7 @@ public class LayerWardrobe extends RenderLayer<AbstractClientPlayer, PlayerModel
         float b = ((color >> 0) & 0xFF) / 255.0f;
 
         VertexConsumer bb = bufferIn.getBuffer(rt);
-        for (BakedQuad quad : model.getQuads(null, null, rand, EmptyModelData.INSTANCE)) {
+        for (BakedQuad quad : model.getQuads(null, null, rand, ModelData.EMPTY, RenderType.solid())) {
             bb.putBulkData(matrixStackIn.last(), quad, r, g, b, a, packedLightIn, overlay, true);
         }
     }
