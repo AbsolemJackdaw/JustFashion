@@ -1,39 +1,10 @@
-modLoader="javafml" #mandatory
-license="GNU V3"
-loaderVersion="[0,)" #mandatory (26 is current forge version)
-
-# A URL to refer people to when problems occur with this mod
-issueTrackerURL="https://github.com/ArtixAllMighty/JustFashion/issues" #optional
-
-logoFile="banner.png" #optional
-
-[[mods]] #mandatory
-
-modId="suits_fashion_pack" #mandatory
-
-version="${file.jarVersion}" #mandatory
-
-displayName="Fashion Mod" #mandatory
-
-displayURL="https://www.curseforge.com/minecraft/mc-mods/just-fashion" #optional
-
-authors="Subaraki" #optional
-
-description='''
-base suits for JustFashion
-'''
-# A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
-# Here's another dependency
-[[dependencies.suits_fashion_pack]]
-    modId="minecraft"
-    mandatory=true
-    versionRange="[1.x,)"
-    ordering="NONE"
-    side="BOTH"
-
-[[dependencies.suits_fashion_pack]] #optional
-    modId="forge" #mandatory
-    mandatory=true #mandatory
-    versionRange="[0,)" #mandatory
-    ordering="NONE"
-    side="BOTH"
+modLoader = "lowcodefml"
+license = "GNU V3"
+loaderVersion="[40,)"
+logoFile = "banner.png" #optional
+[[mods]]
+modId = "suits_fashion_pack"
+version = "2.0.0"
+displayName = "Suits+ [fashion pack]"
+description = '''
+base suits for JustFashion'''
