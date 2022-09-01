@@ -298,7 +298,7 @@ public class FashionData {
                 _default = ResourcePackReader.getListForSlot(slot).get(0);
 
         ResourceLocation forSlot = getAllRenderedParts()[slot.ordinal()];
-        Optional<Resource> imageResource = Minecraft.getInstance().getResourceManager().getResource(forSlot);
+        Optional<Resource> imageResource = forSlot == null ? Optional.empty() : Minecraft.getInstance().getResourceManager().getResource(forSlot);
         return imageResource.isPresent() ? forSlot : _default;
     }
 
