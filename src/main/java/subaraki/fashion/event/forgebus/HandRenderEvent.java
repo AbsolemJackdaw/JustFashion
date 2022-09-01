@@ -3,6 +3,7 @@ package subaraki.fashion.event.forgebus;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -19,6 +20,7 @@ import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.mod.Fashion;
 import subaraki.fashion.render.EnumFashionSlot;
 import subaraki.fashion.render.FashionModels;
+import subaraki.fashion.util.ResourcePackReader;
 
 @Mod.EventBusSubscriber(modid = Fashion.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class HandRenderEvent {
@@ -34,15 +36,15 @@ public class HandRenderEvent {
             return;
 
         FashionData.get(player).ifPresent(fashionData -> {
+            ResourceLocation resLoc = fashionData.getRenderingPart(EnumFashionSlot.CHEST);
 
             if (body == null) {
-                body = new PlayerModel<AbstractClientPlayer>(Minecraft.getInstance().getEntityModels().bakeLayer(FashionModels.NORML_MODEL_LOCATION), false);
+                body = new PlayerModel<AbstractClientPlayer>(Minecraft.getInstance().getEntityModels().bakeLayer(
+                        ResourcePackReader.isSet(resLoc) ? ModelLayers.PLAYER : FashionModels.NORML_MODEL_LOCATION), false);
                 body.setAllVisible(false);
                 body.rightArm.visible = true;
                 body.rightSleeve.visible = true;
             }
-
-            ResourceLocation resLoc = fashionData.getRenderingPart(EnumFashionSlot.CHEST);
 
             if (!fashionData.shouldRenderFashion() || resLoc == null || resLoc.toString().contains("missing"))
                 return;
