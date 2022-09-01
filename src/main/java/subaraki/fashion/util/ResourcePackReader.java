@@ -156,7 +156,7 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
     public void addSets(Collection<ResourceLocation> all) {
         hats.addAll(all);
         body.addAll(all);
-        legs.addAll(all);
+        //legs.addAll(all);
         boots.addAll(all);
     }
 
