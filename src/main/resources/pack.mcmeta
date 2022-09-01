@@ -1,7 +1,6 @@
 {
-    "pack": {
-        "description": "Fashion resources",
-        "pack_format": 4,
-        "_comment": ""
-    }
+   "pack":{
+      "pack_format":9,
+      "description":"Outfits+ Pack"
+   }
 }

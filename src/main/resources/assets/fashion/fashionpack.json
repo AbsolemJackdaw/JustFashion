@@ -1,0 +1,12 @@
+{
+	"pack" : "outfits", 
+	"hats" :  ["relax.png", "jeans.png", "edgy.png", "suit.png", "candy.png", "hippie.png", "lumber.png", "fisher.png", "dress.png", "rowdy.png", "summer.png", "metal.png"], 
+
+	"body" :  ["relax.png", "jeans.png", "edgy.png", "suit.png", "candy.png", "hippie.png", "lumber.png", "fisher.png", "dress.png", "rowdy.png", "summer.png", "metal.png"], 
+
+	"pants" : ["relax.png", "jeans.png", "edgy.png", "suit.png", "candy.png", "hippie.png", "lumber.png", "fisher.png", "dress.png", "rowdy.png", "summer.png", "metal.png"], 
+
+	"boots" : ["relax.png", "jeans.png", "edgy.png", "suit.png", "candy.png", "hippie.png", "lumber.png", "fisher.png", "dress.png", "rowdy.png", "summer.png", "metal.png"], 
+
+	"weapon_models" : ["item/relax", "item/jeans", "item/edgy", "item/suit", "item/candy", "item/hippie", "item/lumber", "item/slapp", "item/dress", "item/rowdy", "item/summer", "item/metal"]
+}
