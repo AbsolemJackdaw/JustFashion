@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -14,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import subaraki.fashion.capability.FashionData;
 import subaraki.fashion.render.EnumFashionSlot;
 import subaraki.fashion.render.FashionModels;
+import subaraki.fashion.util.ResourcePackReader;
 
 import static subaraki.fashion.render.EnumFashionSlot.*;
 
@@ -25,12 +27,24 @@ public class LayerFashion extends RenderLayer<AbstractClientPlayer, PlayerModel<
     private final PlayerModel<AbstractClientPlayer> legs = new PlayerModel<>(Minecraft.getInstance().getEntityModels().bakeLayer(FashionModels.LEGS_MODEL_LOCATION), false);
     private final PlayerModel<AbstractClientPlayer> boots = new PlayerModel<>(Minecraft.getInstance().getEntityModels().bakeLayer(FashionModels.BOOTS_MODEL_LOCATION), false);
 
+    private final PlayerModel<AbstractClientPlayer> head_set = new PlayerModel<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER), false);
+    private final PlayerModel<AbstractClientPlayer> bodySmall_set = new PlayerModel<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_SLIM), true);
+    private final PlayerModel<AbstractClientPlayer> body_set = new PlayerModel<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER), false);
+    private final PlayerModel<AbstractClientPlayer> legs_set = new PlayerModel<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER), false);
+    private final PlayerModel<AbstractClientPlayer> boots_set = new PlayerModel<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER), false);
+
     {
         setVisibility(head, HEAD, true);
         setVisibility(body, CHEST, true);
         setVisibility(bodySmall, CHEST, true);
         setVisibility(legs, LEGS, true);
         setVisibility(boots, BOOTS, true);
+
+        setVisibility(head_set, HEAD, true);
+        setVisibility(body_set, CHEST, true);
+        setVisibility(bodySmall_set, CHEST, true);
+        setVisibility(legs_set, LEGS, true);
+        setVisibility(boots_set, BOOTS, true);
     }
 
     public LayerFashion(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> entityrenderer) {
@@ -50,7 +64,7 @@ public class LayerFashion extends RenderLayer<AbstractClientPlayer, PlayerModel<
 
         FashionData.get(player).ifPresent(fashionData -> {
             ResourceLocation resLoc = fashionData.getRenderingPart(slot);
-            PlayerModel<AbstractClientPlayer> model = getModelFromSlot(slot, player.getModelName().equals("slim"));
+            PlayerModel<AbstractClientPlayer> model = getModelFromSlot(slot, player.getModelName().equals("slim"), ResourcePackReader.isSet(resLoc));
             this.getParentModel().copyPropertiesTo(model);
             setVisibility(model, slot, !player.isInvisible());
             model.prepareMobModel(player, limbSwing, limbSwingAmount, partialTicks);
@@ -60,13 +74,13 @@ public class LayerFashion extends RenderLayer<AbstractClientPlayer, PlayerModel<
         });
     }
 
-    private PlayerModel<AbstractClientPlayer> getModelFromSlot(EnumFashionSlot slot, boolean smallArms) {
+    private PlayerModel<AbstractClientPlayer> getModelFromSlot(EnumFashionSlot slot, boolean smallArms, boolean set) {
 
         return switch (slot) {
-            case HEAD -> head;
-            case CHEST -> smallArms ? bodySmall : body;
-            case LEGS -> legs;
-            case BOOTS -> boots;
+            case HEAD -> set ? head_set : head;
+            case CHEST -> smallArms ? set ? bodySmall_set : bodySmall : set ? body_set : body;
+            case LEGS -> set ? legs_set : legs;
+            case BOOTS -> set ? boots_set : boots;
             default -> null;
         };
     }

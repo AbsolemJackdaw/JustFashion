@@ -43,8 +43,6 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
 
     public static ResourceLocation getAestheticShield(ResourceLocation resloc, boolean isBlocking) {
 
-        ResourceLocation resloc_blocking = new ResourceLocation(resloc.getNamespace(), resloc.getPath() + "_blocking");
-
         for (ResourceLocation resource : shields) {
             if (resource != null)
                 if (resource.getPath().equals(resloc.getPath()))
@@ -155,6 +153,13 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
         boots.addAll(all);
     }
 
+    public void addSets(Collection<ResourceLocation> all) {
+        hats.addAll(all);
+        body.addAll(all);
+        legs.addAll(all);
+        boots.addAll(all);
+    }
+
     public void addWeaponItem(ResourceLocation model) {
 
         if (model != null) {
@@ -188,6 +193,15 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
         }
         shields.add(model);
 
+    }
+
+    public static boolean isSet(ResourceLocation resourceLocation) {
+        if (resourceLocation != null) {
+            String[] split = resourceLocation.getPath().split("/");
+            if (split.length >= 2)
+                return split[2].contains("sets");
+        }
+        return false;
     }
 
     public void initFashion() {
@@ -261,7 +275,7 @@ public class ResourcePackReader extends SimplePreparableReloadListener<ArrayList
                         addBody(get("body", json, pack));
                         addLegs(get("pants", json, pack));
                         addBoots(get("boots", json, pack));
-
+                        addSets(get("sets", json, pack));
                     }
                 }
             };
