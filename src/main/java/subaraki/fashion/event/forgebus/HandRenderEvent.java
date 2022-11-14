@@ -48,11 +48,13 @@ public class HandRenderEvent {
             if (!fashionData.shouldRenderFashion() || resLoc == null || resLoc.toString().contains("missing"))
                 return;
 
-            event.getPoseStack().pushPose();
 
             boolean handFlag = event.getHand() == InteractionHand.MAIN_HAND;
             if (!handFlag)
                 return;
+
+            event.getPoseStack().pushPose();
+
             HumanoidArm humanoidarm = handFlag ? player.getMainArm() : player.getMainArm().getOpposite();
             boolean flag = humanoidarm != HumanoidArm.LEFT;
             float f = flag ? 1.0F : -1.0F;
